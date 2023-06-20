@@ -34,7 +34,13 @@ view width cell =
         , Background.color (E.rgb 0.1 0.1 0.1)
         , E.inFront
             (E.row [ E.spacing 12, E.width (E.px width) ]
-                [ E.row [ E.alignRight, E.spacing 12 ] [ newCellAt cell.index, viewIndex cell ] ]
+                [ E.row [ E.alignRight, E.spacing 12 ]
+                    [ newCellAt cell.index
+                    , editCellAt cell.index
+                    , evalCellAt cell.index
+                    , viewIndex cell
+                    ]
+                ]
             )
         ]
         [ viewSource width cell
@@ -62,6 +68,27 @@ viewValue width cell =
 
 viewSource : Int -> Cell -> Element msg
 viewSource width cell =
+    case cell.cellState of
+        Types.CSView ->
+            viewSource_ width cell
+
+        Types.CSEdit ->
+            editCell width cell
+
+
+editCell : Int -> Cell -> Element msg
+editCell width cell =
+    E.column
+        [ E.spacing 8
+        , E.paddingEach { top = 0, right = 8, bottom = 8, left = 8 }
+        , E.width (E.px width)
+        , Background.color (E.rgb 0.1 0.1 0.8)
+        ]
+        (cell.text |> List.map E.text)
+
+
+viewSource_ : Int -> Cell -> Element msg
+viewSource_ width cell =
     E.column
         [ E.spacing 8
         , E.paddingEach { top = 0, right = 8, bottom = 8, left = 8 }
@@ -73,4 +100,14 @@ viewSource width cell =
 
 newCellAt : Int -> Element FrontendMsg
 newCellAt index =
-    Button.smallPrimary { msg = NewCell index, status = Button.ActiveTransparent, label = Button.Text "New", tooltipText = Just "insert  new cell" }
+    Button.smallPrimary { msg = NewCell index, status = Button.ActiveTransparent, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
+
+
+editCellAt : Int -> Element FrontendMsg
+editCellAt index =
+    Button.smallPrimary { msg = EditCell index, status = Button.ActiveTransparent, label = Button.Text "Edit", tooltipText = Just "Edit cell" }
+
+
+evalCellAt : Int -> Element FrontendMsg
+evalCellAt index =
+    Button.smallPrimary { msg = EvalCell index, status = Button.ActiveTransparent, label = Button.Text "Eval", tooltipText = Just "Evaluate cell" }

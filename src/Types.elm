@@ -6,10 +6,7 @@ import Browser.Dom
 import Browser.Navigation exposing (Key)
 import Bytes
 import Dict exposing (Dict)
-import File exposing (File)
-import Http
 import Lamdera exposing (ClientId)
-import Loading
 import Random
 import Time
 import Url exposing (Url)
@@ -70,6 +67,8 @@ type FrontendMsg
     | NoOpFrontendMsg
       -- CELL
     | NewCell Int
+    | EditCell Int
+    | EvalCell Int
       -- UI
     | ChangePopup PopupState
     | GotViewport Browser.Dom.Viewport
@@ -101,7 +100,12 @@ type MessageStatus
 
 
 type alias Cell =
-    { index : Int, text : List String, value : Maybe String }
+    { index : Int, text : List String, value : Maybe String, cellState : CellState }
+
+
+type CellState
+    = CSEdit
+    | CSView
 
 
 type PopupState
