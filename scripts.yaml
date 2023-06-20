@@ -1,0 +1,6 @@
+scripts:
+
+  live:  lamdera live --port=8009
+
+  vendor:
+    - cp -r /Users/carlson/dev/lamdera/bluesky/my-elm-book/src/UILibrary/* vendor/uiStuff/UILibrary/
