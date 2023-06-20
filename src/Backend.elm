@@ -55,7 +55,6 @@ update msg model =
             ( { model | currentTime = newTime }, Cmd.none )
 
 
-
 updateFromFrontend : SessionId -> ClientId -> ToBackend -> Model -> ( Model, Cmd BackendMsg )
 updateFromFrontend sessionId clientId msg model =
     case msg of
@@ -68,7 +67,6 @@ updateFromFrontend sessionId clientId msg model =
 
         SendUsers ->
             ( model, sendToFrontend clientId (GotUsers (Authentication.users model.authenticationDict)) )
-
 
         -- USER
         UpdateUserWith user ->

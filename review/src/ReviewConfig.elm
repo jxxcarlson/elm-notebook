@@ -60,7 +60,7 @@ config =
     ]
         |> List.map
             (Rule.ignoreErrorsForFiles
-                [ "src/Env.elm" -- reports "Production" as unused constructor. This is used by Lamdera in deploy.
+                [ "src/IntepreterEnv.elm" -- reports "Production" as unused constructor. This is used by Lamdera in deploy.
                 , "src/Types.elm" -- 23/26 false positives
                 , "src/View/Utility.elm"
                 , "src/View.Spinner.elm"

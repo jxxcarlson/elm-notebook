@@ -1,6 +1,6 @@
 module Env exposing (..)
 
--- import Lamdera.Env
+-- import Lamdera.IntepreterEnv
 -- The Env.elm file is for per-environment configuration.
 -- See https://dashboard.lamdera.app/docs/environment for more info.
 
