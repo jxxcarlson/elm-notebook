@@ -53,27 +53,8 @@ init url key =
       -- ADMIN
       , users = []
 
-      -- IMAGE
-      , randomize = False
-      , randomSeed = Random.initialSeed 1234
-      , pasting = Types.PastingDone
-      , loading = Loading.Off
-      , file = Nothing
-      , imageData = Nothing
-      , clipboardImageDataPlus = Nothing
-      , imageFileName = ""
-      , inputImageName = ""
-      , imageUrl = Nothing
-      , imageRecord = Nothing
-      , imageIdentifier = ""
-      , grabImageUrlInput = ""
-      , imageRecords = []
-      , inputImageQuery = ""
-      , inputImageMetadata = ""
-      , currentImageIdentifier = Nothing
-      , deleteItemState = Types.WaitingToDeleteItem
-      , imageDict = Nothing
-      , publicImageUrl = Nothing
+      -- CELLS
+      , cellList = [ { index = 0, text = [ "# Example: ", "1 + 1 = 2" ], value = Nothing } ]
 
       -- UI
       , windowWidth = 600
@@ -100,7 +81,6 @@ update msg model =
     case msg of
         NoOpFrontendMsg ->
             ( model, Cmd.none )
-
 
         -- NAV
         UrlClicked urlRequest ->
@@ -155,24 +135,22 @@ update msg model =
                         ( { model | popupState = NoPopup }, Cmd.none )
 
                     else
-                    ( { model
-                        | popupState = SignUpPopup
-                        , inputUsername = ""
-                        , inputEmail = ""
-                        , inputPassword = ""
-                        , inputPasswordAgain = ""
-                      }
-                    , Cmd.none
-                    )
+                        ( { model
+                            | popupState = SignUpPopup
+                            , inputUsername = ""
+                            , inputEmail = ""
+                            , inputPassword = ""
+                            , inputPasswordAgain = ""
+                          }
+                        , Cmd.none
+                        )
 
                 AdminPopup ->
                     if model.popupState == AdminPopup then
                         ( { model | popupState = NoPopup }, Cmd.none )
 
                     else
-                    ( { model | popupState = AdminPopup }, sendToBackend SendUsers )
-
-
+                        ( { model | popupState = AdminPopup }, sendToBackend SendUsers )
 
         -- SIGN UP, IN, OUT
         SetSignupState state ->
@@ -216,7 +194,20 @@ update msg model =
               Nav.pushUrl model.key "/"
             )
 
+        -- CELLS
+        NewCell index ->
+            let
+                newCell =
+                    { index = index + 1, text = [ "# New cell (" ++ String.fromInt (index + 2) ++ ") ", "-- code --" ], value = Nothing }
 
+                prefix =
+                    List.filter (\cell -> cell.index <= index) model.cellList
+
+                suffix =
+                    List.filter (\cell -> cell.index > index) model.cellList
+                        |> List.map (\cell -> { cell | index = cell.index + 1 })
+            in
+            ( { model | cellList = prefix ++ (newCell :: suffix) }, Cmd.none )
 
         -- ADMIN
         AdminRunTask ->
@@ -236,7 +227,6 @@ updateFromBackend msg model =
         GotUsers users ->
             ( { model | users = users }, Cmd.none )
 
-
         -- USER
         SendMessage message ->
             ( { model | message = message }, Cmd.none )
@@ -255,12 +245,9 @@ updateFromBackend msg model =
                 ( { model | currentUser = Just user, message = "" }, Cmd.none )
 
 
-
-
-
 view : Model -> { title : String, body : List (Html.Html FrontendMsg) }
 view model =
-    { title = "Lamdera Starter App"
+    { title = "Elm Livebook"
     , body =
         [ View.Main.view model ]
     }

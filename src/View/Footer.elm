@@ -12,10 +12,10 @@ import View.Utility
 
 view model =
     E.row
-        [ E.paddingXY 0 8
-        , E.height (E.px View.Geometry.footerHeight)
+        [ E.height (E.px View.Geometry.footerHeight)
         , E.width (E.px (View.Geometry.appWidth model))
         , Font.size 14
+        , E.alignBottom
         , E.inFront (View.Popup.Admin.view model)
         , E.inFront (View.Popup.SignUp.view model)
         , View.Style.bgGray 0.0

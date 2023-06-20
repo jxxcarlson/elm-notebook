@@ -6,6 +6,7 @@ import Element.Font as Font
 import Html exposing (Html)
 import Message
 import Types exposing (..)
+import UILibrary.Color as Color
 import View.Body
 import View.BodyNotSignedIn
 import View.Color
@@ -44,9 +45,7 @@ mainColumn model =
 mainColumnStyle model =
     [ E.centerX
     , E.centerY
-    , View.Style.bgGray 0.02
-    , E.spacing 18
-    , E.paddingEach { top = View.Geometry.hPadding, bottom = 0, left = 0, right = 0 }
+    , Background.color Color.paleWarm
     , E.width (E.px <| View.Geometry.appWidth model)
     , E.height (E.px (View.Geometry.appHeight model))
     ]

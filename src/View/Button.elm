@@ -52,7 +52,8 @@ linkStyle =
 
 
 
--- IMAGE
+-- CELL
+-- POPUP
 
 
 dismissPopupTransparent : Element FrontendMsg

@@ -1,8 +1,10 @@
 module View.Header exposing (view)
 
 import Element as E exposing (Element)
+import Element.Background as Background
 import Element.Font as Font
 import Message
+import UILibrary.Color as Color
 import View.Button as Button
 import View.Color
 import View.Geometry
@@ -24,10 +26,10 @@ notSignedInHeader model =
         [ E.spacing 24
         , Font.size 14
         , E.paddingXY View.Geometry.hPadding 0
-        , View.Style.bgGray 0.0
+        , Background.color Color.black
         , E.width (E.px (View.Geometry.appWidth model - 40))
         ]
-        [ title "Lamdera Starter App"
+        [ title "Elm Livebook"
         , E.row
             [ E.spacing 12
             ]
@@ -43,6 +45,8 @@ signedInHeader model user =
     E.row
         [ E.spacing 24
         , E.paddingXY View.Geometry.hPadding 0
+        , E.spacing 12
+        , E.width (E.px <| View.Geometry.appWidth model)
 
         --, E.width (E.px (View.Geometry.appWidth model - 40))
         , View.Style.bgGray 0.0

@@ -8,9 +8,11 @@ module UILibrary.Color exposing
     , greenExample
     , lightBlue
     , lightGray
+    , medBlue
     , mediumGray
     , paleBlue
     , paleGray
+    , paleWarm
     , pink
     , redExample
     , specialBlue
@@ -22,6 +24,10 @@ module UILibrary.Color exposing
 import Element exposing (Element)
 import Element.Background as Background
 import Element.Font as Font
+
+
+paleWarm =
+    Element.rgb255 250 240 212
 
 
 
@@ -169,7 +175,7 @@ mediumBlue =
 
 lightBlue : Element.Color
 lightBlue =
-    Element.rgb255 120 120 200
+    Element.rgb255 207 205 250
 
 
 specialBlue : Element.Color
@@ -177,9 +183,14 @@ specialBlue =
     Element.rgb255 100 130 255
 
 
+medBlue : Element.Color
+medBlue =
+    Element.rgb255 97 92 247
+
+
 paleBlue : Element.Color
 paleBlue =
-    Element.rgb 0.8 0.8 1
+    Element.rgb255 226 225 252
 
 
 veryPaleBlue : Element.Color

@@ -19,6 +19,10 @@ import Task exposing (Task)
 import Types exposing (FrontendModel, FrontendMsg)
 
 
+
+-- import Types exposing (FrontendModel, FrontendMsg)
+
+
 showIfIsAdmin : FrontendModel -> Element msg -> Element msg
 showIfIsAdmin model element =
     showIf (Maybe.map .username model.currentUser == Just "jxxcarlson") element

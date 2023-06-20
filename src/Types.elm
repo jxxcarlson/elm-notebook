@@ -27,27 +27,8 @@ type alias FrontendModel =
     -- ADMIN
     , users : List User
 
-    -- IMAGE
-    , randomize : Bool
-    , randomSeed : Random.Seed
-    , pasting : PastingState
-    , imageData : Maybe Bytes.Bytes
-    , clipboardImageDataPlus : Maybe ClipboardImageDataPlus
-    , imageFileName : String
-    , imageUrl : Maybe String
-    , imageRecord : Maybe ImageRecord
-    , imageIdentifier : String
-    , imageRecords : List ImageRecord
-    , inputImageQuery : String
-    , inputImageName : String
-    , grabImageUrlInput : String
-    , inputImageMetadata : String
-    , currentImageIdentifier : Maybe String
-    , deleteItemState : DeleteItemState
-    , imageDict : Maybe ImageDict
-    , publicImageUrl : Maybe String
-    , file : Maybe File
-    , loading : Loading.LoadingState
+    -- CELLS
+    , cellList : List Cell
 
     -- USER
     , signupState : SignupState
@@ -87,7 +68,9 @@ type FrontendMsg
     = UrlClicked UrlRequest
     | UrlChanged Url
     | NoOpFrontendMsg
-   -- UI
+      -- CELL
+    | NewCell Int
+      -- UI
     | ChangePopup PopupState
     | GotViewport Browser.Dom.Viewport
     | GotNewWindowDimensions Int Int
@@ -115,6 +98,10 @@ type MessageStatus
     | MSYellow
     | MSGreen
     | MSRed
+
+
+type alias Cell =
+    { index : Int, text : List String, value : Maybe String }
 
 
 type PopupState
@@ -149,13 +136,11 @@ type ToFrontend
     = NoOpToFrontend
     | MessageReceived Message
       -- ADMIN
-
     | GotUsers (List User)
       -- USER
     | SendMessage String
     | UserSignedIn User ClientId
     | SendUser User
-
 
 
 type AppState
