@@ -66,7 +66,7 @@ insert : User -> String -> String -> AuthenticationDict -> Result String Authent
 insert user salt transitPassword authDict =
     case Credentials.hashPw salt transitPassword of
         Err _ ->
-            Err "Could not generate credentials"
+            Err "Please press 'Submit' again.  Sometimes it takes three tries."
 
         Ok credentials ->
             Ok (Dict.insert user.username { user = user, credentials = credentials } authDict)
