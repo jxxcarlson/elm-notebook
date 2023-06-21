@@ -10,6 +10,7 @@ import Frontend.Message
 import Html exposing (Html)
 import Lamdera exposing (sendToBackend)
 import List.Extra
+import LiveBook.Cell
 import Loading
 import Random
 import Task
@@ -56,6 +57,7 @@ init url key =
 
       -- CELLS
       , cellList = [ { index = 0, text = [ "# Example: ", "1 + 1 = 2" ], value = Nothing, cellState = CSView } ]
+      , cellContent = ""
 
       -- UI
       , windowWidth = 600
@@ -196,6 +198,9 @@ update msg model =
             )
 
         -- CELLS
+        InputElmCode str ->
+            ( { model | cellContent = str }, Cmd.none )
+
         NewCell index ->
             let
                 newCell =
@@ -238,7 +243,25 @@ update msg model =
                     ( { model | cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
 
         EvalCell index ->
-            ( model, Cmd.none )
+            case List.Extra.getAt index model.cellList of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just cell_ ->
+                    let
+                        updatedCell =
+                            LiveBook.Cell.evaluate model.cellContent cell_
+
+                        prefix =
+                            List.filter (\cell -> cell.index < index) model.cellList
+                                |> List.map (\cell -> { cell | cellState = CSView })
+
+                        suffix =
+                            List.filter (\cell -> cell.index > index) model.cellList
+
+                        --|> List.map LiveBook.Cell.evaluate
+                    in
+                    ( { model | cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
 
         -- ADMIN
         AdminRunTask ->

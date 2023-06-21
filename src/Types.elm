@@ -26,6 +26,7 @@ type alias FrontendModel =
 
     -- CELLS
     , cellList : List Cell
+    , cellContent : String
 
     -- USER
     , signupState : SignupState
@@ -69,6 +70,7 @@ type FrontendMsg
     | NewCell Int
     | EditCell Int
     | EvalCell Int
+    | InputElmCode String
       -- UI
     | ChangePopup PopupState
     | GotViewport Browser.Dom.Viewport

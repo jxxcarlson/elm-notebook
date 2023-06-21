@@ -22,8 +22,15 @@ view model user =
             , E.scrollbarY
             , E.spacing 12
             , E.paddingEach { top = 19, bottom = 0, left = 0, right = 0 }
-
-            -- , E.width (E.px (View.Geometry.appWidth model - 100))
             ]
-            (List.map (LiveBook.Cell.view (View.Geometry.appWidth model - 100)) model.cellList)
+            (List.map
+                (LiveBook.Cell.view (View.Geometry.appWidth model - 100) model.cellContent)
+                model.cellList
+            )
         ]
+
+
+
+--view : Int -> String -> Cell -> Element FrontendMsg
+--view width cellContents cell
+-- view width cell cellContents
