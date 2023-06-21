@@ -109,7 +109,7 @@ evalCell model index =
         Just cell_ ->
             let
                 updatedCell =
-                    LiveBook.Cell.evaluate cell_ |> Debug.log "evaluated cell"
+                    LiveBook.Cell.evaluate cell_
 
                 prefix =
                     List.filter (\cell -> cell.index < index) model.currentBook.cells
