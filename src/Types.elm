@@ -4,10 +4,9 @@ import Authentication exposing (AuthenticationDict)
 import Browser exposing (UrlRequest)
 import Browser.Dom
 import Browser.Navigation exposing (Key)
+import Lamdera exposing(ClientId)
 import Bytes
 import Dict exposing (Dict)
-import Lamdera exposing (ClientId)
-import LiveBook.Types exposing (Book, Cell, CellState(..))
 import Random
 import Time
 import Url exposing (Url)
@@ -55,10 +54,12 @@ type alias BackendModel =
     -- RANDOM
     , randomSeed : Random.Seed
     , uuidCount : Int
+    , uuid : Maybe String
     , randomAtmosphericInt : Maybe Int
 
     -- USER
     , authenticationDict : AuthenticationDict
+    , userToNoteBookDict : UserToNoteBookDict
 
     -- DOCUMENT
     }
@@ -93,6 +94,28 @@ type FrontendMsg
     | GetUsers
 
 
+type alias Cell =
+    { index : Int, text : List String, value : Maybe String, cellState : CellState }
+
+
+type CellState
+    = CSEdit
+    | CSView
+
+
+type alias Book =
+    { id : String
+    , slug : String
+    , author : String
+    , createdAt : Time.Posix
+    , updatedAt : Time.Posix
+    , public : Bool
+    , title : String
+    , cells : List Cell
+    , currentIndex : Int
+    }
+
+
 type alias Message =
     { txt : String, status : MessageStatus }
 
@@ -119,6 +142,8 @@ type ToBackend
       -- ADMIN
     | RunTask
     | SendUsers
+    -- CELL
+    | CreateNotebook String String -- authorname title
       -- USER
     | SignUpBE String String String
     | SignInBEDev
@@ -157,113 +182,16 @@ type alias Username =
     String
 
 
-
--- IMAGE
-
-
-type PastingState
-    = PastingStart
-    | PastingDone
-
-
-type alias ClipboardImageDataAux =
-    { imageSize : Int
-    , mimeType : String
-    , content : String
-    }
-
-
-type alias ClipboardImageData =
-    { imageSize : Int
-    , mimeType : String
-    , bytes : Bytes.Bytes
-    }
-
-
-type alias ClipboardImageDataPlus =
-    { filename : String
-    , username : String
-    , imageSize : Int
-    , mimeType : String
-    , bytes : Bytes.Bytes
-    }
-
-
-type ImageSource
-    = ImageFromFile
-    | ImageFromClipboard
-
-
-{-| Keys are image identifiers
+{-| Keys are notebook ids
 -}
-type alias ImageDict =
-    Dict.Dict String ImageRecord
+type alias NoteBookDict =
+    Dict.Dict String Book
 
 
-type alias ImageUserDict =
-    Dict.Dict Username ImageDict
-
-
-type alias ImageRecord =
-    { identifier : String
-    , id : String
-    , username : String
-    , filename : String
-    , urlList : List String
-    , dateUploaded : String
-    , timeUploaded : Time.Posix
-    , metaData : Dict String String
-    , public : Bool
-    }
-
-
-type alias CloudFlareUrlDataPlus =
-    { clientId : ClientId
-    , id : String
-    , uploadUrl : String
-    , success : Bool
-    , errors : List String
-    , messages : List String
-    , imageSource : ImageSource
-    }
-
-
-type alias CloudFlareErrorData =
-    { success : Bool
-    , errors : List CloudFlareErrorRecord
-    }
-
-
-type alias CloudFlareErrorRecord =
-    { code : Int, message : String }
-
-
-type alias CloudFlarePostImageResponseData =
-    { id : String
-    , filename : String
-    , uploadedAt : String
-    , requireSignedURLs : Bool
-    , variants : List String
-    , success : Bool
-    , errors : List String
-    , messages : List String
-    }
-
-
-type alias CloudFlareUrlData =
-    { id : String
-    , uploadUrl : String
-    , success : Bool
-    , errors : List String
-    , messages : List String
-    }
-
-
-type alias ImageServerData =
-    { username : String
-    , filename : String
-    , url : String
-    }
+{-| UserToNotebookDict is the master dictionary for all notebooks
+-}
+type alias UserToNoteBookDict =
+    Dict.Dict Username NoteBookDict
 
 
 type DeleteItemState

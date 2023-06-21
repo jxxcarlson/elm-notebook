@@ -8,8 +8,7 @@ module LiveBook.Update exposing
 
 import List.Extra
 import LiveBook.Cell
-import LiveBook.Types exposing (Cell, CellState(..))
-import Types exposing (FrontendModel, FrontendMsg(..))
+import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
 
 
 makeNewCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )

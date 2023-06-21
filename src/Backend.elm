@@ -1,11 +1,13 @@
 module Backend exposing (..)
 
 import Authentication
+import UUID
 import Backend.Authentication
 import Dict
-import Env exposing (Mode(..))
 import Hex
-import ImageDict
+import Env exposing (Mode(..))
+import LiveBook.Book
+import NotebookDict
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
 import Random
 import Time
@@ -33,11 +35,13 @@ init =
       -- RANDOM
       , randomSeed = Random.initialSeed 1234
       , uuidCount = 0
+      , uuid = Nothing
       , randomAtmosphericInt = Nothing
       , currentTime = Time.millisToPosix 0
 
       -- USER
       , authenticationDict = Dict.empty
+      , userToNoteBookDict = Dict.empty
 
       -- DOCUMENTS
       }
@@ -117,6 +121,13 @@ updateFromFrontend sessionId clientId msg model =
                 Nothing ->
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, password and username don't match (2)") )
 
+        CreateNotebook author title ->
+            let
+                newBook_ = LiveBook.Book.new title author
+                newBook = { newBook_ | createdAt = model.currentTime, updatedAt = model.currentTime}
+             in
+             (model, Cmd.none)
+
 
 setupUser : Model -> ClientId -> String -> String -> String -> ( BackendModel, Cmd BackendMsg )
 setupUser model clientId email transitPassword username =
@@ -157,19 +168,13 @@ idMessage model =
     "ids: " ++ (List.map .id model.documents |> String.join ", ")
 
 
-{-| space the records at least one minute apart, assuming equal upload times
--}
-updateUploadTimeImageDict : ImageDict -> ImageDict
-updateUploadTimeImageDict dict =
-    dict
-        |> Dict.toList
-        |> List.indexedMap (\k ( id, imageRecord ) -> ( id, { imageRecord | timeUploaded = Time.millisToPosix <| Time.posixToMillis imageRecord.timeUploaded + k * 60000 } ))
-        |> Dict.fromList
 
 
-updateUploadTimeImageUserDict : ImageUserDict -> ImageUserDict
-updateUploadTimeImageUserDict dict =
-    dict
-        |> Dict.toList
-        |> List.map (\( username, imageDict ) -> ( username, updateUploadTimeImageDict imageDict ))
-        |> Dict.fromList
+-- HELPERS
+
+getUUID :Model -> Model
+getUUID model = 
+  let 
+    (uuid, seed) = model.randomSeed |> Random.step UUID.generator
+ in 
+   { model | uuid = Just <| UUID.toString uuid, randomSeed = seed }

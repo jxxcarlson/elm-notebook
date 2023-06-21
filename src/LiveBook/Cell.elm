@@ -6,8 +6,7 @@ import Element.Font
 import Element.Input
 import Eval
 import List.Extra
-import LiveBook.Types exposing (Cell, CellState(..))
-import Types exposing (FrontendModel, FrontendMsg(..))
+import Types exposing (Cell, CellState(..),FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
 import Value exposing (Value)

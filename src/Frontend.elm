@@ -12,7 +12,6 @@ import Lamdera exposing (sendToBackend)
 import List.Extra
 import LiveBook.Book
 import LiveBook.Cell
-import LiveBook.Types
 import LiveBook.Update
 import Loading
 import Random
@@ -60,7 +59,7 @@ init url key =
 
       -- CELLS
       , books = []
-      , currentBook = LiveBook.Book.scratchPad "anonymous"
+      , currentBook = LiveBook.Book.scratchPad
       , cellContent = ""
 
       -- UI
