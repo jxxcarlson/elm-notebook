@@ -73,7 +73,7 @@ type FrontendMsg
     | EditCell Int
     | ClearCell Int
     | EvalCell Int
-    | InputElmCode String
+    | InputElmCode Int String
       -- UI
     | ChangePopup PopupState
     | GotViewport Browser.Dom.Viewport

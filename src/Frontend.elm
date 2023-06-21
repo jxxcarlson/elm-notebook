@@ -202,8 +202,8 @@ update msg model =
             )
 
         -- CELLS
-        InputElmCode str ->
-            ( { model | cellContent = str }, Cmd.none )
+        InputElmCode index str ->
+            ( LiveBook.Update.updateCellText model index str, Cmd.none )
 
         NewCell index ->
             LiveBook.Update.makeNewCell model index

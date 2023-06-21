@@ -105,7 +105,7 @@ editCell width cell cellContent =
             , Element.Font.color Color.black
             , E.height (E.px 80)
             ]
-            { onChange = InputElmCode
+            { onChange = InputElmCode cell.index
             , text = cellContent
             , placeholder = Nothing
             , label = Element.Input.labelHidden ""
