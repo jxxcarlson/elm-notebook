@@ -22,6 +22,12 @@ view model =
             , E.centerX
             , E.width (E.px (View.Geometry.appWidth model - 370))
             ]
-            [ E.text "Welcome to Elm Livebook"
+            [ E.paragraph [ Font.color (E.rgb 0.2 0.2 0.2) ]
+                [ E.text "Welcome to Elm Livebook! There is much work to be done — "
+                , E.text "and hopefully much more can be done before Elm Camp starts. "
+                , E.text "If you want to help, please reach out to me on Slack (jxxcarlson). "
+                , E.text "TODO: (a) wire in @minibill's elm-interpreter; (b) CRUD for notebooks. "
+                , E.text "Most important is (a), which will validate the whole idea. "
+                ]
             ]
         ]
