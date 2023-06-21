@@ -1,9 +1,10 @@
-module LiveBook.Cell exposing (evaluate, view)
+module LiveBook.Cell exposing (evaluate, evaluateString, view)
 
 import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Font
 import Element.Input
+import Eval
 import List.Extra
 import LiveBook.Types exposing (Cell, CellState(..))
 import Types exposing (FrontendModel, FrontendMsg(..))
@@ -18,6 +19,21 @@ sourceText cell =
         |> List.filter (\s -> String.left 1 s /= "#")
 
 
+evaluateSource : Cell -> Maybe String
+evaluateSource cell =
+    evaluateString (sourceText cell |> String.join "\n") |> Just
+
+
+evaluateString : String -> String
+evaluateString input =
+    case Eval.eval input |> Result.map Value.toString of
+        Ok output ->
+            output
+
+        Err err ->
+            "Error"
+
+
 {-|
 
     TODO: Dummy implementation of evaluate : Cell -> Cell
@@ -25,7 +41,7 @@ sourceText cell =
 -}
 evaluate : Cell -> Cell
 evaluate cell =
-    { cell | value = Nothing, cellState = CSView }
+    { cell | value = evaluateSource cell, cellState = CSView }
 
 
 view : Int -> String -> Cell -> Element FrontendMsg

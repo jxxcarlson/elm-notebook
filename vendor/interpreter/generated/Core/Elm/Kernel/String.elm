@@ -1,7 +1,7 @@
-module Core.Elm.Kernel.String exposing (all, foldl, foldr, functions, map)
+module Core.Elm.Kernel.String exposing (all, any, foldl, foldr, functions, map)
 
 {-| 
-@docs foldr, foldl, map, all, functions
+@docs functions, any, all, map, foldl, foldr
 -}
 
 
@@ -14,11 +14,48 @@ import Syntax
 functions : FastDict.Dict String Elm.Syntax.Expression.FunctionImplementation
 functions =
     FastDict.fromList
-        [ ( "all", all )
+        [ ( "any", any )
+        , ( "all", all )
         , ( "map", map )
         , ( "foldl", foldl )
         , ( "foldr", foldr )
         ]
+
+
+any : Elm.Syntax.Expression.FunctionImplementation
+any =
+    { name = Syntax.fakeNode "Elm.Kernel.String.any"
+    , arguments =
+        [ Syntax.fakeNode (Elm.Syntax.Pattern.VarPattern "f")
+        , Syntax.fakeNode (Elm.Syntax.Pattern.VarPattern "s")
+        ]
+    , expression =
+        Syntax.fakeNode
+            (Elm.Syntax.Expression.Application
+                [ Syntax.fakeNode
+                    (Elm.Syntax.Expression.FunctionOrValue [ "List" ] "any")
+                , Syntax.fakeNode (Elm.Syntax.Expression.FunctionOrValue [] "f")
+                , Syntax.fakeNode
+                    (Elm.Syntax.Expression.ParenthesizedExpression
+                        (Syntax.fakeNode
+                            (Elm.Syntax.Expression.Application
+                                [ Syntax.fakeNode
+                                    (Elm.Syntax.Expression.FunctionOrValue
+                                        [ "String" ]
+                                        "toList"
+                                    )
+                                , Syntax.fakeNode
+                                    (Elm.Syntax.Expression.FunctionOrValue
+                                        []
+                                        "s"
+                                    )
+                                ]
+                            )
+                        )
+                    )
+                ]
+            )
+    }
 
 
 all : Elm.Syntax.Expression.FunctionImplementation
@@ -335,5 +372,3 @@ foldr =
                 }
             )
     }
-
-

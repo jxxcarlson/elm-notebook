@@ -51,27 +51,28 @@ sortWith compare list cfg env =
                                 res
             )
         |> Ok
-    , let
-        _ =
-            Debug.todo
-      in
-      Rope.empty
-    , let
-        _ =
-            Debug.todo
-      in
-      Rope.empty
+      --, let
+      --    _ =
+      --        Debug.todo
+      --  in
+    , Rope.empty
+      --, let
+      --    _ =
+      --        Debug.todo
+      --  in
+    , Rope.empty
     )
 
 
 handleErr : { currentModule : ModuleName, callStack : List QualifiedNameRef, error : Value.EvalErrorKind } -> Order
 handleErr err =
-    let
-        _ =
-            Debug.log "handleErr" err
-    in
-    -- TODO: find out how to deal with errors
-    Debug.todo "handleErr"
+    --let
+    --    _ =
+    --        Debug.log "handleErr" err
+    --in
+    ---- TODO: find out how to deal with errors
+    --Debug.todo "handleErr"
+    Basics.EQ
 
 
 foldr : (Value -> Eval (Value -> Eval Value)) -> Value -> List Value -> Eval Value
