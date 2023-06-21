@@ -7,6 +7,7 @@ import Browser.Navigation exposing (Key)
 import Bytes
 import Dict exposing (Dict)
 import Lamdera exposing (ClientId)
+import LiveBook.Types exposing (Cell, CellState(..))
 import Random
 import Time
 import Url exposing (Url)
@@ -100,15 +101,6 @@ type MessageStatus
     | MSYellow
     | MSGreen
     | MSRed
-
-
-type alias Cell =
-    { index : Int, text : List String, value : Maybe String, cellState : CellState }
-
-
-type CellState
-    = CSEdit
-    | CSView
 
 
 type PopupState

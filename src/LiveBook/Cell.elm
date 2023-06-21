@@ -4,7 +4,9 @@ import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Font
 import Element.Input
-import Types exposing (Cell, FrontendMsg(..))
+import List.Extra
+import LiveBook.Types exposing (Cell, CellState(..))
+import Types exposing (FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
 import Value exposing (Value)
@@ -23,7 +25,7 @@ sourceText cell =
 -}
 evaluate : String -> Cell -> Cell
 evaluate str cell =
-    { cell | text = String.lines str, value = Nothing, cellState = Types.CSView }
+    { cell | text = String.lines str, value = Nothing, cellState = CSView }
 
 
 view : Int -> String -> Cell -> Element FrontendMsg
@@ -52,10 +54,10 @@ view width cellContents cell =
 viewSource : Int -> Cell -> String -> Element FrontendMsg
 viewSource width cell cellContent =
     case cell.cellState of
-        Types.CSView ->
+        CSView ->
             viewSource_ width cell
 
-        Types.CSEdit ->
+        CSEdit ->
             editCell width cell cellContent
 
 
@@ -65,7 +67,7 @@ viewValue width cell =
         , Element.Font.color (E.rgb 0.1 0.1 0.1)
         , E.paddingEach { top = 8, right = 8, bottom = 12, left = 8 }
         , E.width (E.px width)
-        , Background.color (E.rgb 0.8 0.8 0.8)
+        , Background.color (E.rgb 0.8 0.8 0.9)
         ]
         [ E.text (cell.value |> Maybe.withDefault "-- unevaluated --")
         ]
@@ -116,41 +118,45 @@ editCell width cell cellContent =
 -- (cell.text |> List.map E.text)
 
 
-newCellAt : Types.CellState -> Int -> Element FrontendMsg
+newCellAt : CellState -> Int -> Element FrontendMsg
 newCellAt cellState index =
     case cellState of
-        Types.CSView ->
+        CSView ->
             Button.smallPrimary { msg = NewCell index, status = Button.ActiveTransparent, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
 
-        Types.CSEdit ->
+        CSEdit ->
             E.none
 
 
-editCellAt : Types.CellState -> Int -> Element FrontendMsg
+editCellAt : CellState -> Int -> Element FrontendMsg
 editCellAt cellState index =
     case cellState of
-        Types.CSView ->
+        CSView ->
             Button.smallPrimary { msg = EditCell index, status = Button.ActiveTransparent, label = Button.Text "Edit", tooltipText = Just "Edit cell" }
 
-        Types.CSEdit ->
+        CSEdit ->
             E.none
 
 
-clearCellAt : Types.CellState -> Int -> Element FrontendMsg
+clearCellAt : CellState -> Int -> Element FrontendMsg
 clearCellAt cellState index =
     case cellState of
-        Types.CSView ->
+        CSView ->
             E.none
 
-        Types.CSEdit ->
+        CSEdit ->
             Button.smallPrimary { msg = ClearCell index, status = Button.Active, label = Button.Text "Clear", tooltipText = Just "Edit cell" }
 
 
-evalCellAt : Types.CellState -> Int -> Element FrontendMsg
+evalCellAt : CellState -> Int -> Element FrontendMsg
 evalCellAt cellState index =
     case cellState of
-        Types.CSView ->
+        CSView ->
             Button.smallPrimary { msg = EvalCell index, status = Button.ActiveTransparent, label = Button.Text "Eval", tooltipText = Just "Evaluate cell" }
 
-        Types.CSEdit ->
+        CSEdit ->
             Button.smallPrimary { msg = EvalCell index, status = Button.Active, label = Button.Text "Eval", tooltipText = Just "Evaluate cell" }
+
+
+
+---

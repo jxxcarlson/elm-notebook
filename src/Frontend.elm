@@ -11,6 +11,8 @@ import Html exposing (Html)
 import Lamdera exposing (sendToBackend)
 import List.Extra
 import LiveBook.Cell
+import LiveBook.Types
+import LiveBook.Update
 import Loading
 import Random
 import Task
@@ -56,7 +58,7 @@ init url key =
       , users = []
 
       -- CELLS
-      , cellList = [ { index = 0, text = [ "# Example: ", "1 + 1 = 2" ], value = Nothing, cellState = CSView } ]
+      , cellList = [ { index = 0, text = [ "# Example: ", "1 + 1 = 2" ], value = Nothing, cellState = LiveBook.Types.CSView } ]
       , cellContent = ""
 
       -- UI
@@ -202,90 +204,16 @@ update msg model =
             ( { model | cellContent = str }, Cmd.none )
 
         NewCell index ->
-            let
-                newCell =
-                    { index = index + 1
-                    , text = [ "# New cell (" ++ String.fromInt (index + 2) ++ ") ", "-- code --" ]
-                    , value = Nothing
-                    , cellState = CSEdit
-                    }
-
-                prefix =
-                    List.filter (\cell -> cell.index <= index) model.cellList
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                suffix =
-                    List.filter (\cell -> cell.index > index) model.cellList
-                        |> List.map (\cell -> { cell | index = cell.index + 1 })
-                        |> List.map (\cell -> { cell | cellState = CSView })
-            in
-            ( { model
-                | cellContent = ""
-                , cellList = prefix ++ (newCell :: suffix)
-              }
-            , Cmd.none
-            )
+            LiveBook.Update.makeNewCell model index
 
         EditCell index ->
-            case List.Extra.getAt index model.cellList of
-                Nothing ->
-                    ( model, Cmd.none )
-
-                Just cell_ ->
-                    let
-                        updatedCell =
-                            { cell_ | cellState = CSEdit }
-
-                        prefix =
-                            List.filter (\cell -> cell.index < index) model.cellList
-                                |> List.map (\cell -> { cell | cellState = CSView })
-
-                        suffix =
-                            List.filter (\cell -> cell.index > index) model.cellList
-                                |> List.map (\cell -> { cell | cellState = CSView })
-                    in
-                    ( { model | cellContent = cell_.text |> String.join "\n", cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
+            LiveBook.Update.editCell model index
 
         ClearCell index ->
-            case List.Extra.getAt index model.cellList of
-                Nothing ->
-                    ( model, Cmd.none )
-
-                Just cell_ ->
-                    let
-                        updatedCell =
-                            { cell_ | text = [ "" ] }
-
-                        prefix =
-                            List.filter (\cell -> cell.index < index) model.cellList
-                                |> List.map (\cell -> { cell | cellState = CSView })
-
-                        suffix =
-                            List.filter (\cell -> cell.index > index) model.cellList
-                                |> List.map (\cell -> { cell | cellState = CSView })
-                    in
-                    ( { model | cellContent = "", cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
+            LiveBook.Update.clearCell model index
 
         EvalCell index ->
-            case List.Extra.getAt index model.cellList of
-                Nothing ->
-                    ( model, Cmd.none )
-
-                Just cell_ ->
-                    let
-                        updatedCell =
-                            LiveBook.Cell.evaluate model.cellContent cell_
-
-                        prefix =
-                            List.filter (\cell -> cell.index < index) model.cellList
-                                |> List.map (\cell -> { cell | cellState = CSView })
-
-                        suffix =
-                            List.filter (\cell -> cell.index > index) model.cellList
-
-                        --|> List.map LiveBook.Cell.evaluate
-                    in
-                    ( { model | cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
+            LiveBook.Update.evalCell model index
 
         -- ADMIN
         AdminRunTask ->
