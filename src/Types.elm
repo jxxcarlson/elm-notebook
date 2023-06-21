@@ -69,6 +69,7 @@ type FrontendMsg
       -- CELL
     | NewCell Int
     | EditCell Int
+    | ClearCell Int
     | EvalCell Int
     | InputElmCode String
       -- UI

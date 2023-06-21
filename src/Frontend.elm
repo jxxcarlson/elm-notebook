@@ -219,7 +219,12 @@ update msg model =
                         |> List.map (\cell -> { cell | index = cell.index + 1 })
                         |> List.map (\cell -> { cell | cellState = CSView })
             in
-            ( { model | cellList = prefix ++ (newCell :: suffix) }, Cmd.none )
+            ( { model
+                | cellContent = ""
+                , cellList = prefix ++ (newCell :: suffix)
+              }
+            , Cmd.none
+            )
 
         EditCell index ->
             case List.Extra.getAt index model.cellList of
@@ -237,10 +242,29 @@ update msg model =
 
                         suffix =
                             List.filter (\cell -> cell.index > index) model.cellList
-                                |> List.map (\cell -> { cell | index = cell.index + 1 })
                                 |> List.map (\cell -> { cell | cellState = CSView })
                     in
-                    ( { model | cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
+                    ( { model | cellContent = cell_.text |> String.join "\n", cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
+
+        ClearCell index ->
+            case List.Extra.getAt index model.cellList of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just cell_ ->
+                    let
+                        updatedCell =
+                            { cell_ | text = [ "" ] }
+
+                        prefix =
+                            List.filter (\cell -> cell.index < index) model.cellList
+                                |> List.map (\cell -> { cell | cellState = CSView })
+
+                        suffix =
+                            List.filter (\cell -> cell.index > index) model.cellList
+                                |> List.map (\cell -> { cell | cellState = CSView })
+                    in
+                    ( { model | cellContent = "", cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
 
         EvalCell index ->
             case List.Extra.getAt index model.cellList of

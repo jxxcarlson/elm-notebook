@@ -27,7 +27,17 @@ import Element.Font as Font
 
 
 paleWarm =
-    Element.rgb255 250 240 212
+    --nElement.rgb255 255 250 227
+    Element.rgb 1.0 0.95 0.95
+
+
+
+--paleWarm =
+--    Element.rgb255 250 240 212
+
+
+paleCool =
+    Element.rgb255 212 240 250
 
 
 

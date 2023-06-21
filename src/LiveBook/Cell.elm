@@ -37,6 +37,7 @@ view width cellContents cell =
                 [ E.row [ E.alignRight, E.spacing 12 ]
                     [ newCellAt cell.cellState cell.index
                     , editCellAt cell.cellState cell.index
+                    , clearCellAt cell.cellState cell.index
                     , evalCellAt cell.cellState cell.index
                     , viewIndex cell
                     ]
@@ -80,6 +81,7 @@ viewSource_ width cell =
     E.column
         [ E.spacing 8
         , E.paddingEach { top = 8, right = 8, bottom = 8, left = 8 }
+        , E.height (E.px 80)
         , E.width (E.px width)
         , Background.color (E.rgb 0.1 0.1 0.1)
         ]
@@ -90,12 +92,17 @@ editCell : Int -> Cell -> String -> Element FrontendMsg
 editCell width cell cellContent =
     E.column
         [ E.spacing 8
-        , E.paddingEach { top = 8, right = 8, bottom = 8, left = 8 }
+        , E.paddingEach { top = 1, right = 1, bottom = 1, left = 1 }
         , E.width (E.px width)
-        , E.height E.fill
+
+        -- , E.height E.fill
         , Background.color (E.rgb 0.1 0.1 0.8)
         ]
-        [ Element.Input.multiline []
+        [ Element.Input.multiline
+            [ Background.color (E.rgb 0.8 0.8 1.0)
+            , Element.Font.color Color.black
+            , E.height (E.px 80)
+            ]
             { onChange = InputElmCode
             , text = cellContent
             , placeholder = Nothing
@@ -121,7 +128,22 @@ newCellAt cellState index =
 
 editCellAt : Types.CellState -> Int -> Element FrontendMsg
 editCellAt cellState index =
-    Button.smallPrimary { msg = EditCell index, status = Button.ActiveTransparent, label = Button.Text "Edit", tooltipText = Just "Edit cell" }
+    case cellState of
+        Types.CSView ->
+            Button.smallPrimary { msg = EditCell index, status = Button.ActiveTransparent, label = Button.Text "Edit", tooltipText = Just "Edit cell" }
+
+        Types.CSEdit ->
+            E.none
+
+
+clearCellAt : Types.CellState -> Int -> Element FrontendMsg
+clearCellAt cellState index =
+    case cellState of
+        Types.CSView ->
+            E.none
+
+        Types.CSEdit ->
+            Button.smallPrimary { msg = ClearCell index, status = Button.Active, label = Button.Text "Clear", tooltipText = Just "Edit cell" }
 
 
 evalCellAt : Types.CellState -> Int -> Element FrontendMsg
