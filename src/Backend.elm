@@ -35,7 +35,7 @@ init =
       -- RANDOM
       , randomSeed = Random.initialSeed 1234
       , uuidCount = 0
-      , uuid = Nothing
+      , uuid = "aldkjf;ladjkf;dalkjf;ldkjf"
       , randomAtmosphericInt = Nothing
       , currentTime = Time.millisToPosix 0
 
@@ -123,8 +123,9 @@ updateFromFrontend sessionId clientId msg model =
 
         CreateNotebook author title ->
             let
+                newModel = getUUID model
                 newBook_ = LiveBook.Book.new title author
-                newBook = { newBook_ | createdAt = model.currentTime, updatedAt = model.currentTime}
+                newBook = { newBook_ | id = model.uuid, slug = compress (author ++ ":" ++ title)   , createdAt = model.currentTime, updatedAt = model.currentTime}
              in
              (model, Cmd.none)
 
@@ -177,4 +178,7 @@ getUUID model =
   let 
     (uuid, seed) = model.randomSeed |> Random.step UUID.generator
  in 
-   { model | uuid = Just <| UUID.toString uuid, randomSeed = seed }
+   { model | uuid =  UUID.toString uuid, randomSeed = seed }
+
+compress :  String -> String
+compress str = str |> String.toLower |> String.replace " " ""

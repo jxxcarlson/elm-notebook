@@ -54,7 +54,7 @@ type alias BackendModel =
     -- RANDOM
     , randomSeed : Random.Seed
     , uuidCount : Int
-    , uuid : Maybe String
+    , uuid : String
     , randomAtmosphericInt : Maybe Int
 
     -- USER
