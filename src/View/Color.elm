@@ -10,7 +10,7 @@ import Element as E
 
 yellow : E.Color
 yellow =
-    E.rgb 0.8 0.8 0
+    E.rgb 0.81 0.81 0
 
 
 white : E.Color
