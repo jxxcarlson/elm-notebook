@@ -21,7 +21,7 @@ view model =
             , Font.size 14
             , Font.color (E.rgb255 0 0 0)
             , View.Style.bgGray 0.8
-            --, E.moveUp (toFloat <| 100)
+            , E.moveUp (toFloat <| Geometry.mainColumnHeight model + 10)
             , E.moveRight 380
             , E.paddingXY 18 18
             , E.spacing 12
