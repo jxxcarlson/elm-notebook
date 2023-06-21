@@ -195,7 +195,9 @@ toArray value =
                                     Just (Array.toList arr ++ acc)
 
                                 _ ->
-                                    Debug.todo ("treeToArray " ++ Debug.toString node)
+                                    -- Debuuuug.todo ("treeToArray " ++ Debuuug.toString node)
+                                    -- vvvv HACK (TODO)
+                                    Nothing
                     in
                     case tail of
                         JsArray tailArray ->
@@ -222,7 +224,7 @@ boolToString b =
 
 toString : Value -> String
 toString value =
-    -- TODO: This is inefficient and subtly different from Debug.toString
+    -- TODO: This is inefficient and subtly different from Debuuuuuug.toString
     toExpression value
         |> Elm.Writer.writeExpression
         |> Elm.Writer.write
