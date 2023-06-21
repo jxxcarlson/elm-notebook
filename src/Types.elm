@@ -7,7 +7,7 @@ import Browser.Navigation exposing (Key)
 import Bytes
 import Dict exposing (Dict)
 import Lamdera exposing (ClientId)
-import LiveBook.Types exposing (Cell, CellState(..))
+import LiveBook.Types exposing (Book, Cell, CellState(..))
 import Random
 import Time
 import Url exposing (Url)
@@ -26,7 +26,8 @@ type alias FrontendModel =
     , users : List User
 
     -- CELLS
-    , cellList : List Cell
+    , books : List Book
+    , currentBook : Book
     , cellContent : String
 
     -- USER

@@ -10,6 +10,7 @@ import Frontend.Message
 import Html exposing (Html)
 import Lamdera exposing (sendToBackend)
 import List.Extra
+import LiveBook.Book
 import LiveBook.Cell
 import LiveBook.Types
 import LiveBook.Update
@@ -58,7 +59,8 @@ init url key =
       , users = []
 
       -- CELLS
-      , cellList = [ { index = 0, text = [ "# Example: ", "1 + 1 = 2" ], value = Nothing, cellState = LiveBook.Types.CSView } ]
+      , books = []
+      , currentBook = LiveBook.Book.scratchPad "anonymous"
       , cellContent = ""
 
       -- UI

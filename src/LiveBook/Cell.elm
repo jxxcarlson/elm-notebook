@@ -23,9 +23,9 @@ sourceText cell =
     TODO: Dummy implementation of evaluate : Cell -> Cell
 
 -}
-evaluate : String -> Cell -> Cell
-evaluate str cell =
-    { cell | text = String.lines str, value = Nothing, cellState = CSView }
+evaluate : Cell -> Cell
+evaluate cell =
+    { cell | value = Nothing, cellState = CSView }
 
 
 view : Int -> String -> Cell -> Element FrontendMsg

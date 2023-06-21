@@ -25,7 +25,7 @@ view model user =
             ]
             (List.map
                 (LiveBook.Cell.view (View.Geometry.appWidth model - 100) model.cellContent)
-                model.cellList
+                model.currentBook.cells
             )
         ]
 

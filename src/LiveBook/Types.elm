@@ -1,4 +1,4 @@
-module LiveBook.Types exposing (Cell, CellState(..))
+module LiveBook.Types exposing (Book, Cell, CellState(..))
 
 
 type alias Cell =
@@ -12,6 +12,7 @@ type CellState
 
 type alias Book =
     { id : String
+    , slug : String
     , author : String
     , title : String
     , cells : List Cell

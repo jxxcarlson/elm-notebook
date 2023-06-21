@@ -22,17 +22,23 @@ makeNewCell model index =
             }
 
         prefix =
-            List.filter (\cell -> cell.index <= index) model.cellList
+            List.filter (\cell -> cell.index <= index) model.currentBook.cells
                 |> List.map (\cell -> { cell | cellState = CSView })
 
         suffix =
-            List.filter (\cell -> cell.index > index) model.cellList
+            List.filter (\cell -> cell.index > index) model.currentBook.cells
                 |> List.map (\cell -> { cell | index = cell.index + 1 })
                 |> List.map (\cell -> { cell | cellState = CSView })
+
+        oldBook =
+            model.currentBook
+
+        newBook =
+            { oldBook | cells = prefix ++ (newCell :: suffix) }
     in
     ( { model
         | cellContent = ""
-        , cellList = prefix ++ (newCell :: suffix)
+        , currentBook = newBook
       }
     , Cmd.none
     )
@@ -40,7 +46,7 @@ makeNewCell model index =
 
 editCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
 editCell model index =
-    case List.Extra.getAt index model.cellList of
+    case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
             ( model, Cmd.none )
 
@@ -50,19 +56,25 @@ editCell model index =
                     { cell_ | cellState = CSEdit }
 
                 prefix =
-                    List.filter (\cell -> cell.index < index) model.cellList
+                    List.filter (\cell -> cell.index < index) model.currentBook.cells
                         |> List.map (\cell -> { cell | cellState = CSView })
 
                 suffix =
-                    List.filter (\cell -> cell.index > index) model.cellList
+                    List.filter (\cell -> cell.index > index) model.currentBook.cells
                         |> List.map (\cell -> { cell | cellState = CSView })
+
+                oldBook =
+                    model.currentBook
+
+                newBook =
+                    { oldBook | cells = prefix ++ (updatedCell :: suffix) }
             in
-            ( { model | cellContent = cell_.text |> String.join "\n", cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
+            ( { model | cellContent = cell_.text |> String.join "\n", currentBook = newBook }, Cmd.none )
 
 
 clearCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
 clearCell model index =
-    case List.Extra.getAt index model.cellList of
+    case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
             ( model, Cmd.none )
 
@@ -72,34 +84,46 @@ clearCell model index =
                     { cell_ | text = [ "" ] }
 
                 prefix =
-                    List.filter (\cell -> cell.index < index) model.cellList
+                    List.filter (\cell -> cell.index < index) model.currentBook.cells
                         |> List.map (\cell -> { cell | cellState = CSView })
 
                 suffix =
-                    List.filter (\cell -> cell.index > index) model.cellList
+                    List.filter (\cell -> cell.index > index) model.currentBook.cells
                         |> List.map (\cell -> { cell | cellState = CSView })
+
+                oldBook =
+                    model.currentBook
+
+                newBook =
+                    { oldBook | cells = prefix ++ (updatedCell :: suffix) }
             in
-            ( { model | cellContent = "", cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
+            ( { model | cellContent = "", currentBook = newBook }, Cmd.none )
 
 
 evalCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
 evalCell model index =
-    case List.Extra.getAt index model.cellList of
+    case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
             ( model, Cmd.none )
 
         Just cell_ ->
             let
                 updatedCell =
-                    LiveBook.Cell.evaluate model.cellContent cell_
+                    LiveBook.Cell.evaluate cell_ |> Debug.log "evaluated cell"
 
                 prefix =
-                    List.filter (\cell -> cell.index < index) model.cellList
+                    List.filter (\cell -> cell.index < index) model.currentBook.cells
                         |> List.map (\cell -> { cell | cellState = CSView })
 
                 suffix =
-                    List.filter (\cell -> cell.index > index) model.cellList
+                    List.filter (\cell -> cell.index > index) model.currentBook.cells
+
+                oldBook =
+                    model.currentBook
+
+                newBook =
+                    { oldBook | cells = prefix ++ (updatedCell :: suffix) }
 
                 --|> List.map LiveBook.Cell.evaluate
             in
-            ( { model | cellList = prefix ++ (updatedCell :: suffix) }, Cmd.none )
+            ( { model | currentBook = newBook }, Cmd.none )

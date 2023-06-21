@@ -51,7 +51,7 @@ signedInHeader model user =
         --, E.width (E.px (View.Geometry.appWidth model - 40))
         , View.Style.bgGray 0.0
         ]
-        [ title "Elm Livebook"
+        [ title ("Elm Livebook: " ++ model.currentBook.title)
         , E.el [ E.width E.fill, E.paddingXY 12 0 ] (Message.viewSmall 400 model)
         , E.el [ E.alignRight ] (Button.signOut user.username)
         ]
