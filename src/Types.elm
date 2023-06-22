@@ -162,6 +162,8 @@ type ToFrontend
     | MessageReceived Message
       -- ADMIN
     | GotUsers (List User)
+    -- NOTEBOOK
+    | GotNotebook Book
       -- USER
     | SendMessage String
     | UserSignedIn User ClientId

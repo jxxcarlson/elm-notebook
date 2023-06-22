@@ -121,13 +121,17 @@ updateFromFrontend sessionId clientId msg model =
                 Nothing ->
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, password and username don't match (2)") )
 
+        -- NOTEBOOKS
+
         CreateNotebook author title ->
             let
                 newModel = getUUID model
                 newBook_ = LiveBook.Book.new title author
                 newBook = { newBook_ | id = model.uuid, slug = compress (author ++ ":" ++ title)   , createdAt = model.currentTime, updatedAt = model.currentTime}
+                newNotebookDict = NotebookDict.insert author newModel.uuid newBook model.userToNoteBookDict
+
              in
-             (model, Cmd.none)
+             ({ newModel | userToNoteBookDict = newNotebookDict}, sendToFrontend clientId (GotNotebook newBook))
 
 
 setupUser : Model -> ClientId -> String -> String -> String -> ( BackendModel, Cmd BackendMsg )

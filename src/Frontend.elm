@@ -216,6 +216,7 @@ update msg model =
         EvalCell index ->
             LiveBook.Update.evalCell model index
 
+        -- NOTEBOOKS
         -- ADMIN
         AdminRunTask ->
             ( model, sendToBackend RunTask )
@@ -250,6 +251,10 @@ updateFromBackend msg model =
 
             else
                 ( { model | currentUser = Just user, message = "" }, Cmd.none )
+
+        -- NOTEBOOKS
+        GotNotebook book ->
+            ( { model | currentBook = book, books = book :: model.books }, Cmd.none )
 
 
 view : Model -> { title : String, body : List (Html.Html FrontendMsg) }
