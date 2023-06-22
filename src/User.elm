@@ -11,6 +11,7 @@ type alias User =
     , created : Time.Posix
     , modified : Time.Posix
     , locked : Bool
+    , currentNotebookId : Maybe String
     }
 
 

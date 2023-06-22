@@ -59,6 +59,7 @@ signUpUser model sessionId clientId username transitPassword email =
             , created = model.currentTime
             , modified = model.currentTime
             , locked = False
+            , currentNotebookId = Nothing
             }
     in
     case Authentication.insert user randomHex transitPassword model.authenticationDict of
@@ -114,6 +115,7 @@ createUser_ username password realname email model =
             , created = model.currentTime
             , modified = model.currentTime
             , locked = False
+            , currentNotebookId = Nothing
             }
     in
     case Authentication.insert user randomHex transitPassword model.authenticationDict of

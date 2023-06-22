@@ -225,7 +225,18 @@ update msg model =
 
         -- CELLS
         SetCurrentNotebook book ->
-            ( { model | currentBook = book }, Cmd.none )
+            case model.currentUser of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just user_ ->
+                    let
+                        user =
+                            { user_ | currentNotebookId = Just book.id }
+                    in
+                    ( { model | currentUser = Just user, currentBook = book }
+                    , sendToBackend (UpdateUserWith user)
+                    )
 
         NewNotebook ->
             case model.currentUser of
@@ -315,11 +326,7 @@ updateFromBackend msg model =
             ( { model | currentBook = book, books = book :: model.books }, Cmd.none )
 
         GotNotebooks books ->
-            let
-                currentBook =
-                    List.head books |> Maybe.withDefault LiveBook.Book.scratchPad
-            in
-            ( { model | books = books, currentBook = currentBook }, Cmd.none )
+            ( { model | books = books }, Cmd.none )
 
 
 view : Model -> { title : String, body : List (Html.Html FrontendMsg) }

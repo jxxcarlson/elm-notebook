@@ -109,10 +109,28 @@ updateFromFrontend sessionId clientId msg model =
             case Dict.get username model.authenticationDict of
                 Just userData ->
                     if Authentication.verify username encryptedPassword model.authenticationDict then
+                        let
+                            user =
+                                userData.user
+
+                            result =
+                                NotebookDict.lookup user.username
+                                    (user.currentNotebookId |> Maybe.withDefault "--xx--")
+                                    model.userToNoteBookDict
+
+                            curentBookCmd =
+                                case result of
+                                    Err _ ->
+                                        Cmd.none
+
+                                    Ok book ->
+                                        sendToFrontend clientId (GotNotebook book)
+                        in
                         ( model
                         , Cmd.batch
                             [ sendToFrontend clientId (SendUser userData.user)
                             , sendToFrontend clientId (GotNotebooks (NotebookDict.all username model.userToNoteBookDict))
+                            , curentBookCmd
                             ]
                         )
 
@@ -173,6 +191,7 @@ setupUser model clientId email transitPassword username =
             , created = model.currentTime
             , modified = model.currentTime
             , locked = False
+            , currentNotebookId = Nothing
             }
     in
     case Authentication.insert user randomHex transitPassword model.authenticationDict of
