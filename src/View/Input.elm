@@ -3,6 +3,7 @@ module View.Input exposing
     , password
     , passwordAgain
     , signupUsername
+    , title
     , username
     )
 
@@ -96,3 +97,7 @@ password model =
 
 passwordAgain model =
     passwordTemplate (E.px 220) "Password again" InputPasswordAgain model.inputPasswordAgain
+
+
+title model =
+    inputFieldTemplate (E.px 220) "Title" InputTitle model.inputTitle

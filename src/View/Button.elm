@@ -2,6 +2,7 @@ module View.Button exposing
     ( adminPopup
     , dismissPopup
     , dismissPopupSmall
+    , editTitle
     , runTask
     , setUpUser
     , signIn
@@ -69,6 +70,15 @@ dismissPopupSmall =
 dismissPopup : Element FrontendMsg
 dismissPopup =
     Button.largePrimary { msg = ChangePopup NoPopup, status = Button.Active, label = Button.Text "x", tooltipText = Nothing }
+
+
+editTitle : Types.AppMode -> Element FrontendMsg
+editTitle mode =
+    if mode == Types.AMEditTitle then
+        Button.smallPrimary { msg = UpdateNotebookTitle, status = Button.Active, label = Button.Text "Save Notebook", tooltipText = Nothing }
+
+    else
+        Button.smallPrimary { msg = ChangeAppMode Types.AMEditTitle, status = Button.Active, label = Button.Text "Edit Title", tooltipText = Nothing }
 
 
 

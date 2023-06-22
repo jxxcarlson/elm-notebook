@@ -53,6 +53,7 @@ init url key =
       , message = "Welcome!"
       , messages = []
       , appState = Loading
+      , appMode = AMWorking
       , currentTime = Time.millisToPosix 0
 
       -- ADMIN
@@ -78,6 +79,7 @@ init url key =
       , inputPassword = ""
       , inputPasswordAgain = ""
       , inputEmail = ""
+      , inputTitle = ""
       }
     , setupWindow
     )
@@ -208,6 +210,9 @@ update msg model =
         InputPasswordAgain str ->
             ( { model | inputPasswordAgain = str }, Cmd.none )
 
+        InputTitle str ->
+            ( { model | inputTitle = str }, Cmd.none )
+
         SignOut ->
             ( { model
                 | currentUser = Nothing
@@ -220,6 +225,30 @@ update msg model =
             )
 
         -- CELLS
+        ChangeAppMode mode ->
+            case mode of
+                AMEditTitle ->
+                    ( { model | appMode = mode, inputTitle = model.currentBook.title }, Cmd.none )
+
+                _ ->
+                    ( { model | appMode = mode }, Cmd.none )
+
+        UpdateNotebookTitle ->
+            let
+                oldBook =
+                    model.currentBook
+
+                newBook =
+                    { oldBook | title = model.inputTitle }
+            in
+            ( { model
+                | appMode = AMWorking
+                , currentBook = newBook
+                , books = List.Extra.setIf (\b -> b.id == newBook.id) newBook model.books
+              }
+            , sendToBackend (SaveNotebook newBook)
+            )
+
         InputElmCode index str ->
             ( LiveBook.Update.updateCellText model index str, Cmd.none )
 

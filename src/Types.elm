@@ -19,6 +19,7 @@ type alias FrontendModel =
     , message : String
     , messages : List Message
     , appState : AppState
+    , appMode : AppMode
     , currentTime : Time.Posix
 
     -- ADMIN
@@ -38,6 +39,7 @@ type alias FrontendModel =
     , inputRealname : String
     , inputPassword : String
     , inputPasswordAgain : String
+    , inputTitle : String
 
     -- UI
     , windowWidth : Int
@@ -76,6 +78,8 @@ type FrontendMsg
     | ClearCell Int
     | EvalCell Int
     | InputElmCode Int String
+    | UpdateNotebookTitle
+    | ChangeAppMode AppMode
       -- UI
     | ChangePopup PopupState
     | GotViewport Browser.Dom.Viewport
@@ -90,6 +94,7 @@ type FrontendMsg
     | InputPassword String
     | InputPasswordAgain String
     | InputEmail String
+    | InputTitle String
       -- ADMIN
     | AdminRunTask
     | GetUsers
@@ -178,6 +183,11 @@ type ToFrontend
 type AppState
     = Loading
     | Loaded
+
+
+type AppMode
+    = AMWorking
+    | AMEditTitle
 
 
 type SignupState

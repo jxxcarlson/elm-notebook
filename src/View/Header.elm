@@ -4,6 +4,7 @@ import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Font as Font
 import Message
+import Types exposing (AppMode(..))
 import UILibrary.Color as Color
 import View.Button as Button
 import View.Color
@@ -45,12 +46,18 @@ signedInHeader model user =
     E.row
         [ E.spacing 24
         , E.paddingXY View.Geometry.hPadding 0
-        , E.spacing 12
+        , E.spacing 24
         , E.height (E.px View.Geometry.headerHeight)
         , E.width (E.px <| View.Geometry.appWidth model)
         , Background.color Color.mediumGray
         ]
-        [ title ("Elm Livebook: " ++ model.currentBook.title)
+        [ title "Elm Livebook"
+        , if model.appMode == AMEditTitle then
+            View.Input.title model
+
+          else
+            title model.currentBook.title
+        , Button.editTitle model.appMode
         , E.el [ E.width E.fill, E.paddingXY 12 0 ] (Message.viewSmall 400 model)
         , E.el [ E.alignRight ] (Button.signOut user.username)
         ]
