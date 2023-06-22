@@ -50,21 +50,33 @@ view width cellContents cell =
         [ E.paddingEach { top = 0, right = 0, bottom = 0, left = 0 }
         , E.width (E.px width)
         , Background.color (E.rgb 0.1 0.1 0.1)
-        , E.inFront
-            (E.row [ E.spacing 12, E.width (E.px width) ]
-                [ E.row [ E.alignRight, E.spacing 12 ]
-                    [ newCellAt cell.cellState cell.index
-                    , editCellAt cell.cellState cell.index
-                    , clearCellAt cell.cellState cell.index
-                    , evalCellAt cell.cellState cell.index
-                    , viewIndex cell
-                    ]
+        ]
+        [ E.row
+            [ E.spacing 12, E.width (E.px width) ]
+            [ E.column []
+                [ viewSource (width - controlWidth) cell cellContents
+                , viewValue (width - controlWidth) cell
                 ]
-            )
+            , E.column
+                [ E.spacing 2
+                , E.width (E.px controlWidth)
+                , E.alignTop
+                , E.height E.fill
+                , E.paddingEach { top = 0, bottom = 8, left = 0, right = 0 }
+                , Background.color (E.rgb 0.3 0.3 0.3)
+                ]
+                [ viewIndex cell
+                , newCellAt cell.cellState cell.index
+                , editCellAt cell.cellState cell.index
+                , clearCellAt cell.cellState cell.index
+                , evalCellAt cell.cellState cell.index
+                ]
+            ]
         ]
-        [ viewSource width cell cellContents
-        , viewValue width cell
-        ]
+
+
+controlWidth =
+    60
 
 
 viewSource : Int -> Cell -> String -> Element FrontendMsg
@@ -81,7 +93,7 @@ viewValue width cell =
     E.paragraph
         [ E.spacing 8
         , Font.color Color.black
-        , E.paddingEach { top = 8, right = 8, bottom = 12, left = 8 }
+        , E.paddingEach { top = 8, right = 0, bottom = 12, left = 8 }
         , E.width (E.px width)
         , Background.color (E.rgb 0.85 0.85 0.95)
         ]
@@ -91,14 +103,14 @@ viewValue width cell =
 
 viewIndex : Cell -> Element msg
 viewIndex cell =
-    E.el [ E.paddingXY 8 8, E.alignRight ] (E.text <| String.fromInt (cell.index + 1))
+    E.el [ E.paddingEach { top = 8, bottom = 0, left = 8, right = 0 } ] (E.text <| String.fromInt (cell.index + 1))
 
 
 viewSource_ : Int -> Cell -> Element msg
 viewSource_ width cell =
     E.column
         [ E.spacing 8
-        , E.paddingEach { top = 8, right = 8, bottom = 8, left = 8 }
+        , E.paddingEach { top = 8, right = 0, bottom = 8, left = 8 }
         , E.width (E.px width)
         , Background.color (E.rgb 0.15 0.15 0.15)
         , Font.color (E.rgb 0.9 0.9 0.9)

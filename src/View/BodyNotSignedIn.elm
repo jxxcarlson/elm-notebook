@@ -44,7 +44,7 @@ view model =
                 []
             , E.paragraph [ E.spacing 8 ]
                 [ E.text "There is much to do besides the usual fixing of bugs and tuning the UI, e.g.,  CRUD for notebooks. "
-                , E.text "Especially vexing is an authentication bug that appears rondomly on sign up.  It needs to be fixed. "
+                , E.text "Especially vexing is an authentication bug that appears randomly on sign up.  It needs to be fixed. "
                 , E.text "If you want to help, please reach out to me on Slack (jxxcarlson). "
                 ]
             ]
