@@ -33,6 +33,7 @@
             "miniBill/elm-fast-dict": "1.1.0",
             "miniBill/elm-rope": "1.0.0",
             "miniBill/elm-unicode": "1.0.3",
+            "ohanhi/keyboard": "2.0.1",
             "perzanko/elm-loading": "2.0.5",
             "rlopzc/elm-hmac-sha1": "1.0.0",
             "rtfeldman/elm-hex": "1.0.0",

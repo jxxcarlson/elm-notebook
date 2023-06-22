@@ -8,6 +8,7 @@ import Browser.Navigation as Nav
 import Frontend.Authentication
 import Frontend.Message
 import Html exposing (Html)
+import Keyboard
 import Lamdera exposing (sendToBackend)
 import List.Extra
 import LiveBook.Book
@@ -43,6 +44,7 @@ subscriptions model =
     Sub.batch
         [ Browser.Events.onResize GotNewWindowDimensions
         , Time.every 5000 FETick
+        , Sub.map KeyboardMsg Keyboard.subscriptions
         ]
 
 
@@ -55,6 +57,7 @@ init url key =
       , appState = Loading
       , appMode = AMWorking
       , currentTime = Time.millisToPosix 0
+      , pressedKeys = []
 
       -- ADMIN
       , users = []
@@ -63,6 +66,7 @@ init url key =
       , books = []
       , currentBook = LiveBook.Book.scratchPad
       , cellContent = ""
+      , currentCellIndex = 0
 
       -- UI
       , windowWidth = 600
@@ -90,6 +94,24 @@ update msg model =
     case msg of
         NoOpFrontendMsg ->
             ( model, Cmd.none )
+
+        KeyboardMsg keyMsg ->
+            let
+                pressedKeys =
+                    Keyboard.update keyMsg model.pressedKeys
+
+                newModel =
+                    if List.member Keyboard.Control pressedKeys && List.member (Keyboard.Character "V") pressedKeys then
+                        LiveBook.Update.evalCell_ model.currentCellIndex model
+
+                    else
+                        model
+            in
+            ( { newModel
+                | pressedKeys = pressedKeys
+              }
+            , Cmd.none
+            )
 
         FETick time ->
             let

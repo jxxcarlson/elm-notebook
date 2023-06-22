@@ -6,6 +6,7 @@ import Browser.Dom
 import Browser.Navigation exposing (Key)
 import Bytes
 import Dict exposing (Dict)
+import Keyboard
 import Lamdera exposing (ClientId)
 import Random
 import Time
@@ -21,6 +22,7 @@ type alias FrontendModel =
     , appState : AppState
     , appMode : AppMode
     , currentTime : Time.Posix
+    , pressedKeys : List Keyboard.Key
 
     -- ADMIN
     , users : List User
@@ -29,6 +31,7 @@ type alias FrontendModel =
     , books : List Book
     , currentBook : Book
     , cellContent : String
+    , currentCellIndex : Int
 
     -- USER
     , signupState : SignupState
@@ -72,6 +75,7 @@ type FrontendMsg
     | UrlChanged Url
     | NoOpFrontendMsg
     | FETick Time.Posix
+    | KeyboardMsg Keyboard.Msg
       -- CELL
     | NewCell Int
     | EditCell Int

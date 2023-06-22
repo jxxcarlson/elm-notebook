@@ -2,6 +2,7 @@ module LiveBook.Update exposing
     ( clearCell
     , editCell
     , evalCell
+    , evalCell_
     , makeNewCell
     , updateCellText
     )
@@ -97,7 +98,7 @@ editCell model index =
                 newBook =
                     { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
             in
-            ( { model | cellContent = cell_.text |> String.join "\n", currentBook = newBook }, Cmd.none )
+            ( { model | currentCellIndex = cell_.index, cellContent = cell_.text |> String.join "\n", currentBook = newBook }, Cmd.none )
 
 
 clearCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
@@ -128,11 +129,11 @@ clearCell model index =
             ( { model | cellContent = "", currentBook = newBook }, Cmd.none )
 
 
-evalCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
-evalCell model index =
+evalCell_ : Int -> FrontendModel -> FrontendModel
+evalCell_ index model =
     case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
-            ( model, Cmd.none )
+            model
 
         Just cell_ ->
             let
@@ -154,4 +155,9 @@ evalCell model index =
 
                 --|> List.map LiveBook.Cell.evaluate
             in
-            ( { model | currentBook = newBook }, Cmd.none )
+            { model | currentBook = newBook }
+
+
+evalCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
+evalCell model index =
+    ( evalCell_ index model, Cmd.none )
