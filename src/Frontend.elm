@@ -267,9 +267,6 @@ updateFromBackend msg model =
             let
                 currentBook =
                     List.head books |> Maybe.withDefault LiveBook.Book.scratchPad
-
-                _ =
-                    Debug.log "currentBook.i" currentBook.id
             in
             ( { model | books = books, currentBook = currentBook }, Cmd.none )
 

@@ -67,10 +67,6 @@ updateFromFrontend sessionId clientId msg model =
 
         -- ADMIN
         RunTask ->
-            let
-                _ =
-                    Debug.log "RunTask" True
-            in
             ( addScratchPadToUser "jxxcarlson" model, Cmd.none )
 
         SendUsers ->
@@ -212,7 +208,7 @@ addScratchPadToUser username model =
 
         scratchPad =
             { rawScratchpad
-                | id = newModel.uuid |> Debug.log "@@@scratchpad uuid"
+                | id = newModel.uuid
                 , author = username
                 , title = username ++ ".Scratchpad"
                 , slug = compress (username ++ ":scratchpad")
@@ -224,6 +220,6 @@ addScratchPadToUser username model =
             model.userToNoteBookDict
 
         newUserToNoteBookDict =
-            NotebookDict.insert username newModel.uuid scratchPad oldUserToNoteBookDict |> Debug.log "@@@DICT"
+            NotebookDict.insert username newModel.uuid scratchPad oldUserToNoteBookDict
     in
     { newModel | userToNoteBookDict = newUserToNoteBookDict }
