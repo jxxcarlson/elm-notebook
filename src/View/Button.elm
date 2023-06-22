@@ -3,11 +3,13 @@ module View.Button exposing
     , dismissPopup
     , dismissPopupSmall
     , editTitle
+    , newNotebook
     , runTask
     , setUpUser
     , signIn
     , signOut
     , signUp
+    , viewNotebookEntry
     )
 
 import Config
@@ -79,6 +81,20 @@ editTitle mode =
 
     else
         Button.smallPrimary { msg = ChangeAppMode Types.AMEditTitle, status = Button.Active, label = Button.Text "Edit Title", tooltipText = Nothing }
+
+
+newNotebook : Element FrontendMsg
+newNotebook =
+    Button.smallPrimary { msg = NewNotebook, status = Button.Active, label = Button.Text "New Notebook", tooltipText = Nothing }
+
+
+viewNotebookEntry : Types.Book -> Types.Book -> Element FrontendMsg
+viewNotebookEntry currentBook book =
+    if currentBook.id == book.id then
+        Button.smallPrimary { msg = NoOpFrontendMsg, status = Button.Active, label = Button.Text book.title, tooltipText = Nothing }
+
+    else
+        Button.smallPrimary { msg = SetCurrentNotebook book, status = Button.ActiveTransparent, label = Button.Text book.title, tooltipText = Nothing }
 
 
 

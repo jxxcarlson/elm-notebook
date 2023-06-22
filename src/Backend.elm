@@ -136,18 +136,19 @@ updateFromFrontend sessionId clientId msg model =
                     BackendHelper.getUUID model
 
                 newBook_ =
-                    LiveBook.Book.new title author
+                    LiveBook.Book.new author title
 
                 newBook =
                     { newBook_
-                        | id = model.uuid
+                        | id = newModel.uuid
+                        , author = author
                         , slug = BackendHelper.compress (author ++ ":" ++ title)
                         , createdAt = model.currentTime
                         , updatedAt = model.currentTime
                     }
 
                 newNotebookDict =
-                    NotebookDict.insert author newModel.uuid newBook model.userToNoteBookDict
+                    NotebookDict.insert newBook.author newBook.id newBook model.userToNoteBookDict
             in
             ( { newModel | userToNoteBookDict = newNotebookDict }, sendToFrontend clientId (GotNotebook newBook) )
 

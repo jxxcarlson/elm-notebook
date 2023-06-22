@@ -6,12 +6,14 @@ module View.Geometry exposing
     , hPadding
     , headerHeight
     , mainColumnHeight
+    , notebookListWidth
+    , notebookWidth
     )
 
 
 appWidth : { a | windowWidth : Int } -> Int
 appWidth model =
-    min 900 model.windowWidth
+    min 1000 model.windowWidth
 
 
 appHeight : { a | windowHeight : number } -> number
@@ -26,7 +28,15 @@ mainColumnHeight model =
 
 bodyHeight : { a | windowHeight : number } -> number
 bodyHeight model =
-    appHeight model - headerHeight - footerHeight - 55
+    appHeight model - headerHeight - footerHeight
+
+
+notebookWidth model =
+    appWidth model - notebookListWidth
+
+
+notebookListWidth =
+    240
 
 
 headerHeight =

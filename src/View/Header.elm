@@ -2,6 +2,7 @@ module View.Header exposing (view)
 
 import Element as E exposing (Element)
 import Element.Background as Background
+import Element.Border
 import Element.Font as Font
 import Message
 import Types exposing (AppMode(..))
@@ -28,7 +29,9 @@ notSignedInHeader model =
         , Font.size 14
         , E.height (E.px View.Geometry.headerHeight)
         , E.paddingXY View.Geometry.hPadding 0
-        , Background.color Color.mediumGray
+        , Background.color Color.darkerSteelGray
+        , Element.Border.widthEach { left = 0, right = 0, top = 0, bottom = 1 }
+        , Element.Border.color Color.stillDarkerSteelGray
         , E.width (E.px (View.Geometry.appWidth model))
         ]
         [ E.row
@@ -49,7 +52,9 @@ signedInHeader model user =
         , E.spacing 24
         , E.height (E.px View.Geometry.headerHeight)
         , E.width (E.px <| View.Geometry.appWidth model)
-        , Background.color Color.mediumGray
+        , Background.color Color.darkSteelGray
+        , Element.Border.widthEach { left = 0, right = 0, top = 0, bottom = 1 }
+        , Element.Border.color Color.stillDarkerSteelGray
         ]
         [ title "Elm Livebook"
         , if model.appMode == AMEditTitle then
@@ -58,7 +63,9 @@ signedInHeader model user =
           else
             title model.currentBook.title
         , Button.editTitle model.appMode
-        , E.el [ E.width E.fill, E.paddingXY 12 0 ] (Message.viewSmall 400 model)
+        , Button.newNotebook
+
+        --, E.el [ E.width E.fill, E.paddingXY 12 0 ] (Message.viewSmall 400 model)
         , E.el [ E.alignRight ] (Button.signOut user.username)
         ]
 

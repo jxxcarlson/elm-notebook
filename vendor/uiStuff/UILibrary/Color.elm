@@ -4,6 +4,8 @@ module UILibrary.Color exposing
     , darkBlue
     , darkGray
     , darkRed
+    , darkSteelGray
+    , darkerSteelGray
     , grayExample
     , greenExample
     , lightBlue
@@ -16,6 +18,7 @@ module UILibrary.Color exposing
     , pink
     , redExample
     , specialBlue
+    , stillDarkerSteelGray
     , transparent
     , veryPaleBlue
     , white
@@ -72,6 +75,18 @@ paleGray =
 lightGray : Element.Color
 lightGray =
     gray 0.75
+
+
+darkSteelGray =
+    Element.rgb255 73 78 89
+
+
+darkerSteelGray =
+    Element.rgb255 63 68 79
+
+
+stillDarkerSteelGray =
+    Element.rgb255 43 48 62
 
 
 mediumGray : Element.Color

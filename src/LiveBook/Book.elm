@@ -28,7 +28,7 @@ new author title =
     , updatedAt = Time.millisToPosix 0
     , public = False
     , title = title
-    , cells = []
+    , cells = [ { index = 0, text = [ "# Example: ", "1 + 1 == 2" ], value = Just "True", cellState = CSView } ]
     , currentIndex = 0
     }
 

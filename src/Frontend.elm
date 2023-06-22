@@ -220,11 +220,21 @@ update msg model =
                 , inputUsername = ""
                 , inputPassword = ""
               }
-            , -- Cmd.none
-              Nav.pushUrl model.key "/"
+            , Cmd.batch [ Nav.pushUrl model.key "/", sendToBackend (SaveNotebook model.currentBook) ]
             )
 
         -- CELLS
+        SetCurrentNotebook book ->
+            ( { model | currentBook = book }, Cmd.none )
+
+        NewNotebook ->
+            case model.currentUser of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just user ->
+                    ( model, sendToBackend (CreateNotebook user.username "New Notebook") )
+
         ChangeAppMode mode ->
             case mode of
                 AMEditTitle ->

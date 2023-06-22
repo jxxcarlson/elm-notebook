@@ -79,7 +79,9 @@ type FrontendMsg
     | EvalCell Int
     | InputElmCode Int String
     | UpdateNotebookTitle
+    | NewNotebook
     | ChangeAppMode AppMode
+    | SetCurrentNotebook Book
       -- UI
     | ChangePopup PopupState
     | GotViewport Browser.Dom.Viewport
