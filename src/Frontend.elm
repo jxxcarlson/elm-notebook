@@ -101,7 +101,7 @@ update msg model =
                     Keyboard.update keyMsg model.pressedKeys
 
                 newModel =
-                    if List.member Keyboard.Control pressedKeys && List.member (Keyboard.Character "V") pressedKeys then
+                    if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
                         LiveBook.Update.evalCell_ model.currentCellIndex model
 
                     else
