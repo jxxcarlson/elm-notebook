@@ -67,7 +67,7 @@ updateFromFrontend sessionId clientId msg model =
 
         -- ADMIN
         RunTask ->
-            ( addScratchPadToUser "minibill" model, Cmd.none )
+            ( addScratchPadToUser "jxxcarlson" model, Cmd.none )
 
         SendUsers ->
             ( model, sendToFrontend clientId (GotUsers (Authentication.users model.authenticationDict)) )
@@ -123,6 +123,13 @@ updateFromFrontend sessionId clientId msg model =
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, password and username don't match (2)") )
 
         -- NOTEBOOKS
+        SaveNotebook book ->
+            let
+                newNotebookDict =
+                    NotebookDict.insert book.author book.id book model.userToNoteBookDict
+            in
+            ( { model | userToNoteBookDict = newNotebookDict }, Cmd.none )
+
         CreateNotebook author title ->
             let
                 newModel =
@@ -132,7 +139,12 @@ updateFromFrontend sessionId clientId msg model =
                     LiveBook.Book.new title author
 
                 newBook =
-                    { newBook_ | id = model.uuid, slug = compress (author ++ ":" ++ title), createdAt = model.currentTime, updatedAt = model.currentTime }
+                    { newBook_
+                        | id = model.uuid
+                        , slug = compress (author ++ ":" ++ title)
+                        , createdAt = model.currentTime
+                        , updatedAt = model.currentTime
+                    }
 
                 newNotebookDict =
                     NotebookDict.insert author newModel.uuid newBook model.userToNoteBookDict

@@ -42,6 +42,7 @@ app =
 subscriptions model =
     Sub.batch
         [ Browser.Events.onResize GotNewWindowDimensions
+        , Time.every 5000 FETick
         ]
 
 
@@ -87,6 +88,17 @@ update msg model =
     case msg of
         NoOpFrontendMsg ->
             ( model, Cmd.none )
+
+        FETick time ->
+            let
+                saveNoteBookCmd =
+                    if model.currentBook.dirty then
+                        sendToBackend (SaveNotebook model.currentBook)
+
+                    else
+                        Cmd.none
+            in
+            ( { model | currentTime = time }, saveNoteBookCmd )
 
         -- NAV
         UrlClicked urlRequest ->

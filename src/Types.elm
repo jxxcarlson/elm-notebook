@@ -69,6 +69,7 @@ type FrontendMsg
     = UrlClicked UrlRequest
     | UrlChanged Url
     | NoOpFrontendMsg
+    | FETick Time.Posix
       -- CELL
     | NewCell Int
     | EditCell Int
@@ -105,6 +106,7 @@ type CellState
 
 type alias Book =
     { id : String
+    , dirty : Bool
     , slug : String
     , author : String
     , createdAt : Time.Posix
@@ -143,8 +145,9 @@ type ToBackend
       -- ADMIN
     | RunTask
     | SendUsers
-      -- CELL
+      -- NOTEBOOK
     | CreateNotebook String String -- authorname title
+    | SaveNotebook Book
       -- USER
     | SignUpBE String String String
     | SignInBEDev

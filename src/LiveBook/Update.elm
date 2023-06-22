@@ -34,7 +34,7 @@ makeNewCell model index =
             model.currentBook
 
         newBook =
-            { oldBook | cells = prefix ++ (newCell :: suffix) }
+            { oldBook | cells = prefix ++ (newCell :: suffix), dirty = True }
     in
     ( { model
         | cellContent = ""
@@ -67,7 +67,7 @@ updateCellText model index str =
                     model.currentBook
 
                 newBook =
-                    { oldBook | cells = prefix ++ (updatedCell :: suffix) }
+                    { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
             in
             { model | cellContent = str, currentBook = newBook }
 
@@ -95,7 +95,7 @@ editCell model index =
                     model.currentBook
 
                 newBook =
-                    { oldBook | cells = prefix ++ (updatedCell :: suffix) }
+                    { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
             in
             ( { model | cellContent = cell_.text |> String.join "\n", currentBook = newBook }, Cmd.none )
 
@@ -123,7 +123,7 @@ clearCell model index =
                     model.currentBook
 
                 newBook =
-                    { oldBook | cells = prefix ++ (updatedCell :: suffix) }
+                    { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
             in
             ( { model | cellContent = "", currentBook = newBook }, Cmd.none )
 
@@ -150,7 +150,7 @@ evalCell model index =
                     model.currentBook
 
                 newBook =
-                    { oldBook | cells = prefix ++ (updatedCell :: suffix) }
+                    { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
 
                 --|> List.map LiveBook.Cell.evaluate
             in

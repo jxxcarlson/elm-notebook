@@ -1,8 +1,7 @@
-module LiveBook.Book exposing (scratchPad, new)
+module LiveBook.Book exposing (new, scratchPad)
 
-import Types exposing (Book, Cell, CellState(..))
 import Time
-
+import Types exposing (Book, Cell, CellState(..))
 
 
 scratchPad : Book
@@ -10,6 +9,7 @@ scratchPad =
     { id = "_scratchpad_"
     , slug = "_scratchpad_"
     , author = "anonymous"
+    , dirty = False
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
     , public = False
@@ -20,26 +20,29 @@ scratchPad =
 
 
 new author title =
-   { id = "??"
+    { id = "??"
     , slug = "??"
     , author = author
+    , dirty = False
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
     , public = False
     , title = title
-    , cells = [ ]
+    , cells = []
     , currentIndex = 0
     }
 
 
 newBook : String -> String -> Book
-newBook author title ={
-   id = ""
-  , slug = ""
-  , author = author
-  , createdAt = Time.millisToPosix 0
-  , updatedAt = Time.millisToPosix 0
-  , public = False
-  , title = title
-  , cells = []
-  , currentIndex = 0 }
+newBook author title =
+    { id = ""
+    , slug = ""
+    , author = author
+    , dirty = False
+    , createdAt = Time.millisToPosix 0
+    , updatedAt = Time.millisToPosix 0
+    , public = False
+    , title = title
+    , cells = []
+    , currentIndex = 0
+    }
