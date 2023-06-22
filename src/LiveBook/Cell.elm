@@ -99,7 +99,6 @@ viewSource_ width cell =
     E.column
         [ E.spacing 8
         , E.paddingEach { top = 8, right = 8, bottom = 8, left = 8 }
-        , E.height (E.px 80)
         , E.width (E.px width)
         , Background.color (E.rgb 0.1 0.1 0.1)
         , Font.color (E.rgb 0.9 0.9 0.9)
@@ -113,14 +112,11 @@ editCell width cell cellContent =
         [ E.spacing 8
         , E.paddingEach { top = 1, right = 1, bottom = 1, left = 1 }
         , E.width (E.px width)
-
-        -- , E.height E.fill
         , Background.color (E.rgb 0.1 0.1 0.8)
         ]
         [ Element.Input.multiline
             [ Background.color (E.rgb 0.8 0.8 1.0)
             , Font.color Color.black
-            , E.height (E.px 80)
             ]
             { onChange = InputElmCode cell.index
             , text = cellContent
