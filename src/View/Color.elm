@@ -1,5 +1,6 @@
 module View.Color exposing
     ( darkRed
+    , medGray
     , red
     , white
     , yellow

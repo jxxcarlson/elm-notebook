@@ -25,17 +25,17 @@ notSignedInHeader model =
     E.row
         [ E.spacing 24
         , Font.size 14
+        , E.height (E.px View.Geometry.headerHeight)
         , E.paddingXY View.Geometry.hPadding 0
-        , Background.color Color.black
-        , E.width (E.px (View.Geometry.appWidth model - 40))
+        , Background.color Color.mediumGray
+        , E.width (E.px (View.Geometry.appWidth model))
         ]
-        [ title "Elm Livebook"
-        , E.row
+        [ E.row
             [ E.spacing 12
             ]
-            [ Button.signIn
-            , View.Input.username model
+            [ View.Input.username model
             , View.Input.password model
+            , Button.signIn
             ]
         , E.el [ E.alignRight ] Button.signUp
         ]
@@ -47,9 +47,7 @@ signedInHeader model user =
         , E.paddingXY View.Geometry.hPadding 0
         , E.spacing 12
         , E.width (E.px <| View.Geometry.appWidth model)
-
-        --, E.width (E.px (View.Geometry.appWidth model - 40))
-        , View.Style.bgGray 0.0
+        , Background.color Color.mediumGray
         ]
         [ title ("Elm Livebook: " ++ model.currentBook.title)
         , E.el [ E.width E.fill, E.paddingXY 12 0 ] (Message.viewSmall 400 model)

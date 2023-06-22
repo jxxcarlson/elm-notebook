@@ -2,11 +2,12 @@ module LiveBook.Cell exposing (evaluate, evaluateString, view)
 
 import Element as E exposing (Element)
 import Element.Background as Background
-import Element.Font
+import Element.Border as Border
+import Element.Font as Font
 import Element.Input
 import Eval
 import List.Extra
-import Types exposing (Cell, CellState(..),FrontendModel, FrontendMsg(..))
+import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
 import Value exposing (Value)
@@ -79,10 +80,10 @@ viewSource width cell cellContent =
 viewValue width cell =
     E.paragraph
         [ E.spacing 8
-        , Element.Font.color (E.rgb 0.1 0.1 0.1)
+        , Font.color Color.black
         , E.paddingEach { top = 8, right = 8, bottom = 12, left = 8 }
         , E.width (E.px width)
-        , Background.color (E.rgb 0.8 0.8 0.9)
+        , Background.color (E.rgb 0.85 0.85 0.95)
         ]
         [ E.text (cell.value |> Maybe.withDefault "-- unevaluated --")
         ]
@@ -101,6 +102,7 @@ viewSource_ width cell =
         , E.height (E.px 80)
         , E.width (E.px width)
         , Background.color (E.rgb 0.1 0.1 0.1)
+        , Font.color (E.rgb 0.9 0.9 0.9)
         ]
         (cell.text |> List.map E.text)
 
@@ -117,7 +119,7 @@ editCell width cell cellContent =
         ]
         [ Element.Input.multiline
             [ Background.color (E.rgb 0.8 0.8 1.0)
-            , Element.Font.color Color.black
+            , Font.color Color.black
             , E.height (E.px 80)
             ]
             { onChange = InputElmCode cell.index

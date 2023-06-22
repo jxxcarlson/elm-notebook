@@ -1,16 +1,17 @@
 module View.Input exposing
     ( email
-     , password
+    , password
     , passwordAgain
     , signupUsername
     , username
     )
 
 import Element as E exposing (Element, px)
-import Element.Background
+import Element.Background as Background
 import Element.Font as Font
 import Element.Input as Input
 import Types exposing (FrontendModel, FrontendMsg(..))
+import View.Color
 
 
 multiLineTemplate : Int -> Int -> String -> (String -> msg) -> String -> Element msg
@@ -26,9 +27,6 @@ multiLineTemplate width_ height_ default msg text =
 
 
 -- IMAGE
-
-
-
 
 
 inputFieldTemplate2 : List (E.Attr () msg) -> E.Length -> String -> (String -> msg) -> String -> Element msg
@@ -47,7 +45,14 @@ inputFieldTemplate2 attr width_ default msg text =
 
 inputFieldTemplate : E.Length -> String -> (String -> msg) -> String -> Element msg
 inputFieldTemplate width_ default msg text =
-    Input.text [ E.moveUp 5, Font.size 16, E.height (px 33), E.width width_ ]
+    Input.text
+        [ E.moveUp 5
+        , Font.size 16
+        , E.height (px 33)
+        , E.width width_
+        , Font.color View.Color.white
+        , Background.color View.Color.medGray
+        ]
         { onChange = msg
         , text = text
         , label = Input.labelHidden default
@@ -57,7 +62,14 @@ inputFieldTemplate width_ default msg text =
 
 passwordTemplate : E.Length -> String -> (String -> msg) -> String -> Element msg
 passwordTemplate width_ default msg text =
-    Input.currentPassword [ E.moveUp 5, Font.size 16, E.height (px 33), E.width width_ ]
+    Input.currentPassword
+        [ E.moveUp 5
+        , Font.size 16
+        , E.height (px 33)
+        , E.width width_
+        , Font.color View.Color.white
+        , Background.color View.Color.medGray
+        ]
         { onChange = msg
         , text = text
         , label = Input.labelHidden default

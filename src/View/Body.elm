@@ -18,7 +18,7 @@ view model user =
         [ E.column
             [ View.Style.fgGray 0.6
             , Font.size 14
-            , E.height (E.px (View.Geometry.mainColumnHeight model))
+            , E.height (E.px (View.Geometry.bodyHeight model))
             , E.scrollbarY
             , E.spacing 12
             , E.paddingEach { top = 19, bottom = 0, left = 0, right = 0 }

@@ -1,8 +1,10 @@
 module View.Geometry exposing
     ( appHeight
     , appWidth
+    , bodyHeight
     , footerHeight
     , hPadding
+    , headerHeight
     , mainColumnHeight
     )
 
@@ -20,6 +22,11 @@ appHeight model =
 mainColumnHeight : { a | windowHeight : number } -> number
 mainColumnHeight model =
     appHeight model - headerHeight - footerHeight - 15
+
+
+bodyHeight : { a | windowHeight : number } -> number
+bodyHeight model =
+    appHeight model - headerHeight - footerHeight
 
 
 headerHeight =

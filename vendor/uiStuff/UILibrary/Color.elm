@@ -76,7 +76,7 @@ lightGray =
 
 mediumGray : Element.Color
 mediumGray =
-    gray 0.45
+    gray 0.3
 
 
 darkGray : Element.Color
