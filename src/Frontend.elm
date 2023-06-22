@@ -281,8 +281,11 @@ update msg model =
                 oldBook =
                     model.currentBook
 
+                compress str =
+                    str |> String.toLower |> String.replace " " "-"
+
                 newBook =
-                    { oldBook | title = model.inputTitle }
+                    { oldBook | title = model.inputTitle, slug = compress (oldBook.author ++ ":" ++ model.inputTitle) }
             in
             ( { model
                 | appMode = AMWorking

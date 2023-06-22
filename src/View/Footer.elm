@@ -2,6 +2,7 @@ module View.Footer exposing (view)
 
 import Element as E exposing (Element)
 import Element.Font as Font
+import UILibrary.Color as Color
 import View.Button as Button
 import View.Geometry
 import View.Popup.Admin
@@ -26,12 +27,13 @@ view model =
         [ View.Utility.showIfIsAdmin model (Button.adminPopup model)
         , View.Utility.showIfIsAdmin model Button.runTask
         , messageRow model
+        , E.el [ Font.color Color.lightGray ] (E.text model.currentBook.slug)
         ]
 
 
 messageRow model =
     E.row
-        [ E.width E.fill
+        [ E.width (E.px 400)
         , E.height (E.px View.Geometry.footerHeight)
         , E.paddingXY View.Geometry.hPadding 4
         , View.Style.bgGray 0.1
