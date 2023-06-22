@@ -62,7 +62,7 @@ view width cellContents cell =
                 , E.width (E.px controlWidth)
                 , E.alignTop
                 , E.height E.fill
-                , E.paddingEach { top = 0, bottom = 8, left = 0, right = 0 }
+                , E.paddingEach { top = 0, bottom = 8, left = 4, right = 0 }
                 , Background.color (E.rgb 0.3 0.3 0.3)
                 ]
                 [ viewIndex cell

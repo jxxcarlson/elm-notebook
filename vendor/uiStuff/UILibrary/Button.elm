@@ -152,7 +152,7 @@ smallPrimaryStyle status =
         , Element.mouseDown [ Background.color (fgColor status) ]
         ]
     , iconSize = 19
-    , labelAttributes = [ Font.color UILibrary.Color.white, Element.centerX, Element.centerY, Font.size 12 ]
+    , labelAttributes = [ Font.color UILibrary.Color.lightGray, Element.centerX, Element.centerY, Font.size 12 ]
     }
 
 
