@@ -100,7 +100,7 @@ viewSource_ width cell =
         [ E.spacing 8
         , E.paddingEach { top = 8, right = 8, bottom = 8, left = 8 }
         , E.width (E.px width)
-        , Background.color (E.rgb 0.1 0.1 0.1)
+        , Background.color (E.rgb 0.15 0.15 0.15)
         , Font.color (E.rgb 0.9 0.9 0.9)
         ]
         (cell.text |> List.map E.text)

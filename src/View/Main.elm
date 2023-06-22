@@ -24,7 +24,7 @@ type alias Model =
 view : Model -> Html FrontendMsg
 view model =
     E.layoutWith { options = [ E.focusStyle View.Utility.noFocus ] }
-        [ View.Style.bgGray 0.2, E.clipX, E.clipY ]
+        [ View.Style.bgGray 0.0, E.clipX, E.clipY ]
         (mainColumn model)
 
 
@@ -45,7 +45,14 @@ mainColumn model =
 mainColumnStyle model =
     [ E.centerX
     , E.centerY
-    , Background.color Color.paleWarm
+
+    --, Background.color Color.paleWarm
+    , case model.currentUser of
+        Nothing ->
+            Background.color (E.rgb255 73 78 89)
+
+        Just _ ->
+            Background.color (E.rgb255 99 106 122)
     , E.width (E.px <| View.Geometry.appWidth model)
     , E.height (E.px (View.Geometry.appHeight model))
     ]

@@ -11,7 +11,7 @@ import View.Style
 view : FrontendModel -> Element msg
 view model =
     E.column [ E.height (E.px (View.Geometry.mainColumnHeight model)), E.centerX, E.spacing 18 ]
-        [ E.el [ Font.size 32, E.centerX, E.paddingEach { left = 0, right = 0, top = 48, bottom = 24 } ] (E.text "Elm Livebook")
+        [ E.el [ Font.color (E.rgb 0.8 0.8 0.8), Font.size 32, E.centerX, E.paddingEach { left = 0, right = 0, top = 48, bottom = 24 } ] (E.text "Elm Livebook")
         , E.image [ E.height (E.px (View.Geometry.mainColumnHeight model - 410)), E.centerX, E.centerY ]
             { src = "https://imagedelivery.net/9U-0Y4sEzXlO6BXzTnQnYQ/30f08d58-dbce-42a0-97a6-512735707700/public"
             , description = "bird"
@@ -20,7 +20,7 @@ view model =
             [ View.Style.fgGray 0.6
             , Font.size 14
             , E.spacing 8
-            , Font.color (E.rgb 0.2 0.2 0.2)
+            , Font.color (E.rgb 0.9 0.9 0.9)
             , E.paddingEach { top = 19, bottom = 0, left = 0, right = 0 }
             , E.centerX
             , E.scrollbarY

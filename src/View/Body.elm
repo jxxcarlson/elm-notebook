@@ -1,6 +1,7 @@
 module View.Body exposing (..)
 
 import Element as E exposing (Element)
+import Element.Background as Background
 import Element.Font as Font
 import LiveBook.Cell
 import Types exposing (FrontendModel, FrontendMsg)
@@ -20,7 +21,7 @@ view model user =
             , Font.size 14
             , E.height (E.px (View.Geometry.bodyHeight model))
             , E.scrollbarY
-            , E.spacing 12
+            , E.spacing 24
             , E.paddingEach { top = 19, bottom = 0, left = 0, right = 0 }
             ]
             (List.map
