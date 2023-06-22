@@ -3,6 +3,7 @@ module LiveBook.Cell exposing (evaluate, evaluateString, view)
 import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Border as Border
+import Element.Events
 import Element.Font as Font
 import Element.Input
 import Eval
@@ -52,7 +53,7 @@ view width cellContents cell =
         , Background.color (E.rgb 0.1 0.1 0.1)
         ]
         [ E.row
-            [ E.width (E.px width) ]
+            [ E.width (E.px width), Element.Events.onMouseDown (EditCell cell.index) ]
             [ E.column [ E.alignBottom ]
                 [ viewSource (width - controlWidth) cell cellContents
                 , viewValue (width - controlWidth) cell
