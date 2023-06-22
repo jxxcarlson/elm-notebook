@@ -64,7 +64,7 @@ signedInHeader model user =
             title model.currentBook.title
         , Button.editTitle model.appMode
         , Button.newNotebook
-        , E.el [ Font.color Color.paleGray, Font.size 14, E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] (E.text "ctrl-V to evaluate a cell")
+        , E.el [ Font.color Color.paleGray, Font.size 14, E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] (E.text "ctrl-Enter to evaluate a cell")
 
         --, E.el [ E.width E.fill, E.paddingXY 12 0 ] (Message.viewSmall 400 model)
         , E.el [ E.alignRight ] (Button.signOut user.username)
