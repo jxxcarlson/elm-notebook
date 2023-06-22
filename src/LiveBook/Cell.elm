@@ -52,8 +52,8 @@ view width cellContents cell =
         , Background.color (E.rgb 0.1 0.1 0.1)
         ]
         [ E.row
-            [ E.spacing 12, E.width (E.px width) ]
-            [ E.column []
+            [ E.width (E.px width) ]
+            [ E.column [ E.alignBottom ]
                 [ viewSource (width - controlWidth) cell cellContents
                 , viewValue (width - controlWidth) cell
                 ]

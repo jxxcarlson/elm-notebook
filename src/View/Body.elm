@@ -21,6 +21,7 @@ view model user =
             , Font.size 14
             , E.height (E.px (View.Geometry.bodyHeight model))
             , E.scrollbarY
+            , E.clipX
             , E.spacing 24
             , E.paddingEach { top = 19, bottom = 0, left = 0, right = 0 }
             ]
