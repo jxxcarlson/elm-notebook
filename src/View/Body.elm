@@ -44,15 +44,6 @@ viewNotebookList model user =
         )
 
 
-viewNotebookEntry : Types.Book -> Types.Book -> Element FrontendMsg
-viewNotebookEntry currentBook book =
-    if currentBook.id == book.id then
-        E.el [ Font.color Color.paleGray, Font.underline ] (E.text book.title)
-
-    else
-        E.el [ Font.color Color.paleGray ] (E.text book.title)
-
-
 viewNotebook : FrontendModel -> User.User -> Element FrontendMsg
 viewNotebook model user =
     E.column

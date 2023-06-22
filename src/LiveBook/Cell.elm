@@ -53,7 +53,7 @@ view width cellContents cell =
         , Background.color (E.rgb 0.1 0.1 0.1)
         ]
         [ E.row
-            [ E.width (E.px width), Element.Events.onMouseDown (EditCell cell.index) ]
+            [ E.width (E.px width) ]
             [ E.column [ E.alignBottom ]
                 [ viewSource (width - controlWidth) cell cellContents
                 , viewValue (width - controlWidth) cell
@@ -68,9 +68,11 @@ view width cellContents cell =
                 ]
                 [ viewIndex cell
                 , newCellAt cell.cellState cell.index
-                , editCellAt cell.cellState cell.index
+
+                --, editCellAt cell.cellState cell.index
                 , clearCellAt cell.cellState cell.index
-                , evalCellAt cell.cellState cell.index
+
+                --, evalCellAt cell.cellState cell.index
                 ]
             ]
         ]
@@ -107,10 +109,11 @@ viewIndex cell =
     E.el [ E.paddingEach { top = 8, bottom = 0, left = 8, right = 0 } ] (E.text <| String.fromInt (cell.index + 1))
 
 
-viewSource_ : Int -> Cell -> Element msg
+viewSource_ : Int -> Cell -> Element FrontendMsg
 viewSource_ width cell =
     E.column
         [ E.spacing 8
+        , Element.Events.onMouseDown (EditCell cell.index)
         , E.paddingEach { top = 8, right = 0, bottom = 8, left = 8 }
         , E.width (E.px width)
         , Background.color (E.rgb 0.15 0.15 0.15)
@@ -171,7 +174,7 @@ clearCellAt cellState index =
             E.none
 
         CSEdit ->
-            Button.smallPrimary { msg = ClearCell index, status = Button.Active, label = Button.Text "Clear", tooltipText = Just "Edit cell" }
+            Button.smallPrimary { msg = ClearCell index, status = Button.Active, label = Button.Text "x", tooltipText = Just "Edit cell" }
 
 
 evalCellAt : CellState -> Int -> Element FrontendMsg

@@ -41,6 +41,7 @@ makeNewCell model index =
     ( { model
         | cellContent = ""
         , currentBook = newBook
+        , currentCellIndex = index + 1
       }
     , Cmd.none
     )

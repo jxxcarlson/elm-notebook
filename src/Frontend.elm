@@ -245,7 +245,7 @@ update msg model =
             , Cmd.batch [ Nav.pushUrl model.key "/", sendToBackend (SaveNotebook model.currentBook) ]
             )
 
-        -- CELLS
+        -- CELLS, NOTEBOOKS
         SetCurrentNotebook book ->
             case model.currentUser of
                 Nothing ->
@@ -256,7 +256,7 @@ update msg model =
                         user =
                             { user_ | currentNotebookId = Just book.id }
                     in
-                    ( { model | currentUser = Just user, currentBook = book }
+                    ( { model | currentUser = Just user, currentBook = LiveBook.Book.initializeCellState book }
                     , sendToBackend (UpdateUserWith user)
                     )
 
@@ -344,7 +344,11 @@ updateFromBackend msg model =
                 ( { model | currentUser = Just user, message = "" }, Cmd.none )
 
         -- NOTEBOOKS
-        GotNotebook book ->
+        GotNotebook book_ ->
+            let
+                book =
+                    LiveBook.Book.initializeCellState book_
+            in
             ( { model | currentBook = book, books = book :: model.books }, Cmd.none )
 
         GotNotebooks books ->

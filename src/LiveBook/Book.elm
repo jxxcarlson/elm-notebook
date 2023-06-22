@@ -1,4 +1,4 @@
-module LiveBook.Book exposing (new, scratchPad)
+module LiveBook.Book exposing (initializeCellState, new, scratchPad)
 
 import Time
 import Types exposing (Book, Cell, CellState(..))
@@ -46,3 +46,8 @@ newBook author title =
     , cells = []
     , currentIndex = 0
     }
+
+
+initializeCellState : Book -> Book
+initializeCellState book =
+    { book | cells = List.map (\cell -> { cell | cellState = CSView }) book.cells }
