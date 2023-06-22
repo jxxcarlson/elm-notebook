@@ -136,6 +136,13 @@ update msg model =
                 NoPopup ->
                     ( { model | popupState = NoPopup }, Cmd.none )
 
+                NewNotebookPopup ->
+                    if model.popupState == NewNotebookPopup then
+                        ( { model | popupState = NoPopup }, Cmd.none )
+
+                    else
+                        ( { model | popupState = NewNotebookPopup }, Cmd.none )
+
                 SignUpPopup ->
                     if model.popupState == SignUpPopup then
                         ( { model | popupState = NoPopup }, Cmd.none )

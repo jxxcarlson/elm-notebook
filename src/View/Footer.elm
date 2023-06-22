@@ -5,6 +5,7 @@ import Element.Font as Font
 import View.Button as Button
 import View.Geometry
 import View.Popup.Admin
+import View.Popup.NewNotebook
 import View.Popup.SignUp
 import View.Style
 import View.Utility
@@ -18,6 +19,7 @@ view model =
         , E.alignBottom
         , E.inFront (View.Popup.Admin.view model)
         , E.inFront (View.Popup.SignUp.view model)
+        , E.inFront (View.Popup.NewNotebook.view model)
         , View.Style.bgGray 0.0
         , E.spacing 12
         ]

@@ -4,9 +4,9 @@ import Authentication exposing (AuthenticationDict)
 import Browser exposing (UrlRequest)
 import Browser.Dom
 import Browser.Navigation exposing (Key)
-import Lamdera exposing(ClientId)
 import Bytes
 import Dict exposing (Dict)
+import Lamdera exposing (ClientId)
 import Random
 import Time
 import Url exposing (Url)
@@ -131,6 +131,7 @@ type PopupState
     = NoPopup
     | AdminPopup
     | SignUpPopup
+    | NewNotebookPopup
 
 
 type SearchTerm
@@ -142,7 +143,7 @@ type ToBackend
       -- ADMIN
     | RunTask
     | SendUsers
-    -- CELL
+      -- CELL
     | CreateNotebook String String -- authorname title
       -- USER
     | SignUpBE String String String
@@ -162,7 +163,7 @@ type ToFrontend
     | MessageReceived Message
       -- ADMIN
     | GotUsers (List User)
-    -- NOTEBOOK
+      -- NOTEBOOK
     | GotNotebook Book
       -- USER
     | SendMessage String
