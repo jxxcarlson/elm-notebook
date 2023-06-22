@@ -1,6 +1,7 @@
 module Backend.Authentication exposing (signIn, signOut, signUpUser)
 
 import Authentication
+import BackendHelper
 import Dict
 import Hex
 import Lamdera exposing (ClientId, SessionId)
@@ -65,7 +66,11 @@ signUpUser model sessionId clientId username transitPassword email =
             ( { model | randomSeed = tokenData.seed }, Lamdera.sendToFrontend clientId (MessageReceived { txt = "Error: " ++ str, status = MSRed }) )
 
         Ok authDict ->
-            ( { model
+            let
+                newModel =
+                    BackendHelper.addScratchPadToUser user.username model
+            in
+            ( { newModel
                 | randomSeed = tokenData.seed
                 , authenticationDict = authDict
               }
@@ -120,7 +125,3 @@ createUser_ username password realname email model =
                 | randomSeed = tokenData.seed
                 , authenticationDict = authDict
             }
-
-
-
---

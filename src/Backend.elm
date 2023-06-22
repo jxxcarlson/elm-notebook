@@ -2,6 +2,7 @@ module Backend exposing (..)
 
 import Authentication
 import Backend.Authentication
+import BackendHelper
 import Dict
 import Env exposing (Mode(..))
 import Hex
@@ -12,7 +13,6 @@ import Random
 import Time
 import Token
 import Types exposing (..)
-import UUID
 
 
 type alias Model =
@@ -67,7 +67,7 @@ updateFromFrontend sessionId clientId msg model =
 
         -- ADMIN
         RunTask ->
-            ( addScratchPadToUser "jxxcarlson" model, Cmd.none )
+            ( BackendHelper.addScratchPadToUser "jxxcarlson" model, Cmd.none )
 
         SendUsers ->
             ( model, sendToFrontend clientId (GotUsers (Authentication.users model.authenticationDict)) )
@@ -133,7 +133,7 @@ updateFromFrontend sessionId clientId msg model =
         CreateNotebook author title ->
             let
                 newModel =
-                    getUUID model
+                    BackendHelper.getUUID model
 
                 newBook_ =
                     LiveBook.Book.new title author
@@ -141,7 +141,7 @@ updateFromFrontend sessionId clientId msg model =
                 newBook =
                     { newBook_
                         | id = model.uuid
-                        , slug = compress (author ++ ":" ++ title)
+                        , slug = BackendHelper.compress (author ++ ":" ++ title)
                         , createdAt = model.currentTime
                         , updatedAt = model.currentTime
                     }
@@ -189,49 +189,3 @@ setupUser model clientId email transitPassword username =
 
 idMessage model =
     "ids: " ++ (List.map .id model.documents |> String.join ", ")
-
-
-
--- HELPERS
-
-
-getUUID : Model -> Model
-getUUID model =
-    let
-        ( uuid, seed ) =
-            model.randomSeed |> Random.step UUID.generator
-    in
-    { model | uuid = UUID.toString uuid, randomSeed = seed }
-
-
-compress : String -> String
-compress str =
-    str |> String.toLower |> String.replace " " ""
-
-
-addScratchPadToUser : String -> Model -> Model
-addScratchPadToUser username model =
-    let
-        newModel =
-            getUUID model
-
-        rawScratchpad =
-            LiveBook.Book.scratchPad
-
-        scratchPad =
-            { rawScratchpad
-                | id = newModel.uuid
-                , author = username
-                , title = username ++ ".Scratchpad"
-                , slug = compress (username ++ ":scratchpad")
-                , createdAt = model.currentTime
-                , updatedAt = model.currentTime
-            }
-
-        oldUserToNoteBookDict =
-            model.userToNoteBookDict
-
-        newUserToNoteBookDict =
-            NotebookDict.insert username newModel.uuid scratchPad oldUserToNoteBookDict
-    in
-    { newModel | userToNoteBookDict = newUserToNoteBookDict }
