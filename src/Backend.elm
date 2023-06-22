@@ -67,7 +67,7 @@ updateFromFrontend sessionId clientId msg model =
 
         -- ADMIN
         RunTask ->
-            ( addScratchPadToUser "jxxcarlson" model, Cmd.none )
+            ( addScratchPadToUser "minibill" model, Cmd.none )
 
         SendUsers ->
             ( model, sendToFrontend clientId (GotUsers (Authentication.users model.authenticationDict)) )
