@@ -13,7 +13,7 @@ import View.Style
 view : FrontendModel -> User.User -> Element FrontendMsg
 view model user =
     E.column
-        [ E.paddingEach { left = 48, right = 0, top = 0, bottom = 0 }
+        [ E.paddingEach { left = 48, right = 0, top = 20, bottom = 0 }
         , E.spacing 18
         ]
         [ E.column

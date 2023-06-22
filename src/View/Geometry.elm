@@ -21,20 +21,20 @@ appHeight model =
 
 mainColumnHeight : { a | windowHeight : number } -> number
 mainColumnHeight model =
-    appHeight model - headerHeight - footerHeight - 15
+    appHeight model - headerHeight - footerHeight - 35
 
 
 bodyHeight : { a | windowHeight : number } -> number
 bodyHeight model =
-    appHeight model - headerHeight - footerHeight
+    appHeight model - headerHeight - footerHeight - 55
 
 
 headerHeight =
-    30
+    45
 
 
 footerHeight =
-    30
+    45
 
 
 hPadding =

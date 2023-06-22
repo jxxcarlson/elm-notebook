@@ -46,6 +46,7 @@ signedInHeader model user =
         [ E.spacing 24
         , E.paddingXY View.Geometry.hPadding 0
         , E.spacing 12
+        , E.height (E.px View.Geometry.headerHeight)
         , E.width (E.px <| View.Geometry.appWidth model)
         , Background.color Color.mediumGray
         ]
