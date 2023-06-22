@@ -8,7 +8,8 @@ module NotebookDict exposing
 
 import Dict
 import List.Extra
-import Types exposing(Book)
+import Types exposing (Book)
+
 
 type NotebookDataError
     = NotebookOwnerNotFound String
@@ -70,8 +71,8 @@ all username_ dict =
         Nothing ->
             []
 
-        Just imageDict ->
-            Dict.values imageDict
+        Just notebookDict ->
+            Dict.values notebookDict
 
 
 {-|
@@ -83,7 +84,7 @@ insert : Types.Username -> String -> Book -> Types.UserToNoteBookDict -> Types.U
 insert username_ identifier notebook userToNotebookDict =
     case Dict.get username_ userToNotebookDict of
         Nothing ->
-            userToNotebookDict
+            Dict.insert username_ (Dict.singleton identifier notebook) userToNotebookDict
 
         Just notebookDict ->
             Dict.insert username_ (Dict.insert identifier notebook notebookDict) userToNotebookDict

@@ -165,6 +165,7 @@ type ToFrontend
     | GotUsers (List User)
       -- NOTEBOOK
     | GotNotebook Book
+    | GotNotebooks (List Book)
       -- USER
     | SendMessage String
     | UserSignedIn User ClientId

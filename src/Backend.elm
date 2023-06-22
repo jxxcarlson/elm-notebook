@@ -1,18 +1,18 @@
 module Backend exposing (..)
 
 import Authentication
-import UUID
 import Backend.Authentication
 import Dict
-import Hex
 import Env exposing (Mode(..))
+import Hex
+import Lamdera exposing (ClientId, SessionId, sendToFrontend)
 import LiveBook.Book
 import NotebookDict
-import Lamdera exposing (ClientId, SessionId, sendToFrontend)
 import Random
 import Time
 import Token
 import Types exposing (..)
+import UUID
 
 
 type alias Model =
@@ -67,7 +67,11 @@ updateFromFrontend sessionId clientId msg model =
 
         -- ADMIN
         RunTask ->
-            ( { model | authenticationDict = Authentication.toggleLockOnUser "publicdemo" model.authenticationDict }, Cmd.none )
+            let
+                _ =
+                    Debug.log "RunTask" True
+            in
+            ( addScratchPadToUser "jxxcarlson" model, Cmd.none )
 
         SendUsers ->
             ( model, sendToFrontend clientId (GotUsers (Authentication.users model.authenticationDict)) )
@@ -112,6 +116,7 @@ updateFromFrontend sessionId clientId msg model =
                         ( model
                         , Cmd.batch
                             [ sendToFrontend clientId (SendUser userData.user)
+                            , sendToFrontend clientId (GotNotebooks (NotebookDict.all username model.userToNoteBookDict))
                             ]
                         )
 
@@ -122,16 +127,21 @@ updateFromFrontend sessionId clientId msg model =
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, password and username don't match (2)") )
 
         -- NOTEBOOKS
-
         CreateNotebook author title ->
             let
-                newModel = getUUID model
-                newBook_ = LiveBook.Book.new title author
-                newBook = { newBook_ | id = model.uuid, slug = compress (author ++ ":" ++ title)   , createdAt = model.currentTime, updatedAt = model.currentTime}
-                newNotebookDict = NotebookDict.insert author newModel.uuid newBook model.userToNoteBookDict
+                newModel =
+                    getUUID model
 
-             in
-             ({ newModel | userToNoteBookDict = newNotebookDict}, sendToFrontend clientId (GotNotebook newBook))
+                newBook_ =
+                    LiveBook.Book.new title author
+
+                newBook =
+                    { newBook_ | id = model.uuid, slug = compress (author ++ ":" ++ title), createdAt = model.currentTime, updatedAt = model.currentTime }
+
+                newNotebookDict =
+                    NotebookDict.insert author newModel.uuid newBook model.userToNoteBookDict
+            in
+            ( { newModel | userToNoteBookDict = newNotebookDict }, sendToFrontend clientId (GotNotebook newBook) )
 
 
 setupUser : Model -> ClientId -> String -> String -> String -> ( BackendModel, Cmd BackendMsg )
@@ -174,15 +184,46 @@ idMessage model =
 
 
 
-
 -- HELPERS
 
-getUUID :Model -> Model
-getUUID model = 
-  let 
-    (uuid, seed) = model.randomSeed |> Random.step UUID.generator
- in 
-   { model | uuid =  UUID.toString uuid, randomSeed = seed }
 
-compress :  String -> String
-compress str = str |> String.toLower |> String.replace " " ""
+getUUID : Model -> Model
+getUUID model =
+    let
+        ( uuid, seed ) =
+            model.randomSeed |> Random.step UUID.generator
+    in
+    { model | uuid = UUID.toString uuid, randomSeed = seed }
+
+
+compress : String -> String
+compress str =
+    str |> String.toLower |> String.replace " " ""
+
+
+addScratchPadToUser : String -> Model -> Model
+addScratchPadToUser username model =
+    let
+        newModel =
+            getUUID model
+
+        rawScratchpad =
+            LiveBook.Book.scratchPad
+
+        scratchPad =
+            { rawScratchpad
+                | id = newModel.uuid |> Debug.log "@@@scratchpad uuid"
+                , author = username
+                , title = username ++ ".Scratchpad"
+                , slug = compress (username ++ ":scratchpad")
+                , createdAt = model.currentTime
+                , updatedAt = model.currentTime
+            }
+
+        oldUserToNoteBookDict =
+            model.userToNoteBookDict
+
+        newUserToNoteBookDict =
+            NotebookDict.insert username newModel.uuid scratchPad oldUserToNoteBookDict |> Debug.log "@@@DICT"
+    in
+    { newModel | userToNoteBookDict = newUserToNoteBookDict }

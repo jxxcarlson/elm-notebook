@@ -263,6 +263,16 @@ updateFromBackend msg model =
         GotNotebook book ->
             ( { model | currentBook = book, books = book :: model.books }, Cmd.none )
 
+        GotNotebooks books ->
+            let
+                currentBook =
+                    List.head books |> Maybe.withDefault LiveBook.Book.scratchPad
+
+                _ =
+                    Debug.log "currentBook.i" currentBook.id
+            in
+            ( { model | books = books, currentBook = currentBook }, Cmd.none )
+
 
 view : Model -> { title : String, body : List (Html.Html FrontendMsg) }
 view model =
