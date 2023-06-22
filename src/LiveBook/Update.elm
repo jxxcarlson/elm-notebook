@@ -4,6 +4,7 @@ module LiveBook.Update exposing
     , evalCell
     , evalCell_
     , makeNewCell
+    , removeCell_
     , updateCellText
     )
 
@@ -71,6 +72,31 @@ updateCellText model index str =
                     { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
             in
             { model | cellContent = str, currentBook = newBook }
+
+
+removeCell_ : Int -> FrontendModel -> FrontendModel
+removeCell_ index model =
+    case List.Extra.getAt index model.currentBook.cells of
+        Nothing ->
+            model
+
+        Just cell_ ->
+            let
+                prefix =
+                    List.filter (\cell -> cell.index < index) model.currentBook.cells
+                        |> List.map (\cell -> { cell | cellState = CSView })
+
+                suffix =
+                    List.filter (\cell -> cell.index > index) model.currentBook.cells
+                        |> List.map (\cell -> { cell | cellState = CSView, index = cell.index - 1 })
+
+                oldBook =
+                    model.currentBook
+
+                newBook =
+                    { oldBook | cells = prefix ++ suffix, dirty = True }
+            in
+            { model | currentCellIndex = cell_.index, cellContent = cell_.text |> String.join "\n", currentBook = newBook }
 
 
 editCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
