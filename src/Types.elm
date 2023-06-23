@@ -154,6 +154,7 @@ type MessageStatus
 type PopupState
     = NoPopup
     | AdminPopup
+    | ManualPopup
     | SignUpPopup
     | NewNotebookPopup
 

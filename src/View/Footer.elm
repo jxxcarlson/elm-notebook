@@ -6,7 +6,9 @@ import UILibrary.Color as Color
 import View.Button as Button
 import View.Geometry
 import View.Input
+import View.MarkdownThemed
 import View.Popup.Admin
+import View.Popup.Manual
 import View.Popup.NewNotebook
 import View.Popup.SignUp
 import View.Style
@@ -22,17 +24,27 @@ view model =
         , E.inFront (View.Popup.Admin.view model)
         , E.inFront (View.Popup.SignUp.view model)
         , E.inFront (View.Popup.NewNotebook.view model)
+        , E.inFront (View.Popup.Manual.view model View.MarkdownThemed.lightTheme)
         , View.Style.bgGray 0.0
         , E.spacing 12
         ]
-        [ View.Utility.showIfIsAdmin model (Button.adminPopup model)
-        , View.Utility.showIfIsAdmin model Button.runTask
-        , messageRow model
-        , E.el [ Font.color Color.lightGray ] (E.text model.currentBook.slug)
-        , Button.public model.currentBook
-        , Button.cloneNotebook
-        , View.Input.cloneReference model
-        ]
+        (case model.currentUser of
+            Nothing ->
+                [ View.Utility.showIfIsAdmin model (Button.adminPopup model)
+                , View.Utility.showIfIsAdmin model Button.runTask
+                , messageRow model
+                ]
+
+            Just _ ->
+                [ View.Utility.showIfIsAdmin model (Button.adminPopup model)
+                , View.Utility.showIfIsAdmin model Button.runTask
+                , messageRow model
+                , E.el [ Font.color Color.lightGray ] (E.text model.currentBook.slug)
+                , Button.public model.currentBook
+                , E.el [ E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] Button.cloneNotebook
+                , View.Input.cloneReference model
+                ]
+        )
 
 
 messageRow model =

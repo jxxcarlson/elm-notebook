@@ -4,6 +4,8 @@ module View.Button exposing
     , dismissPopup
     , dismissPopupSmall
     , editTitle
+    , manual
+    , manualLarge
     , newNotebook
     , public
     , runTask
@@ -111,6 +113,16 @@ viewNotebookEntry currentBook book =
 cloneNotebook : Element FrontendMsg
 cloneNotebook =
     Button.smallPrimary { msg = CloneNotebook, status = Button.Active, label = Button.Text "Clone", tooltipText = Nothing }
+
+
+manual : Element FrontendMsg
+manual =
+    Button.smallPrimary { msg = ChangePopup ManualPopup, status = Button.Active, label = Button.Text "Manual", tooltipText = Nothing }
+
+
+manualLarge : Element FrontendMsg
+manualLarge =
+    Button.largePrimary { msg = ChangePopup ManualPopup, status = Button.Active, label = Button.Text "Manual", tooltipText = Nothing }
 
 
 

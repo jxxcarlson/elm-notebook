@@ -41,6 +41,7 @@ notSignedInHeader model =
             , View.Input.password model
             , Button.signIn
             ]
+        , Button.manualLarge
         , E.el [ E.alignRight ] Button.signUp
         ]
 
@@ -64,7 +65,7 @@ signedInHeader model user =
             title model.currentBook.title
         , Button.editTitle model.appMode
         , Button.newNotebook
-        , E.el [ Font.color Color.paleGray, Font.size 14, E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] (E.text "Click to edit a cell, type ctrl-Enter to evaluate it.")
+        , Button.manual
 
         --, E.el [ E.width E.fill, E.paddingXY 12 0 ] (Message.viewSmall 400 model)
         , E.el [ E.alignRight ] (Button.signOut user.username)

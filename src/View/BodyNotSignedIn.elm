@@ -35,9 +35,9 @@ view model =
                 ]
             , E.row [ E.height (E.px 8) ] []
             , E.paragraph [ E.spacing 8 ]
-                [ E.text "Click on a cell to edit it."
-                , E.text "Then click the 'eval' button or type Ctrl-Enter to run the code."
+                [ E.text "Please look at the manual before you start. (Click on 'Manual' button in header.) "
                 ]
+            , E.row [ E.height (E.px 8) ] []
             , E.text "The engine that runs the app is @minibill's elm-interpreter. "
             ]
         ]
