@@ -32,6 +32,7 @@ type alias FrontendModel =
     , currentBook : Book
     , cellContent : String
     , currentCellIndex : Int
+    , cloneReference : String
 
     -- USER
     , signupState : SignupState
@@ -62,12 +63,19 @@ type alias BackendModel =
     , uuid : String
     , randomAtmosphericInt : Maybe Int
 
+    -- NOTEBOOK
+    , userToNoteBookDict : UserToNoteBookDict
+    , slugDict : Dict.Dict String NotebookRecord -- keys are slugs, values are notebook ids
+
     -- USER
     , authenticationDict : AuthenticationDict
-    , userToNoteBookDict : UserToNoteBookDict
 
     -- DOCUMENT
     }
+
+
+type alias NotebookRecord =
+    { id : String, author : String, public : Bool }
 
 
 type FrontendMsg
@@ -87,6 +95,7 @@ type FrontendMsg
     | ChangeAppMode AppMode
     | TogglePublic
     | SetCurrentNotebook Book
+    | CloneNotebook
       -- UI
     | ChangePopup PopupState
     | GotViewport Browser.Dom.Viewport
@@ -102,6 +111,7 @@ type FrontendMsg
     | InputPasswordAgain String
     | InputEmail String
     | InputTitle String
+    | InputCloneReference String
       -- ADMIN
     | AdminRunTask
     | GetUsers
@@ -160,6 +170,8 @@ type ToBackend
       -- NOTEBOOK
     | CreateNotebook String String -- authorname title
     | SaveNotebook Book
+    | GetClonedNotebook String String -- username slug
+    | UpdateSlugDict Book
       -- USER
     | SignUpBE String String String
     | SignInBEDev

@@ -1,5 +1,6 @@
 module View.Input exposing
-    ( email
+    ( cloneReference
+    , email
     , password
     , passwordAgain
     , signupUsername
@@ -89,6 +90,10 @@ signupUsername model =
 
 email model =
     inputFieldTemplate (E.px 220) "Email" InputEmail model.inputEmail
+
+
+cloneReference model =
+    inputFieldTemplate (E.px 220) "Slug" InputCloneReference model.cloneReference
 
 
 password model =

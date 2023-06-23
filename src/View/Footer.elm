@@ -5,6 +5,7 @@ import Element.Font as Font
 import UILibrary.Color as Color
 import View.Button as Button
 import View.Geometry
+import View.Input
 import View.Popup.Admin
 import View.Popup.NewNotebook
 import View.Popup.SignUp
@@ -29,12 +30,14 @@ view model =
         , messageRow model
         , E.el [ Font.color Color.lightGray ] (E.text model.currentBook.slug)
         , Button.public model.currentBook
+        , Button.cloneNotebook
+        , View.Input.cloneReference model
         ]
 
 
 messageRow model =
     E.row
-        [ E.width (E.px 400)
+        [ E.width (E.px 350)
         , E.height (E.px View.Geometry.footerHeight)
         , E.paddingXY View.Geometry.hPadding 4
         , View.Style.bgGray 0.1

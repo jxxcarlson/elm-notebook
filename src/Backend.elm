@@ -39,9 +39,12 @@ init =
       , randomAtmosphericInt = Nothing
       , currentTime = Time.millisToPosix 0
 
+      -- NOTEBOOK
+      , userToNoteBookDict = Dict.empty
+      , slugDict = Dict.empty
+
       -- USER
       , authenticationDict = Dict.empty
-      , userToNoteBookDict = Dict.empty
 
       -- DOCUMENTS
       }
@@ -141,6 +144,38 @@ updateFromFrontend sessionId clientId msg model =
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, password and username don't match (2)") )
 
         -- NOTEBOOKS
+        UpdateSlugDict book ->
+            case String.split "." book.slug of
+                author :: slug :: [] ->
+                    let
+                        oldSlugDict =
+                            model.slugDict
+
+                        newSlugDict =
+                            Dict.insert book.slug { id = book.id, author = book.author, public = book.public } oldSlugDict
+                    in
+                    ( { model | slugDict = newSlugDict }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
+
+        GetClonedNotebook username slug ->
+            case Dict.get slug model.slugDict of
+                Just notebookRecord ->
+                    case NotebookDict.lookup notebookRecord.author notebookRecord.id model.userToNoteBookDict of
+                        Ok book ->
+                            let
+                                newModel =
+                                    BackendHelper.getUUID model
+                            in
+                            ( newModel, sendToFrontend clientId (GotNotebook { book | author = username, id = newModel.uuid }) )
+
+                        Err _ ->
+                            ( model, sendToFrontend clientId (SendMessage <| "Sorry, couldn't get that notebook (1)") )
+
+                Nothing ->
+                    ( model, sendToFrontend clientId (SendMessage <| "Sorry, couldn't get that notebook (2)") )
+
         SaveNotebook book ->
             let
                 newNotebookDict =

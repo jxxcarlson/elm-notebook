@@ -1,5 +1,6 @@
 module View.Button exposing
     ( adminPopup
+    , cloneNotebook
     , dismissPopup
     , dismissPopupSmall
     , editTitle
@@ -107,6 +108,11 @@ viewNotebookEntry currentBook book =
         Button.smallPrimary { msg = SetCurrentNotebook book, status = Button.ActiveTransparent, label = Button.Text book.title, tooltipText = Nothing }
 
 
+cloneNotebook : Element FrontendMsg
+cloneNotebook =
+    Button.smallPrimary { msg = CloneNotebook, status = Button.Active, label = Button.Text "Clone", tooltipText = Nothing }
+
+
 
 -- USER
 
@@ -141,4 +147,4 @@ adminPopup model =
 
 runTask : Element FrontendMsg
 runTask =
-    buttonTemplate [] AdminRunTask "Run backend task"
+    buttonTemplate [] AdminRunTask "RBT"

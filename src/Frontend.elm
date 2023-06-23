@@ -67,6 +67,7 @@ init url key =
       , currentBook = LiveBook.Book.scratchPad
       , cellContent = ""
       , currentCellIndex = 0
+      , cloneReference = ""
 
       -- UI
       , windowWidth = 600
@@ -235,6 +236,9 @@ update msg model =
         InputTitle str ->
             ( { model | inputTitle = str }, Cmd.none )
 
+        InputCloneReference str ->
+            ( { model | cloneReference = str }, Cmd.none )
+
         SignOut ->
             ( { model
                 | currentUser = Nothing
@@ -246,6 +250,14 @@ update msg model =
             )
 
         -- CELLS, NOTEBOOKS
+        CloneNotebook ->
+            case model.currentUser of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just user ->
+                    ( model, sendToBackend (GetClonedNotebook user.username model.cloneReference) )
+
         SetCurrentNotebook book ->
             case model.currentUser of
                 Nothing ->
@@ -302,7 +314,10 @@ update msg model =
                 , currentBook = newBook
                 , books = List.Extra.setIf (\b -> b.id == newBook.id) newBook model.books
               }
-            , sendToBackend (SaveNotebook newBook)
+            , Cmd.batch
+                [ sendToBackend (SaveNotebook newBook)
+                , sendToBackend (UpdateSlugDict newBook)
+                ]
             )
 
         InputElmCode index str ->
