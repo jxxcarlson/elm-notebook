@@ -56,10 +56,10 @@ view model =
 
 messageRow model =
     E.row
-        [ E.width (E.px 350)
+        [ E.width (E.px 300)
         , E.height (E.px View.Geometry.footerHeight)
         , E.paddingXY View.Geometry.hPadding 4
         , View.Style.bgGray 0.1
         , Font.color (E.rgb 0 1 0)
         ]
-        [ E.text <| "Messages: " ++ model.message ]
+        [ E.text <| model.message ]

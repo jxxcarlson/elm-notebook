@@ -66,7 +66,7 @@ passwordTemplate : E.Length -> String -> (String -> msg) -> String -> Element ms
 passwordTemplate width_ default msg text =
     Input.currentPassword
         [ E.moveUp 5
-        , Font.size 16
+        , Font.size 14
         , E.height (px 33)
         , E.width width_
         , Font.color View.Color.white
@@ -93,7 +93,12 @@ email model =
 
 
 cloneReference model =
-    inputFieldTemplate (E.px 220) "Notebook identifier" InputCloneReference model.cloneReference
+    inputFieldTemplate2 [ Font.size 14, E.height (E.px 28) ] (E.px 180) "Notebook identifier" InputCloneReference model.cloneReference
+
+
+
+--inputFieldTemplate2 : List (E.Attr () msg) -> E.Length -> String -> (String -> msg) -> String -> Element msg
+--inputFieldTemplate2 attr width_ default msg text
 
 
 password model =

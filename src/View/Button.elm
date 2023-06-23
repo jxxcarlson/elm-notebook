@@ -118,7 +118,7 @@ cloneNotebook =
 
 pullNotebook : Element FrontendMsg
 pullNotebook =
-    Button.smallPrimary { msg = PullNotebook, status = Button.Active, label = Button.Text "Pull", tooltipText = Nothing }
+    Button.smallPrimary { msg = PullNotebook, status = Button.Active, label = Button.Text "Update", tooltipText = Nothing }
 
 
 manual : Element FrontendMsg
