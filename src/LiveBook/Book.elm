@@ -4,11 +4,11 @@ import Time
 import Types exposing (Book, Cell, CellState(..))
 
 
-scratchPad : Book
-scratchPad =
+scratchPad : String -> Book
+scratchPad username =
     { id = "_scratchpad_"
-    , slug = "_scratchpad_"
-    , author = "anonymous"
+    , slug = username ++ ".scratchpad"
+    , author = username
     , dirty = False
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0

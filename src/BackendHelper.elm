@@ -27,21 +27,21 @@ compress str =
     str |> String.toLower |> String.replace " " ""
 
 
-addScratchPadToUser : String -> Model -> Model
+addScratchPadToUser : String -> Model -> ( Model, Book )
 addScratchPadToUser username model =
     let
         newModel =
             getUUID model
 
         rawScratchpad =
-            LiveBook.Book.scratchPad
+            LiveBook.Book.scratchPad username
 
+        scratchPad : Book
         scratchPad =
             { rawScratchpad
                 | id = newModel.uuid
-                , author = username
-                , title = username ++ ".Scratchpad"
-                , slug = compress (username ++ ":scratchpad")
+                , title = "Scratchpad"
+                , slug = compress (username ++ ".scratchpad")
                 , createdAt = model.currentTime
                 , updatedAt = model.currentTime
             }
@@ -52,4 +52,4 @@ addScratchPadToUser username model =
         newUserToNoteBookDict =
             NotebookDict.insert username newModel.uuid scratchPad oldUserToNoteBookDict
     in
-    { newModel | userToNoteBookDict = newUserToNoteBookDict }
+    ( { newModel | userToNoteBookDict = newUserToNoteBookDict }, scratchPad )

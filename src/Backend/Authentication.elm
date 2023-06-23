@@ -68,7 +68,7 @@ signUpUser model sessionId clientId username transitPassword email =
 
         Ok authDict ->
             let
-                newModel =
+                ( newModel, book ) =
                     BackendHelper.addScratchPadToUser user.username model
             in
             ( { newModel
@@ -78,6 +78,7 @@ signUpUser model sessionId clientId username transitPassword email =
             , Cmd.batch
                 [ Lamdera.sendToFrontend clientId (UserSignedIn user clientId)
                 , Lamdera.sendToFrontend clientId (MessageReceived { txt = "Success! Your account is set up.", status = MSGreen })
+                , Lamdera.sendToFrontend clientId (GotNotebook book)
                 ]
             )
 

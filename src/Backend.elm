@@ -70,7 +70,7 @@ updateFromFrontend sessionId clientId msg model =
 
         -- ADMIN
         RunTask ->
-            ( BackendHelper.addScratchPadToUser "jxxcarlson" model, Cmd.none )
+            ( model, Cmd.none )
 
         SendUsers ->
             ( model, sendToFrontend clientId (GotUsers (Authentication.users model.authenticationDict)) )

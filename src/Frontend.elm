@@ -64,7 +64,7 @@ init url key =
 
       -- CELLS
       , books = []
-      , currentBook = LiveBook.Book.scratchPad
+      , currentBook = LiveBook.Book.scratchPad "anonymous"
       , cellContent = ""
       , currentCellIndex = 0
       , cloneReference = ""
