@@ -93,7 +93,7 @@ email model =
 
 
 cloneReference model =
-    inputFieldTemplate (E.px 220) "Slug" InputCloneReference model.cloneReference
+    inputFieldTemplate (E.px 220) "notebook reference ..." InputCloneReference model.cloneReference
 
 
 password model =
