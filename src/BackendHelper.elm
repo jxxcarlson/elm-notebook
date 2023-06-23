@@ -24,7 +24,7 @@ getUUID model =
 
 compress : String -> String
 compress str =
-    str |> String.toLower |> String.replace " " ""
+    str |> String.toLower |> String.replace " " "-"
 
 
 addScratchPadToUser : String -> Model -> ( Model, Book )

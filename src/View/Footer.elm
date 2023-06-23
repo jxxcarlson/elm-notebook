@@ -39,6 +39,12 @@ view model =
                 [ View.Utility.showIfIsAdmin model (Button.adminPopup model)
                 , View.Utility.showIfIsAdmin model Button.runTask
                 , messageRow model
+                , case model.currentBook.origin of
+                    Just origin ->
+                        E.el [ Font.color Color.lightGray ] (E.text <| "origin: " ++ origin ++ ",")
+
+                    Nothing ->
+                        E.none
                 , E.el [ Font.color Color.lightGray ] (E.text model.currentBook.slug)
                 , Button.public model.currentBook
                 , E.el [ E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] Button.cloneNotebook

@@ -168,7 +168,17 @@ updateFromFrontend sessionId clientId msg model =
                                 newModel =
                                     BackendHelper.getUUID model
                             in
-                            ( newModel, sendToFrontend clientId (GotNotebook { book | author = username, id = newModel.uuid }) )
+                            ( newModel
+                            , sendToFrontend clientId
+                                (GotNotebook
+                                    { book
+                                        | author = username
+                                        , id = newModel.uuid
+                                        , slug = BackendHelper.compress (username ++ "." ++ book.title)
+                                        , origin = Just slug
+                                    }
+                                )
+                            )
 
                         Err _ ->
                             ( model, sendToFrontend clientId (SendMessage <| "Sorry, couldn't get that notebook (1)") )

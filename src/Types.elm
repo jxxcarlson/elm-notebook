@@ -130,6 +130,7 @@ type alias Book =
     { id : String
     , dirty : Bool
     , slug : String
+    , origin : Maybe String
     , author : String
     , createdAt : Time.Posix
     , updatedAt : Time.Posix

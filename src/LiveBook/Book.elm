@@ -8,6 +8,7 @@ scratchPad : String -> Book
 scratchPad username =
     { id = "_scratchpad_"
     , slug = username ++ ".scratchpad"
+    , origin = Nothing
     , author = username
     , dirty = False
     , createdAt = Time.millisToPosix 0
@@ -23,6 +24,7 @@ new author title =
     { id = "??"
     , slug = "??"
     , author = author
+    , origin = Nothing
     , dirty = False
     , createdAt = Time.millisToPosix 0
     , updatedAt = Time.millisToPosix 0
@@ -37,6 +39,7 @@ newBook : String -> String -> Book
 newBook author title =
     { id = ""
     , slug = ""
+    , origin = Nothing
     , author = author
     , dirty = False
     , createdAt = Time.millisToPosix 0
