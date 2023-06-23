@@ -186,6 +186,28 @@ updateFromFrontend sessionId clientId msg model =
                 Nothing ->
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, couldn't get that notebook (2)") )
 
+        GetPulledNotebook username slug ->
+            case Dict.get slug model.slugDict of
+                Just notebookRecord ->
+                    case NotebookDict.lookup notebookRecord.author notebookRecord.id model.userToNoteBookDict of
+                        Ok book ->
+                            ( model
+                            , sendToFrontend clientId
+                                (GotNotebook
+                                    { book
+                                        | author = username
+                                        , slug = BackendHelper.compress (username ++ "." ++ book.title)
+                                        , origin = Just slug
+                                    }
+                                )
+                            )
+
+                        Err _ ->
+                            ( model, sendToFrontend clientId (SendMessage <| "Sorry, couldn't get that notebook (1)") )
+
+                Nothing ->
+                    ( model, sendToFrontend clientId (SendMessage <| "Sorry, couldn't get the notebook record (2)") )
+
         SaveNotebook book ->
             let
                 newNotebookDict =

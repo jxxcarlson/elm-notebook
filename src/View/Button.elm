@@ -8,6 +8,7 @@ module View.Button exposing
     , manualLarge
     , newNotebook
     , public
+    , pullNotebook
     , runTask
     , setUpUser
     , signIn
@@ -113,6 +114,11 @@ viewNotebookEntry currentBook book =
 cloneNotebook : Element FrontendMsg
 cloneNotebook =
     Button.smallPrimary { msg = CloneNotebook, status = Button.Active, label = Button.Text "Clone", tooltipText = Nothing }
+
+
+pullNotebook : Element FrontendMsg
+pullNotebook =
+    Button.smallPrimary { msg = PullNotebook, status = Button.Active, label = Button.Text "Pull", tooltipText = Nothing }
 
 
 manual : Element FrontendMsg

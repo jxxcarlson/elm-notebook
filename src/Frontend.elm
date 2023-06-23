@@ -265,6 +265,14 @@ update msg model =
                 Just user ->
                     ( model, sendToBackend (GetClonedNotebook user.username model.cloneReference) )
 
+        PullNotebook ->
+            case model.currentUser of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just user ->
+                    ( model, sendToBackend (GetPulledNotebook user.username (model.currentBook.origin |> Maybe.withDefault "???")) )
+
         SetCurrentNotebook book ->
             case model.currentUser of
                 Nothing ->

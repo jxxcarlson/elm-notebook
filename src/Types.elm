@@ -96,6 +96,7 @@ type FrontendMsg
     | TogglePublic
     | SetCurrentNotebook Book
     | CloneNotebook
+    | PullNotebook
       -- UI
     | ChangePopup PopupState
     | GotViewport Browser.Dom.Viewport
@@ -173,6 +174,7 @@ type ToBackend
     | CreateNotebook String String -- authorname title
     | SaveNotebook Book
     | GetClonedNotebook String String -- username slug
+    | GetPulledNotebook String String -- username slug
     | UpdateSlugDict Book
       -- USER
     | SignUpBE String String String

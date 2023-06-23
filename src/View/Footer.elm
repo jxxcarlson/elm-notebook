@@ -47,7 +47,8 @@ view model =
                         E.none
                 , E.el [ Font.color Color.lightGray ] (E.text model.currentBook.slug)
                 , Button.public model.currentBook
-                , E.el [ E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] Button.cloneNotebook
+                , E.el [ E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] Button.pullNotebook
+                , Button.cloneNotebook
                 , View.Input.cloneReference model
                 ]
         )
