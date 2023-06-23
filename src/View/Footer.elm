@@ -41,7 +41,7 @@ view model =
                 , messageRow model
                 , case model.currentBook.origin of
                     Just origin ->
-                        E.el [ Font.color Color.lightGray ] (E.text <| "origin: " ++ origin ++ ",")
+                        E.el [ Font.color Color.lightGray ] (E.text <| "origin: " ++ origin ++ " -> ")
 
                     Nothing ->
                         E.none
