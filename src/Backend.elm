@@ -237,6 +237,13 @@ updateFromFrontend sessionId clientId msg model =
             in
             ( { newModel | userToNoteBookDict = newNotebookDict }, sendToFrontend clientId (GotNotebook newBook) )
 
+        DeleteNotebook book ->
+            let
+                newNotebookDict =
+                    NotebookDict.remove book.author book.id model.userToNoteBookDict
+            in
+            ( { model | userToNoteBookDict = newNotebookDict }, Cmd.none )
+
 
 setupUser : Model -> ClientId -> String -> String -> String -> ( BackendModel, Cmd BackendMsg )
 setupUser model clientId email transitPassword username =

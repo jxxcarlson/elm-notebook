@@ -65,6 +65,8 @@ signedInHeader model user =
             title model.currentBook.title
         , Button.editTitle model.appMode
         , Button.newNotebook
+        , Button.deleteNotebook model.deleteNotebookState
+        , Button.cancelDeleteNotebook model.deleteNotebookState
         , Button.manual
 
         --, E.el [ E.width E.fill, E.paddingXY 12 0 ] (Message.viewSmall 400 model)

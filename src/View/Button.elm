@@ -1,6 +1,8 @@
 module View.Button exposing
     ( adminPopup
+    , cancelDeleteNotebook
     , cloneNotebook
+    , deleteNotebook
     , dismissPopup
     , dismissPopupSmall
     , editTitle
@@ -91,6 +93,26 @@ editTitle mode =
 newNotebook : Element FrontendMsg
 newNotebook =
     Button.smallPrimary { msg = NewNotebook, status = Button.Active, label = Button.Text "New Notebook", tooltipText = Nothing }
+
+
+cancelDeleteNotebook : DeleteNotebookState -> Element FrontendMsg
+cancelDeleteNotebook deleteNotebookState =
+    case deleteNotebookState of
+        CanDeleteNotebook ->
+            Button.smallPrimary { msg = CancelDeleteNotebook, status = Button.Highlighted, label = Button.Text "Cancel", tooltipText = Nothing }
+
+        WaitingToDeleteNotebook ->
+            E.none
+
+
+deleteNotebook : DeleteNotebookState -> Element FrontendMsg
+deleteNotebook deleteNotebookState =
+    case deleteNotebookState of
+        WaitingToDeleteNotebook ->
+            Button.smallPrimary { msg = ProposeDeletingNotebook, status = Button.Active, label = Button.Text "Delete Notebook", tooltipText = Nothing }
+
+        CanDeleteNotebook ->
+            Button.smallPrimary { msg = ProposeDeletingNotebook, status = Button.Highlighted, label = Button.Text "Delete Notebook", tooltipText = Nothing }
 
 
 public : Book -> Element FrontendMsg

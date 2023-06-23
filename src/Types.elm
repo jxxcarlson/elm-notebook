@@ -27,12 +27,13 @@ type alias FrontendModel =
     -- ADMIN
     , users : List User
 
-    -- CELLS
+    -- NOTEBOOKS
     , books : List Book
     , currentBook : Book
     , cellContent : String
     , currentCellIndex : Int
     , cloneReference : String
+    , deleteNotebookState : DeleteNotebookState
 
     -- USER
     , signupState : SignupState
@@ -74,6 +75,11 @@ type alias BackendModel =
     }
 
 
+type DeleteNotebookState
+    = WaitingToDeleteNotebook
+    | CanDeleteNotebook
+
+
 type alias NotebookRecord =
     { id : String, author : String, public : Bool }
 
@@ -92,6 +98,8 @@ type FrontendMsg
     | InputElmCode Int String
     | UpdateNotebookTitle
     | NewNotebook
+    | ProposeDeletingNotebook
+    | CancelDeleteNotebook
     | ChangeAppMode AppMode
     | TogglePublic
     | SetCurrentNotebook Book
@@ -173,6 +181,7 @@ type ToBackend
       -- NOTEBOOK
     | CreateNotebook String String -- authorname title
     | SaveNotebook Book
+    | DeleteNotebook Book
     | GetClonedNotebook String String -- username slug
     | GetPulledNotebook String String -- username slug
     | UpdateSlugDict Book

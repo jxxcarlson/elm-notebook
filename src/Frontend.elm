@@ -62,12 +62,13 @@ init url key =
       -- ADMIN
       , users = []
 
-      -- CELLS
+      -- NOTEBOOKS
       , books = []
       , currentBook = LiveBook.Book.scratchPad "anonymous"
       , cellContent = ""
       , currentCellIndex = 0
       , cloneReference = ""
+      , deleteNotebookState = WaitingToDeleteNotebook
 
       -- UI
       , windowWidth = 600
@@ -296,6 +297,32 @@ update msg model =
                     { oldBook | public = not oldBook.public }
             in
             ( { model | currentBook = newBook, books = List.Extra.setIf (\b -> b.id == newBook.id) newBook model.books }, sendToBackend (SaveNotebook newBook) )
+
+        CancelDeleteNotebook ->
+            ( { model | deleteNotebookState = WaitingToDeleteNotebook }, Cmd.none )
+
+        ProposeDeletingNotebook ->
+            case model.deleteNotebookState of
+                WaitingToDeleteNotebook ->
+                    ( { model | deleteNotebookState = CanDeleteNotebook }, Cmd.none )
+
+                CanDeleteNotebook ->
+                    let
+                        newNotebookList =
+                            List.filter (\b -> b.id /= model.currentBook.id) model.books
+                    in
+                    case List.head newNotebookList of
+                        Nothing ->
+                            ( { model | message = "You can't delete your last notebook." }, Cmd.none )
+
+                        Just book ->
+                            ( { model
+                                | deleteNotebookState = WaitingToDeleteNotebook
+                                , currentBook = book
+                                , books = newNotebookList
+                              }
+                            , sendToBackend (DeleteNotebook model.currentBook)
+                            )
 
         NewNotebook ->
             case model.currentUser of

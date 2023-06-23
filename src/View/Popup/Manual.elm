@@ -68,4 +68,7 @@ will change accordingly.
 You can clone a public notebook by entering its short identifier in the 'Notebook identifier' field, then
 clicking on the 'Clone' button in the notebook header.
 
+A notebook that has been cloned can be updated by clicking on the 'Update' button in the footer.
+Updating a notebook will overwrite any changes you have made to it.
+
 """
