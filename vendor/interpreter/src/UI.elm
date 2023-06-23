@@ -1,18 +1,25 @@
 module UI exposing (Model, Msg, main)
 
 import Browser
-import Element exposing (Element, IndexedColumn, column, el, fill, height, htmlAttribute, padding, paddingEach, paragraph, px, rgb, row, shrink, spacing, text, textColumn, width)
+import Element exposing (Element, IndexedColumn, alignTop, column, el, fill, height, htmlAttribute, padding, paddingEach, paragraph, px, rgb, row, shrink, spacing, text, textColumn, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Element.Input as Input
 import Element.Lazy
+import Elm.Parser
+import Elm.Processing
+import Elm.Syntax.Declaration as Declaration
 import Elm.Syntax.Expression as Expression
+import Elm.Syntax.File as File
+import Elm.Syntax.Node as Node
+import Elm.Syntax.Pattern as Pattern
 import Eval
 import Eval.Log as Log
 import Eval.Module
 import Eval.Types as Types exposing (CallTree(..), Error)
 import FastDict as Dict
+import Hex
 import Html.Attributes
 import List.Extra
 import Rope
@@ -27,6 +34,7 @@ type Msg
 
 type alias Model =
     { input : String
+    , parsed : Maybe (Node.Node Expression.Expression)
     , output : Result String String
     , callTree : List CallTree
     , logLines : List Log.Line
@@ -58,6 +66,7 @@ innerView model =
             , label = Input.labelAbove [] <| text "Input"
             , placeholder = Nothing
             }
+        , Element.Lazy.lazy viewParsed model.parsed
         , let
             toRun : String
             toRun =
@@ -103,6 +112,148 @@ innerView model =
         , Element.Lazy.lazy viewCallTrees model.callTree
         , Element.Lazy.lazy viewLogLines model.logLines
         ]
+
+
+viewParsed : Maybe (Node.Node Expression.Expression) -> Element Msg
+viewParsed maybeExpr =
+    case maybeExpr of
+        Nothing ->
+            Element.none
+
+        Just expr ->
+            el
+                [ Font.family
+                    [ Font.typeface "Fira Code"
+                    , Font.monospace
+                    ]
+                ]
+                (viewExpression expr)
+
+
+viewExpression : Node.Node Expression.Expression -> Element msg
+viewExpression (Node.Node _ expr) =
+    case expr of
+        Expression.OperatorApplication name _ l r ->
+            boxxxy name [ viewExpressions [ l, r ] ]
+
+        Expression.FunctionOrValue moduleName name ->
+            boxxxy (String.join "." (moduleName ++ [ name ])) []
+
+        Expression.Application children ->
+            boxxxy "Application" [ viewExpressions children ]
+
+        Expression.Literal s ->
+            boxxxy (Debug.toString s) []
+
+        Expression.Integer i ->
+            boxxxy (String.fromInt i) []
+
+        Expression.Floatable f ->
+            boxxxy (String.fromFloat f) []
+
+        Expression.Hex i ->
+            boxxxy ("0x" ++ Hex.toString i) []
+
+        Expression.LetExpression { declarations, expression } ->
+            boxxxy "let/in"
+                [ row [] <| List.map (Node.value >> viewLetDeclaration) declarations
+                , viewExpressions [ expression ]
+                ]
+
+        Expression.UnitExpr ->
+            boxxxy "()" []
+
+        -- IfBlock _ _ _ ->
+        --     Debug.todo "branch 'IfBlock _ _ _' not implemented"
+        -- PrefixOperator _ ->
+        --     Debug.todo "branch 'PrefixOperator _' not implemented"
+        -- Operator _ ->
+        --     Debug.todo "branch 'Operator _' not implemented"
+        -- Negation _ ->
+        --     Debug.todo "branch 'Negation _' not implemented"
+        -- CharLiteral _ ->
+        --     Debug.todo "branch 'CharLiteral _' not implemented"
+        -- TupledExpression _ ->
+        --     Debug.todo "branch 'TupledExpression _' not implemented"
+        -- ParenthesizedExpression _ ->
+        --     Debug.todo "branch 'ParenthesizedExpression _' not implemented"
+        -- CaseExpression _ ->
+        --     Debug.todo "branch 'CaseExpression _' not implemented"
+        -- LambdaExpression _ ->
+        --     Debug.todo "branch 'LambdaExpression _' not implemented"
+        -- RecordExpr _ ->
+        --     Debug.todo "branch 'RecordExpr _' not implemented"
+        -- ListExpr _ ->
+        --     Debug.todo "branch 'ListExpr _' not implemented"
+        -- RecordAccess _ _ ->
+        --     Debug.todo "branch 'RecordAccess _ _' not implemented"
+        -- RecordAccessFunction _ ->
+        --     Debug.todo "branch 'RecordAccessFunction _' not implemented"
+        -- RecordUpdateExpression _ _ ->
+        --     Debug.todo "branch 'RecordUpdateExpression _ _' not implemented"
+        -- GLSLExpression _ ->
+        --     Debug.todo "branch 'GLSLExpression _' not implemented"
+        _ ->
+            paragraph [] [ text <| Debug.toString expr ]
+
+
+boxxxy : String -> List (Element msg) -> Element msg
+boxxxy name children =
+    column
+        [ alignTop
+        , Border.width 1
+        , padding 10
+        , spacing 10
+        ]
+        (text name :: children)
+
+
+boxxxy_ : List (Element msg) -> List (Element msg) -> Element msg
+boxxxy_ name children =
+    column
+        [ alignTop
+        , Border.width 1
+        , padding 10
+        , spacing 10
+        ]
+        (row [] name :: children)
+
+
+viewLetDeclaration : Expression.LetDeclaration -> Element msg
+viewLetDeclaration letDeclaration =
+    case letDeclaration of
+        Expression.LetFunction function ->
+            viewFunction function
+
+        Expression.LetDestructuring pattern expression ->
+            column []
+                [ viewPattern pattern
+                , viewExpression expression
+                ]
+
+
+viewFunction : Expression.Function -> Element msg
+viewFunction function =
+    let
+        declaration : Expression.FunctionImplementation
+        declaration =
+            Node.value function.declaration
+    in
+    boxxxy_
+        (text (Node.value declaration.name)
+            :: List.map viewPattern declaration.arguments
+        )
+        [ viewExpression declaration.expression ]
+
+
+viewPattern : Node.Node Pattern.Pattern -> Element msg
+viewPattern (Node.Node _ pattern) =
+    text <| Debug.toString pattern
+
+
+viewExpressions : List (Node.Node Expression.Expression) -> Element msg
+viewExpressions expressions =
+    row [] <| List.map viewExpression expressions
 
 
 viewOutput : Result String String -> Element Msg
@@ -215,7 +366,7 @@ viewLogLines logLines =
     else
         let
             cell : Int -> Int -> String -> Element msg
-            cell row column c =
+            cell row columnIndex c =
                 c
                     |> String.split "\n"
                     |> List.map
@@ -231,7 +382,7 @@ viewLogLines logLines =
                                     [ htmlAttribute <| Html.Attributes.style "white-space" "pre" ]
                                     (text line)
                         )
-                    |> textColumn
+                    |> column
                         [ if modBy 2 row == 0 then
                             Background.color <| rgb 0.85 0.85 0.9
 
@@ -239,13 +390,13 @@ viewLogLines logLines =
                             Background.color <| rgb 0.75 0.75 0.8
                         , paddingEach
                             { left =
-                                if column == 0 then
+                                if columnIndex == 0 then
                                     5
 
                                 else
                                     10
                             , right =
-                                if column == List.length rawColumns - 1 then
+                                if columnIndex == List.length rawColumns - 1 then
                                     5
 
                                 else
@@ -286,14 +437,6 @@ viewLogLines logLines =
                                     )
                                 |> String.join "\n"
                   }
-                , { header = "Module"
-                  , view =
-                        \logLine ->
-                            logLine.stack
-                                |> List.head
-                                |> Maybe.map (\{ moduleName } -> String.join "." moduleName)
-                                |> Maybe.withDefault "?"
-                  }
                 , { header = "Expression"
                   , view = \logLine -> String.trim logLine.message
                   }
@@ -322,6 +465,7 @@ viewLogLines logLines =
 init : Model
 init =
     { input = """List.sum (List.range 0 3)"""
+    , parsed = Nothing
     , output = Ok ""
     , callTree = []
     , logLines = []
@@ -332,7 +476,10 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         Input input ->
-            { model | input = input }
+            { model
+                | input = input
+                , parsed = tryParse input
+            }
 
         Eval tracing ->
             let
@@ -359,6 +506,51 @@ update msg model =
                 , callTree = Rope.toList callTree
                 , logLines = Rope.toList logLines
             }
+
+
+tryParse : String -> Maybe (Node.Node Expression.Expression)
+tryParse input =
+    let
+        fixedInput : String
+        fixedInput =
+            if String.startsWith "module" input then
+                input
+
+            else
+                Eval.toModule input
+    in
+    fixedInput
+        |> Elm.Parser.parse
+        |> Result.toMaybe
+        |> Maybe.andThen
+            (\rawFile ->
+                let
+                    file : File.File
+                    file =
+                        Elm.Processing.process Elm.Processing.init rawFile
+                in
+                file.declarations
+                    |> List.Extra.findMap (Node.value >> findMain)
+            )
+
+
+findMain : Declaration.Declaration -> Maybe (Node.Node Expression.Expression)
+findMain declaration =
+    case declaration of
+        Declaration.FunctionDeclaration function ->
+            let
+                implementation : Expression.FunctionImplementation
+                implementation =
+                    Node.value function.declaration
+            in
+            if Node.value implementation.name == "main" then
+                Just implementation.expression
+
+            else
+                Nothing
+
+        _ ->
+            Nothing
 
 
 resultToString : Result Error Value.Value -> Result String String

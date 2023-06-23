@@ -1,7 +1,7 @@
-module Core.Elm.Kernel.List exposing (functions, map2, map3, map4, map5)
+module Core.Elm.Kernel.List exposing (functions, map2, map3, map4, map5, mergeWith, sortBy, sortWith, split)
 
 {-| 
-@docs functions, map2, map3, map4, map5
+@docs functions, map2, map3, map4, map5, sortBy, sortWith, split, mergeWith
 -}
 
 
@@ -19,6 +19,10 @@ functions =
         , ( "map3", map3 )
         , ( "map4", map4 )
         , ( "map5", map5 )
+        , ( "sortBy", sortBy )
+        , ( "sortWith", sortWith )
+        , ( "split", split )
+        , ( "mergeWith", mergeWith )
         ]
 
 
@@ -1171,6 +1175,705 @@ map5 =
                                 (Elm.Syntax.Expression.ListExpr [])
                             ]
                         )
+                }
+            )
+    }
+
+
+sortBy : Elm.Syntax.Expression.FunctionImplementation
+sortBy =
+    { name = Syntax.fakeNode "Elm.Kernel.List.sortBy"
+    , arguments =
+        [ Syntax.fakeNode (Elm.Syntax.Pattern.VarPattern "f")
+        , Syntax.fakeNode (Elm.Syntax.Pattern.VarPattern "xs")
+        ]
+    , expression =
+        Syntax.fakeNode
+            (Elm.Syntax.Expression.Application
+                [ Syntax.fakeNode
+                    (Elm.Syntax.Expression.FunctionOrValue [] "sortWith")
+                , Syntax.fakeNode
+                    (Elm.Syntax.Expression.ParenthesizedExpression
+                        (Syntax.fakeNode
+                            (Elm.Syntax.Expression.LambdaExpression
+                                { args =
+                                    [ Syntax.fakeNode
+                                        (Elm.Syntax.Pattern.VarPattern "l")
+                                    , Syntax.fakeNode
+                                        (Elm.Syntax.Pattern.VarPattern "r")
+                                    ]
+                                , expression =
+                                    Syntax.fakeNode
+                                        (Elm.Syntax.Expression.Application
+                                            [ Syntax.fakeNode
+                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                    []
+                                                    "compare"
+                                                )
+                                            , Syntax.fakeNode
+                                                (Elm.Syntax.Expression.ParenthesizedExpression
+                                                    (Syntax.fakeNode
+                                                        (Elm.Syntax.Expression.Application
+                                                            [ Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "f"
+                                                                )
+                                                            , Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "l"
+                                                                )
+                                                            ]
+                                                        )
+                                                    )
+                                                )
+                                            , Syntax.fakeNode
+                                                (Elm.Syntax.Expression.ParenthesizedExpression
+                                                    (Syntax.fakeNode
+                                                        (Elm.Syntax.Expression.Application
+                                                            [ Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "f"
+                                                                )
+                                                            , Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "r"
+                                                                )
+                                                            ]
+                                                        )
+                                                    )
+                                                )
+                                            ]
+                                        )
+                                }
+                            )
+                        )
+                    )
+                , Syntax.fakeNode
+                    (Elm.Syntax.Expression.FunctionOrValue [] "xs")
+                ]
+            )
+    }
+
+
+sortWith : Elm.Syntax.Expression.FunctionImplementation
+sortWith =
+    { name = Syntax.fakeNode "Elm.Kernel.List.sortWith"
+    , arguments =
+        [ Syntax.fakeNode (Elm.Syntax.Pattern.VarPattern "f")
+        , Syntax.fakeNode (Elm.Syntax.Pattern.VarPattern "xs")
+        ]
+    , expression =
+        Syntax.fakeNode
+            (Elm.Syntax.Expression.CaseExpression
+                { expression =
+                    Syntax.fakeNode
+                        (Elm.Syntax.Expression.FunctionOrValue [] "xs")
+                , cases =
+                    [ ( Syntax.fakeNode (Elm.Syntax.Pattern.ListPattern [])
+                      , Syntax.fakeNode
+                            (Elm.Syntax.Expression.FunctionOrValue [] "xs")
+                      )
+                    , ( Syntax.fakeNode
+                            (Elm.Syntax.Pattern.ListPattern
+                                [ Syntax.fakeNode Elm.Syntax.Pattern.AllPattern
+                                ]
+                            )
+                      , Syntax.fakeNode
+                            (Elm.Syntax.Expression.FunctionOrValue [] "xs")
+                      )
+                    , ( Syntax.fakeNode Elm.Syntax.Pattern.AllPattern
+                      , Syntax.fakeNode
+                            (Elm.Syntax.Expression.LetExpression
+                                { declarations =
+                                    [ Syntax.fakeNode
+                                        (Elm.Syntax.Expression.LetDestructuring
+                                            (Syntax.fakeNode
+                                                (Elm.Syntax.Pattern.TuplePattern
+                                                    [ Syntax.fakeNode
+                                                        (Elm.Syntax.Pattern.VarPattern
+                                                            "left"
+                                                        )
+                                                    , Syntax.fakeNode
+                                                        (Elm.Syntax.Pattern.VarPattern
+                                                            "right"
+                                                        )
+                                                    ]
+                                                )
+                                            )
+                                            (Syntax.fakeNode
+                                                (Elm.Syntax.Expression.Application
+                                                    [ Syntax.fakeNode
+                                                        (Elm.Syntax.Expression.FunctionOrValue
+                                                            []
+                                                            "split"
+                                                        )
+                                                    , Syntax.fakeNode
+                                                        (Elm.Syntax.Expression.FunctionOrValue
+                                                            []
+                                                            "xs"
+                                                        )
+                                                    ]
+                                                )
+                                            )
+                                        )
+                                    ]
+                                , expression =
+                                    Syntax.fakeNode
+                                        (Elm.Syntax.Expression.Application
+                                            [ Syntax.fakeNode
+                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                    []
+                                                    "mergeWith"
+                                                )
+                                            , Syntax.fakeNode
+                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                    []
+                                                    "f"
+                                                )
+                                            , Syntax.fakeNode
+                                                (Elm.Syntax.Expression.ParenthesizedExpression
+                                                    (Syntax.fakeNode
+                                                        (Elm.Syntax.Expression.Application
+                                                            [ Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "sortWith"
+                                                                )
+                                                            , Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "f"
+                                                                )
+                                                            , Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "left"
+                                                                )
+                                                            ]
+                                                        )
+                                                    )
+                                                )
+                                            , Syntax.fakeNode
+                                                (Elm.Syntax.Expression.ParenthesizedExpression
+                                                    (Syntax.fakeNode
+                                                        (Elm.Syntax.Expression.Application
+                                                            [ Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "sortWith"
+                                                                )
+                                                            , Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "f"
+                                                                )
+                                                            , Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "right"
+                                                                )
+                                                            ]
+                                                        )
+                                                    )
+                                                )
+                                            ]
+                                        )
+                                }
+                            )
+                      )
+                    ]
+                }
+            )
+    }
+
+
+split : Elm.Syntax.Expression.FunctionImplementation
+split =
+    { name = Syntax.fakeNode "Elm.Kernel.List.split"
+    , arguments = [ Syntax.fakeNode (Elm.Syntax.Pattern.VarPattern "xs") ]
+    , expression =
+        Syntax.fakeNode
+            (Elm.Syntax.Expression.LetExpression
+                { declarations =
+                    [ Syntax.fakeNode
+                        (Elm.Syntax.Expression.LetFunction
+                            { documentation = Nothing
+                            , signature = Nothing
+                            , declaration =
+                                Syntax.fakeNode
+                                    { name = Syntax.fakeNode "goLeft"
+                                    , arguments =
+                                        [ Syntax.fakeNode
+                                            (Elm.Syntax.Pattern.VarPattern "l")
+                                        , Syntax.fakeNode
+                                            (Elm.Syntax.Pattern.VarPattern
+                                                "lacc"
+                                            )
+                                        , Syntax.fakeNode
+                                            (Elm.Syntax.Pattern.VarPattern
+                                                "racc"
+                                            )
+                                        ]
+                                    , expression =
+                                        Syntax.fakeNode
+                                            (Elm.Syntax.Expression.CaseExpression
+                                                { expression =
+                                                    Syntax.fakeNode
+                                                        (Elm.Syntax.Expression.FunctionOrValue
+                                                            []
+                                                            "l"
+                                                        )
+                                                , cases =
+                                                    [ ( Syntax.fakeNode
+                                                            (Elm.Syntax.Pattern.ListPattern
+                                                                []
+                                                            )
+                                                      , Syntax.fakeNode
+                                                            (Elm.Syntax.Expression.TupledExpression
+                                                                [ Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "lacc"
+                                                                    )
+                                                                , Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "racc"
+                                                                    )
+                                                                ]
+                                                            )
+                                                      )
+                                                    , ( Syntax.fakeNode
+                                                            (Elm.Syntax.Pattern.UnConsPattern
+                                                                (Syntax.fakeNode
+                                                                    (Elm.Syntax.Pattern.VarPattern
+                                                                        "lh"
+                                                                    )
+                                                                )
+                                                                (Syntax.fakeNode
+                                                                    (Elm.Syntax.Pattern.VarPattern
+                                                                        "lt"
+                                                                    )
+                                                                )
+                                                            )
+                                                      , Syntax.fakeNode
+                                                            (Elm.Syntax.Expression.Application
+                                                                [ Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "goRight"
+                                                                    )
+                                                                , Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "lt"
+                                                                    )
+                                                                , Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.ParenthesizedExpression
+                                                                        (Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.OperatorApplication
+                                                                                "::"
+                                                                                Elm.Syntax.Infix.Left
+                                                                                (Syntax.fakeNode
+                                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                                        []
+                                                                                        "lh"
+                                                                                    )
+                                                                                )
+                                                                                (Syntax.fakeNode
+                                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                                        []
+                                                                                        "lacc"
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                , Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "racc"
+                                                                    )
+                                                                ]
+                                                            )
+                                                      )
+                                                    ]
+                                                }
+                                            )
+                                    }
+                            }
+                        )
+                    , Syntax.fakeNode
+                        (Elm.Syntax.Expression.LetFunction
+                            { documentation = Nothing
+                            , signature = Nothing
+                            , declaration =
+                                Syntax.fakeNode
+                                    { name = Syntax.fakeNode "goRight"
+                                    , arguments =
+                                        [ Syntax.fakeNode
+                                            (Elm.Syntax.Pattern.VarPattern "l")
+                                        , Syntax.fakeNode
+                                            (Elm.Syntax.Pattern.VarPattern
+                                                "lacc"
+                                            )
+                                        , Syntax.fakeNode
+                                            (Elm.Syntax.Pattern.VarPattern
+                                                "racc"
+                                            )
+                                        ]
+                                    , expression =
+                                        Syntax.fakeNode
+                                            (Elm.Syntax.Expression.CaseExpression
+                                                { expression =
+                                                    Syntax.fakeNode
+                                                        (Elm.Syntax.Expression.FunctionOrValue
+                                                            []
+                                                            "l"
+                                                        )
+                                                , cases =
+                                                    [ ( Syntax.fakeNode
+                                                            (Elm.Syntax.Pattern.ListPattern
+                                                                []
+                                                            )
+                                                      , Syntax.fakeNode
+                                                            (Elm.Syntax.Expression.TupledExpression
+                                                                [ Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "lacc"
+                                                                    )
+                                                                , Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "racc"
+                                                                    )
+                                                                ]
+                                                            )
+                                                      )
+                                                    , ( Syntax.fakeNode
+                                                            (Elm.Syntax.Pattern.UnConsPattern
+                                                                (Syntax.fakeNode
+                                                                    (Elm.Syntax.Pattern.VarPattern
+                                                                        "lh"
+                                                                    )
+                                                                )
+                                                                (Syntax.fakeNode
+                                                                    (Elm.Syntax.Pattern.VarPattern
+                                                                        "lt"
+                                                                    )
+                                                                )
+                                                            )
+                                                      , Syntax.fakeNode
+                                                            (Elm.Syntax.Expression.Application
+                                                                [ Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "goLeft"
+                                                                    )
+                                                                , Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "lt"
+                                                                    )
+                                                                , Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "lacc"
+                                                                    )
+                                                                , Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.ParenthesizedExpression
+                                                                        (Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.OperatorApplication
+                                                                                "::"
+                                                                                Elm.Syntax.Infix.Left
+                                                                                (Syntax.fakeNode
+                                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                                        []
+                                                                                        "lh"
+                                                                                    )
+                                                                                )
+                                                                                (Syntax.fakeNode
+                                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                                        []
+                                                                                        "racc"
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                ]
+                                                            )
+                                                      )
+                                                    ]
+                                                }
+                                            )
+                                    }
+                            }
+                        )
+                    ]
+                , expression =
+                    Syntax.fakeNode
+                        (Elm.Syntax.Expression.Application
+                            [ Syntax.fakeNode
+                                (Elm.Syntax.Expression.FunctionOrValue
+                                    []
+                                    "goLeft"
+                                )
+                            , Syntax.fakeNode
+                                (Elm.Syntax.Expression.FunctionOrValue [] "xs")
+                            , Syntax.fakeNode
+                                (Elm.Syntax.Expression.ListExpr [])
+                            , Syntax.fakeNode
+                                (Elm.Syntax.Expression.ListExpr [])
+                            ]
+                        )
+                }
+            )
+    }
+
+
+mergeWith : Elm.Syntax.Expression.FunctionImplementation
+mergeWith =
+    { name = Syntax.fakeNode "Elm.Kernel.List.mergeWith"
+    , arguments =
+        [ Syntax.fakeNode (Elm.Syntax.Pattern.VarPattern "f")
+        , Syntax.fakeNode (Elm.Syntax.Pattern.VarPattern "ls")
+        , Syntax.fakeNode (Elm.Syntax.Pattern.VarPattern "rs")
+        ]
+    , expression =
+        Syntax.fakeNode
+            (Elm.Syntax.Expression.CaseExpression
+                { expression =
+                    Syntax.fakeNode
+                        (Elm.Syntax.Expression.FunctionOrValue [] "ls")
+                , cases =
+                    [ ( Syntax.fakeNode (Elm.Syntax.Pattern.ListPattern [])
+                      , Syntax.fakeNode
+                            (Elm.Syntax.Expression.FunctionOrValue [] "rs")
+                      )
+                    , ( Syntax.fakeNode
+                            (Elm.Syntax.Pattern.UnConsPattern
+                                (Syntax.fakeNode
+                                    (Elm.Syntax.Pattern.VarPattern "lh")
+                                )
+                                (Syntax.fakeNode
+                                    (Elm.Syntax.Pattern.VarPattern "lt")
+                                )
+                            )
+                      , Syntax.fakeNode
+                            (Elm.Syntax.Expression.CaseExpression
+                                { expression =
+                                    Syntax.fakeNode
+                                        (Elm.Syntax.Expression.FunctionOrValue
+                                            []
+                                            "rs"
+                                        )
+                                , cases =
+                                    [ ( Syntax.fakeNode
+                                            (Elm.Syntax.Pattern.ListPattern [])
+                                      , Syntax.fakeNode
+                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                []
+                                                "ls"
+                                            )
+                                      )
+                                    , ( Syntax.fakeNode
+                                            (Elm.Syntax.Pattern.UnConsPattern
+                                                (Syntax.fakeNode
+                                                    (Elm.Syntax.Pattern.VarPattern
+                                                        "rh"
+                                                    )
+                                                )
+                                                (Syntax.fakeNode
+                                                    (Elm.Syntax.Pattern.VarPattern
+                                                        "rt"
+                                                    )
+                                                )
+                                            )
+                                      , Syntax.fakeNode
+                                            (Elm.Syntax.Expression.CaseExpression
+                                                { expression =
+                                                    Syntax.fakeNode
+                                                        (Elm.Syntax.Expression.Application
+                                                            [ Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "f"
+                                                                )
+                                                            , Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "lh"
+                                                                )
+                                                            , Syntax.fakeNode
+                                                                (Elm.Syntax.Expression.FunctionOrValue
+                                                                    []
+                                                                    "rh"
+                                                                )
+                                                            ]
+                                                        )
+                                                , cases =
+                                                    [ ( Syntax.fakeNode
+                                                            (Elm.Syntax.Pattern.NamedPattern
+                                                                { moduleName =
+                                                                    []
+                                                                , name = "LT"
+                                                                }
+                                                                []
+                                                            )
+                                                      , Syntax.fakeNode
+                                                            (Elm.Syntax.Expression.OperatorApplication
+                                                                "::"
+                                                                Elm.Syntax.Infix.Left
+                                                                (Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "lh"
+                                                                    )
+                                                                )
+                                                                (Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.Application
+                                                                        [ Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "mergeWith"
+                                                                            )
+                                                                        , Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "f"
+                                                                            )
+                                                                        , Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "lt"
+                                                                            )
+                                                                        , Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "rs"
+                                                                            )
+                                                                        ]
+                                                                    )
+                                                                )
+                                                            )
+                                                      )
+                                                    , ( Syntax.fakeNode
+                                                            (Elm.Syntax.Pattern.NamedPattern
+                                                                { moduleName =
+                                                                    []
+                                                                , name = "GT"
+                                                                }
+                                                                []
+                                                            )
+                                                      , Syntax.fakeNode
+                                                            (Elm.Syntax.Expression.OperatorApplication
+                                                                "::"
+                                                                Elm.Syntax.Infix.Left
+                                                                (Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.FunctionOrValue
+                                                                        []
+                                                                        "rh"
+                                                                    )
+                                                                )
+                                                                (Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.Application
+                                                                        [ Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "mergeWith"
+                                                                            )
+                                                                        , Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "f"
+                                                                            )
+                                                                        , Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "ls"
+                                                                            )
+                                                                        , Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "rt"
+                                                                            )
+                                                                        ]
+                                                                    )
+                                                                )
+                                                            )
+                                                      )
+                                                    , ( Syntax.fakeNode
+                                                            (Elm.Syntax.Pattern.NamedPattern
+                                                                { moduleName =
+                                                                    []
+                                                                , name = "EQ"
+                                                                }
+                                                                []
+                                                            )
+                                                      , Syntax.fakeNode
+                                                            (Elm.Syntax.Expression.OperatorApplication
+                                                                "::"
+                                                                Elm.Syntax.Infix.Left
+                                                                (Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.OperatorApplication
+                                                                        "::"
+                                                                        Elm.Syntax.Infix.Left
+                                                                        (Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "lh"
+                                                                            )
+                                                                        )
+                                                                        (Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "rh"
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                                (Syntax.fakeNode
+                                                                    (Elm.Syntax.Expression.Application
+                                                                        [ Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "mergeWith"
+                                                                            )
+                                                                        , Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "f"
+                                                                            )
+                                                                        , Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "lt"
+                                                                            )
+                                                                        , Syntax.fakeNode
+                                                                            (Elm.Syntax.Expression.FunctionOrValue
+                                                                                []
+                                                                                "rt"
+                                                                            )
+                                                                        ]
+                                                                    )
+                                                                )
+                                                            )
+                                                      )
+                                                    ]
+                                                }
+                                            )
+                                      )
+                                    ]
+                                }
+                            )
+                      )
+                    ]
                 }
             )
     }

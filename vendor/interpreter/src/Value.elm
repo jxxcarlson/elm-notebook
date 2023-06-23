@@ -184,27 +184,32 @@ arrayToExpression name array =
 toArray : Value -> Maybe (List Value)
 toArray value =
     case value of
-        Custom name args ->
-            case ( name.moduleName, name.name, args ) of
-                ( [ "Array" ], "Array_elm_builtin", [ _, _, tree, tail ] ) ->
+        Custom name [ _, _, JsArray tree, JsArray tailArray ] ->
+            case ( name.moduleName, name.name ) of
+                ( [ "Array" ], "Array_elm_builtin" ) ->
                     let
-                        treeToArray : Value -> List Value -> Maybe (List Value)
-                        treeToArray node acc =
+                        treeToArray : Array Value -> List Value
+                        treeToArray arr =
+                            List.concatMap nodeToList (Array.toList arr)
+
+                        nodeToList : Value -> List Value
+                        nodeToList node =
                             case node of
-                                JsArray arr ->
-                                    Just (Array.toList arr ++ acc)
+                                Custom qualifiedName [ JsArray arr ] ->
+                                    case qualifiedName.name of
+                                        "SubTree" ->
+                                            treeToArray arr
+
+                                        "Leaf" ->
+                                            Array.toList arr
+
+                                        _ ->
+                                            []
 
                                 _ ->
-                                    -- Debuuuug.todo ("treeToArray " ++ Debuuug.toString node)
-                                    -- vvvv HACK (TODO)
-                                    Nothing
+                                    []
                     in
-                    case tail of
-                        JsArray tailArray ->
-                            treeToArray tree (Array.toList tailArray)
-
-                        _ ->
-                            Nothing
+                    Just (treeToArray tree ++ Array.toList tailArray)
 
                 _ ->
                     Nothing
@@ -224,7 +229,7 @@ boolToString b =
 
 toString : Value -> String
 toString value =
-    -- TODO: This is inefficient and subtly different from Debuuuuuug.toString
+    -- TODO: This is inefficient and subtly different from Debug.toString
     toExpression value
         |> Elm.Writer.writeExpression
         |> Elm.Writer.write

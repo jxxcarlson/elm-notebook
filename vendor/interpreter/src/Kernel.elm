@@ -2,6 +2,7 @@ module Kernel exposing (EvalFunction, functions)
 
 import Array exposing (Array)
 import Bitwise
+import Core.Array
 import Core.Basics
 import Core.Bitwise
 import Core.Char
@@ -13,11 +14,10 @@ import Elm.Syntax.Expression as Expression exposing (Expression(..), FunctionImp
 import Elm.Syntax.ModuleName exposing (ModuleName)
 import Elm.Syntax.Node as Node exposing (Node)
 import Elm.Syntax.Pattern exposing (Pattern(..), QualifiedNameRef)
+import Environment
 import Eval.Types as Types exposing (Eval, EvalResult)
 import FastDict as Dict exposing (Dict)
-import IntepreterEnv
 import Kernel.JsArray
-import Kernel.List
 import Kernel.String
 import Kernel.Utils
 import Maybe.Extra
@@ -94,33 +94,37 @@ functions evalFunction =
       )
 
     -- Elm.Kernel.Debug
-    --, ( [ "Elm", "Kernel", "Debug" ]
-    --  , [ ( "log", two string anything to anything Debug.log Core.Debug.log )
-    --    , ( "toString", one anything to string Value.toString Core.Debug.toString )
-    --    , ( "todo", one string to anything Debug.todo Core.Debug.todo )
-    --    ]
-    --  )
+    , ( [ "Elm", "Kernel", "Debug" ]
+      , [ ( "log", two string anything to anything Debug.log Core.Debug.log )
+        , ( "toString", one anything to string Value.toString Core.Debug.toString )
+        , ( "todo", one string to anything Debug.todo Core.Debug.todo )
+        ]
+      )
+
     -- Elm.Kernel.JsArray
     , ( [ "Elm", "Kernel", "JsArray" ]
       , [ ( "appendN", three int (jsArray anything) (jsArray anything) to (jsArray anything) Kernel.JsArray.appendN Core.Elm.JsArray.appendN )
         , ( "empty", zero to (jsArray anything) Array.empty )
         , ( "foldr", threeWithError (function2 evalFunction anything anything to anything) anything (jsArray anything) to anything Kernel.JsArray.foldr Core.Elm.JsArray.foldr )
+        , ( "foldl", threeWithError (function2 evalFunction anything anything to anything) anything (jsArray anything) to anything Kernel.JsArray.foldl Core.Elm.JsArray.foldl )
         , ( "initialize", threeWithError int int (function evalFunction int to anything) to (jsArray anything) Kernel.JsArray.initialize Core.Elm.JsArray.initialize )
         , ( "initializeFromList", two int (list anything) to (tuple (jsArray anything) (list anything)) Kernel.JsArray.initializeFromList Core.Elm.JsArray.initializeFromList )
         , ( "length", one (jsArray anything) to int Array.length Core.Elm.JsArray.length )
         , ( "map", twoWithError (function evalFunction anything to anything) (jsArray anything) to (jsArray anything) Kernel.JsArray.map Core.Elm.JsArray.map )
+        , ( "indexedMap", twoWithError (function2 evalFunction int anything to anything) (jsArray anything) to (jsArray anything) Kernel.JsArray.indexedMap Core.Elm.JsArray.indexedMap )
         , ( "push", two anything (jsArray anything) to (jsArray anything) Array.push Core.Elm.JsArray.push )
+        , ( "slice", three int int (jsArray anything) to (jsArray anything) Array.slice Core.Elm.JsArray.slice )
         , ( "singleton", one anything to (jsArray anything) (List.singleton >> Array.fromList) Core.Elm.JsArray.singleton )
+        , ( "unsafeGet", twoWithError int (jsArray anything) to anything Kernel.JsArray.unsafeGet Core.Elm.JsArray.unsafeGet )
+        , ( "unsafeSet", three int anything (jsArray anything) to (jsArray anything) Array.set Core.Elm.JsArray.unsafeSet )
         ]
       )
 
     -- Elm.Kernel.List
     , ( [ "Elm", "Kernel", "List" ]
       , [ ( "cons", two anything (list anything) to (list anything) (::) Core.List.cons )
-        , ( "fromArray", one anything to anything identity (tODO "fromArray") )
-        , ( "sortBy", twoWithError (function evalFunction anything to anything) (list anything) to (list anything) Kernel.List.sortBy Core.List.sortBy )
-        , ( "sortWith", twoWithError (function2 evalFunction anything anything to order) (list anything) to (list anything) Kernel.List.sortWith Core.List.sortWith )
-        , ( "toArray", one anything to anything identity (tODO "toArray") )
+        , ( "fromArray", one (jsArray anything) to (list anything) Array.toList Core.Array.toList )
+        , ( "toArray", one (list anything) to (jsArray anything) Array.fromList Core.Array.fromList )
         ]
       )
 
@@ -131,8 +135,6 @@ functions evalFunction =
         , ( "toInt", one string to (maybe int) String.toInt Core.String.toInt )
         , ( "toLower", one string to string String.toLower Core.String.toLower )
         , ( "toUpper", one string to string String.toUpper Core.String.toUpper )
-
-        -- , ( "any", one string to string String.any Core.String.any)
         , ( "append", two string string to string String.append Core.String.append )
         , ( "cons", two char string to string String.cons Core.String.cons )
         , ( "contains", two string string to bool String.contains Core.String.contains )
@@ -141,13 +143,13 @@ functions evalFunction =
         , ( "foldl", threeWithError (function2 evalFunction char anything to anything) anything string to anything Kernel.String.foldl Core.String.foldl )
         , ( "foldr", threeWithError (function2 evalFunction char anything to anything) anything string to anything Kernel.String.foldr Core.String.foldr )
         , ( "fromList", one (list char) to string String.fromList Core.String.fromList )
-        , ( "fromNumber", oneWithError anything to string Kernel.String.fromNumber (tODO "fromNumber") )
+        , ( "fromNumber", oneWithError anything to string Kernel.String.fromNumber Core.String.fromFloat ) -- TODO: `fromFloat` is not the same as `fromNumber`
         , ( "indexes", two string string to (list int) String.indexes Core.String.indexes )
-        , ( "join", two string (list string) to string String.join Core.String.join )
+        , ( "join", two string (jsArray string) to string (\s a -> String.join s (Array.toList a)) Core.String.join )
         , ( "lines", one string to (list string) String.lines Core.String.lines )
         , ( "reverse", one string to string String.reverse Core.String.reverse )
         , ( "slice", three int int string to string String.slice Core.String.slice )
-        , ( "split", two string string to (list string) String.split Core.String.split )
+        , ( "split", two string string to (jsArray string) (\s l -> Array.fromList (String.split s l)) Core.String.split )
         , ( "startsWith", two string string to bool String.startsWith Core.String.startsWith )
         , ( "trim", one string to string String.trim Core.String.trim )
         , ( "trimLeft", one string to string String.trimLeft Core.String.trimLeft )
@@ -156,14 +158,16 @@ functions evalFunction =
         , ( "words", one string to (list string) String.words Core.String.words )
         ]
       )
-    , -- Elm.Kernel.Utils
-      ( [ "Elm", "Kernel", "Utils" ]
+
+    -- Elm.Kernel.Utils
+    , ( [ "Elm", "Kernel", "Utils" ]
       , [ ( "append", twoWithError anything anything to anything Kernel.Utils.append Core.Basics.append )
         , ( "ge", Kernel.Utils.comparison [ GT, EQ ] )
         , ( "gt", Kernel.Utils.comparison [ GT ] )
         , ( "le", Kernel.Utils.comparison [ LT, EQ ] )
         , ( "lt", Kernel.Utils.comparison [ LT ] )
         , ( "equal", Kernel.Utils.comparison [ EQ ] )
+        , ( "notEqual", Kernel.Utils.comparison [ LT, GT ] )
         , ( "compare", twoWithError anything anything to order Kernel.Utils.compare Core.Basics.compare )
         ]
       )
@@ -179,33 +183,16 @@ functions evalFunction =
         |> Dict.fromList
 
 
-tODO : String -> FunctionImplementation
-tODO name =
-    -- TODO: get rid of this
-    { name = fakeNode name
-    , arguments = [ fakeNode <| VarPattern "x" ]
-    , expression =
-        [ Expression.FunctionOrValue
-            [ "Elm", "Kernel", "Debug" ]
-            "todo"
-        , Expression.Literal name
-        , Expression.FunctionOrValue [] "x"
-        ]
-            |> List.map fakeNode
-            |> Expression.Application
-            |> fakeNode
-    }
-
-
 log : FunctionImplementation
 log =
     { name = fakeNode "log"
-    , arguments = [ fakeNode <| VarPattern "x" ]
+    , arguments = [ fakeNode <| VarPattern "$x" ]
     , expression =
         fakeNode <|
             Expression.Application
                 [ Core.Basics.logBase.expression
                 , fakeNode <| FunctionOrValue [] "e"
+                , fakeNode <| FunctionOrValue [] "$x"
                 ]
     }
 
@@ -691,7 +678,7 @@ partiallyApply moduleName args implementation =
     Types.fromResult <|
         Ok <|
             PartiallyApplied
-                (IntepreterEnv.empty moduleName)
+                (Environment.empty moduleName)
                 args
                 implementation.arguments
                 (Just
