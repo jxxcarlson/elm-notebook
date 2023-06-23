@@ -260,6 +260,16 @@ update msg model =
                     , sendToBackend (UpdateUserWith user)
                     )
 
+        TogglePublic ->
+            let
+                oldBook =
+                    model.currentBook
+
+                newBook =
+                    { oldBook | public = not oldBook.public }
+            in
+            ( { model | currentBook = newBook, books = List.Extra.setIf (\b -> b.id == newBook.id) newBook model.books }, sendToBackend (SaveNotebook newBook) )
+
         NewNotebook ->
             case model.currentUser of
                 Nothing ->
@@ -285,7 +295,7 @@ update msg model =
                     str |> String.toLower |> String.replace " " "-"
 
                 newBook =
-                    { oldBook | title = model.inputTitle, slug = compress (oldBook.author ++ ":" ++ model.inputTitle) }
+                    { oldBook | title = model.inputTitle, slug = compress (oldBook.author ++ "." ++ model.inputTitle) }
             in
             ( { model
                 | appMode = AMWorking

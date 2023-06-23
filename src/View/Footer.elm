@@ -28,6 +28,7 @@ view model =
         , View.Utility.showIfIsAdmin model Button.runTask
         , messageRow model
         , E.el [ Font.color Color.lightGray ] (E.text model.currentBook.slug)
+        , Button.public model.currentBook
         ]
 
 

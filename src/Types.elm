@@ -85,6 +85,7 @@ type FrontendMsg
     | UpdateNotebookTitle
     | NewNotebook
     | ChangeAppMode AppMode
+    | TogglePublic
     | SetCurrentNotebook Book
       -- UI
     | ChangePopup PopupState

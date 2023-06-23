@@ -4,6 +4,7 @@ module View.Button exposing
     , dismissPopupSmall
     , editTitle
     , newNotebook
+    , public
     , runTask
     , setUpUser
     , signIn
@@ -86,6 +87,15 @@ editTitle mode =
 newNotebook : Element FrontendMsg
 newNotebook =
     Button.smallPrimary { msg = NewNotebook, status = Button.Active, label = Button.Text "New Notebook", tooltipText = Nothing }
+
+
+public : Book -> Element FrontendMsg
+public book =
+    if book.public then
+        Button.smallPrimary { msg = TogglePublic, status = Button.Active, label = Button.Text "Public", tooltipText = Nothing }
+
+    else
+        Button.smallPrimary { msg = TogglePublic, status = Button.Active, label = Button.Text "Private", tooltipText = Nothing }
 
 
 viewNotebookEntry : Types.Book -> Types.Book -> Element FrontendMsg
