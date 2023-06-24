@@ -187,6 +187,7 @@ updateFromFrontend sessionId clientId msg model =
                                             , slug = BackendHelper.compress (username ++ "." ++ book.title)
                                             , origin = Just slug
                                             , public = False
+                                            , dirty = True
                                         }
                                     )
                                 )
@@ -197,8 +198,8 @@ updateFromFrontend sessionId clientId msg model =
                 Nothing ->
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, couldn't get that notebook (2)") )
 
-        GetPulledNotebook username slug ->
-            case Dict.get slug model.slugDict of
+        GetPulledNotebook username origin slug id ->
+            case Dict.get origin model.slugDict of
                 Just notebookRecord ->
                     case NotebookDict.lookup notebookRecord.author notebookRecord.id model.userToNoteBookDict of
                         Ok book ->
@@ -208,7 +209,8 @@ updateFromFrontend sessionId clientId msg model =
                                     { book
                                         | author = username
                                         , slug = BackendHelper.compress (username ++ "." ++ book.title)
-                                        , origin = Just slug
+                                        , origin = Just origin
+                                        , id = id
                                     }
                                 )
                             )

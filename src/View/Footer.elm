@@ -42,13 +42,25 @@ view model =
                 , messageRow model
                 , case model.currentBook.origin of
                     Just origin ->
-                        E.el [ E.alignRight, Font.color Color.lightGray ] (E.text <| "origin: " ++ origin ++ " -> ")
+                        E.el [ E.alignRight, Font.color Color.lightGray ] (E.text <| origin)
+
+                    Nothing ->
+                        E.none
+                , case model.currentBook.origin of
+                    Just _ ->
+                        E.el [ Font.color Color.lightGray ] (E.text " ==> ")
 
                     Nothing ->
                         E.none
                 , E.el [ E.alignRight, Font.color Color.lightGray ] (E.text model.currentBook.slug)
+                , E.el [ E.alignRight, Font.color Color.lightGray ] (E.text model.currentBook.id)
                 , Button.public model.currentBook
-                , View.Utility.showIf (Predicate.canClone model) <| E.el [ E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] Button.pullNotebook
+                , case model.currentBook.origin of
+                    Just _ ->
+                        E.el [ E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] Button.pullNotebook
+
+                    Nothing ->
+                        E.none
                 , View.Utility.showIf (Predicate.canClone model) Button.cloneNotebook
 
                 --, View.Input.cloneReference model

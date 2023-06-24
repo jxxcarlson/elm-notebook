@@ -190,7 +190,7 @@ type ToBackend
     | SaveNotebook Book
     | DeleteNotebook Book
     | GetClonedNotebook String String -- username slug
-    | GetPulledNotebook String String -- username slug
+    | GetPulledNotebook String String String String -- username origin slug id
     | UpdateSlugDict Book
     | GetUsersNotebooks String -- username
     | GetPublicNotebooks String --

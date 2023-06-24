@@ -118,15 +118,18 @@ update msg model =
             )
 
         FETick time ->
-            let
-                saveNoteBookCmd =
-                    if Predicate.canSave model then
-                        sendToBackend (SaveNotebook model.currentBook)
+            if Predicate.canSave model && model.currentBook.dirty then
+                let
+                    oldBook =
+                        model.currentBook
 
-                    else
-                        Cmd.none
-            in
-            ( { model | currentTime = time }, saveNoteBookCmd )
+                    book =
+                        { oldBook | dirty = False }
+                in
+                ( { model | currentTime = time, currentBook = book }, sendToBackend (SaveNotebook book) )
+
+            else
+                ( model, Cmd.none )
 
         -- NAV
         UrlClicked urlRequest ->
@@ -259,7 +262,14 @@ update msg model =
             , Cmd.batch
                 [ Nav.pushUrl model.key "/"
                 , if Predicate.canSave model then
-                    sendToBackend (SaveNotebook model.currentBook)
+                    let
+                        oldBook =
+                            model.currentBook
+
+                        book =
+                            { oldBook | dirty = False }
+                    in
+                    sendToBackend (SaveNotebook book)
 
                   else
                     Cmd.none
@@ -297,7 +307,23 @@ update msg model =
                     ( model, Cmd.none )
 
                 Just user ->
-                    ( model, sendToBackend (GetPulledNotebook user.username (model.currentBook.origin |> Maybe.withDefault "???")) )
+                    let
+                        getOrigin : Book -> String
+                        getOrigin book =
+                            book.origin |> Maybe.withDefault "???"
+
+                        getUsername : Maybe User.User -> String
+                        getUsername user_ =
+                            user_ |> Maybe.map .username |> Maybe.withDefault "???"
+                    in
+                    ( model
+                    , sendToBackend
+                        (GetPulledNotebook user.username
+                            (getOrigin model.currentBook)
+                            model.currentBook.slug
+                            model.currentBook.id
+                        )
+                    )
 
         SetCurrentNotebook book ->
             case model.currentUser of
@@ -323,7 +349,7 @@ update msg model =
                         model.currentBook
 
                     newBook =
-                        { oldBook | public = not oldBook.public }
+                        { oldBook | public = not oldBook.public, dirty = False }
                 in
                 ( { model | currentBook = newBook, books = List.Extra.setIf (\b -> b.id == newBook.id) newBook model.books }
                 , sendToBackend (SaveNotebook newBook)
@@ -384,7 +410,11 @@ update msg model =
                         str |> String.toLower |> String.replace " " "-"
 
                     newBook =
-                        { oldBook | title = model.inputTitle, slug = compress (oldBook.author ++ "." ++ model.inputTitle) }
+                        { oldBook
+                            | dirty = False
+                            , title = model.inputTitle
+                            , slug = compress (oldBook.author ++ "." ++ model.inputTitle)
+                        }
                 in
                 ( { model
                     | appMode = AMWorking
@@ -454,6 +484,13 @@ updateFromBackend msg model =
                 book =
                     LiveBook.Book.initializeCellState book_
 
+                addOrReplaceBook xbook books =
+                    if List.any (\b -> b.id == xbook.id) books then
+                        List.Extra.setIf (\b -> b.id == xbook.id) xbook books
+
+                    else
+                        xbook :: books
+
                 showNotebooks =
                     if book.public then
                         ShowUserNotebooks
@@ -461,7 +498,7 @@ updateFromBackend msg model =
                     else
                         ShowUserNotebooks
             in
-            ( { model | currentBook = book, books = book :: model.books, showNotebooks = showNotebooks }, Cmd.none )
+            ( { model | currentBook = book, books = addOrReplaceBook book model.books }, Cmd.none )
 
         GotNotebooks books ->
             ( { model | books = books, currentBook = List.head books |> Maybe.withDefault model.currentBook }, Cmd.none )

@@ -8,6 +8,7 @@ import LiveBook.Cell
 import Types exposing (FrontendModel, FrontendMsg)
 import UILibrary.Color as Color
 import User
+import Util
 import View.Button
 import View.Color
 import View.Geometry
@@ -50,21 +51,41 @@ viewNotebookList model user =
 
 viewMyNotebookList : FrontendModel -> User.User -> List (Element FrontendMsg)
 viewMyNotebookList model user =
-    E.el [ Font.color Color.white, E.paddingEach { left = 0, right = 0, bottom = 8, top = 0 } ] (E.text "Notebooks")
+    E.el [ Font.color Color.white, E.paddingEach { left = 0, right = 0, bottom = 8, top = 0 } ]
+        (E.text <| "Notebooks: " ++ String.fromInt (List.length model.books))
         :: controls model.showNotebooks
-        :: List.map (View.Button.viewNotebookEntry model.currentBook) (List.sortBy (\b -> b.title) model.books)
+        :: List.map (viewNotebookEntry model.currentBook) (List.sortBy (\b -> b.title) model.books)
+
+
+viewNotebookEntry : Types.Book -> Types.Book -> Element FrontendMsg
+viewNotebookEntry currentBook book =
+    E.row []
+        [ View.Button.viewNotebookEntry currentBook book
+        , case book.origin of
+            Nothing ->
+                E.none
+
+            Just origin ->
+                case Util.firstPart origin of
+                    Nothing ->
+                        E.none
+
+                    Just username ->
+                        E.el [ Font.color Color.lightGray, E.paddingXY 0 8, E.width (E.px 80) ] (E.text <| " (" ++ username ++ ")")
+        ]
 
 
 viewPublicNotebookList model user =
-    E.el [ Font.color Color.white, E.paddingEach { left = 0, right = 0, bottom = 8, top = 0 } ] (E.text "Notebooks")
+    E.el [ Font.color Color.white, E.paddingEach { left = 0, right = 0, bottom = 8, top = 0 } ]
+        (E.text <| "Notebooks: " ++ String.fromInt (List.length model.books))
         :: controls model.showNotebooks
-        :: List.map (viewPublicNotebookEntry model.currentBook) (List.sortBy (\b -> b.title) model.books)
+        :: List.map (viewPublicNotebookEntry model.currentBook) (List.sortBy (\b -> b.author ++ b.title) model.books)
 
 
 viewPublicNotebookEntry : Types.Book -> Types.Book -> Element FrontendMsg
 viewPublicNotebookEntry currentBook book =
     E.row []
-        [ E.el [ Font.color Color.white, E.paddingXY 0 8, E.width (E.px 80) ] (E.text book.author)
+        [ E.el [ Font.color Color.lightGray, E.paddingXY 0 8, E.width (E.px 80) ] (E.text book.author)
         , View.Button.viewNotebookEntry currentBook book
         ]
 

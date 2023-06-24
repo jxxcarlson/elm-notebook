@@ -44,7 +44,7 @@ content =
 
 ## This manual
 
-Click on the 'Manual' button again to hide the manual.
+Click on the **Manual** button to show or hide the manual.
 
 ## Cells
 
@@ -55,20 +55,25 @@ Click in a cell to edit it, then type ctrl-Enter to evaluate it.
 Notebooks are either public or private.  Public notebooks are visible to all users.
 To change the status of a notebook, click on the 'Private' button in the notebook footer.
 
-## Identifiers
+You can work with a pubic notebook that does not belong to you: edit and evaluate
+cells, delete cells and make new ones. However, these changes will not be saved.
+If you want to save changes to a public notebook, clone it (see below)  Cloning a notebook
+creates a new notebook that belongs to you.
 
-All notebooks have a short identifier.  The  short identifier of a notebook is shown in the footer.
-Here is an example: 'jxxcarlson.exercises-a'. Short identifiers always
-begin with the author's username.  The rest of the identifier comes from the title.
-If you change the title of a notebook, the identifier
-will change accordingly.
+
+
+Note the two buttons **Mine** and **Public** at the top of the notebook list (right-hand column).
+Click on the **Mine**
+botton to show your documents. Click on **Public** to show public documents that do not
+belong to you.
+
 
 ## Cloning a notebook
 
-You can clone a public notebook by entering its short identifier in the 'Notebook identifier' field, then
-clicking on the 'Clone' button in the notebook header.
-
+Public documents can be cloned by clicking on the 'Clone' button in the footer.
 A notebook that has been cloned can be updated by clicking on the 'Update' button in the footer.
 Updating a notebook will overwrite any changes you have made to it.
+
+
 
 """

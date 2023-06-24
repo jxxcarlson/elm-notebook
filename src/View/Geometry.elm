@@ -13,7 +13,7 @@ module View.Geometry exposing
 
 appWidth : { a | windowWidth : Int } -> Int
 appWidth model =
-    min 1100 model.windowWidth
+    min 1300 model.windowWidth
 
 
 appHeight : { a | windowHeight : number } -> number
@@ -36,7 +36,7 @@ notebookWidth model =
 
 
 notebookListWidth =
-    300
+    350
 
 
 headerHeight =
