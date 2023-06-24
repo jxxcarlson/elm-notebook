@@ -15,6 +15,7 @@ import LiveBook.Book
 import LiveBook.Cell
 import LiveBook.Update
 import Loading
+import Predicate
 import Random
 import Task
 import Time
@@ -118,7 +119,7 @@ update msg model =
         FETick time ->
             let
                 saveNoteBookCmd =
-                    if model.currentBook.dirty then
+                    if Predicate.canSave model then
                         sendToBackend (SaveNotebook model.currentBook)
 
                     else
@@ -254,7 +255,14 @@ update msg model =
                 , inputUsername = ""
                 , inputPassword = ""
               }
-            , Cmd.batch [ Nav.pushUrl model.key "/", sendToBackend (SaveNotebook model.currentBook) ]
+            , Cmd.batch
+                [ Nav.pushUrl model.key "/"
+                , if Predicate.canSave model then
+                    sendToBackend (SaveNotebook model.currentBook)
+
+                  else
+                    Cmd.none
+                ]
             )
 
         -- CELLS, NOTEBOOKS
@@ -289,14 +297,20 @@ update msg model =
                     )
 
         TogglePublic ->
-            let
-                oldBook =
-                    model.currentBook
+            if not (Predicate.canSave model) then
+                ( model, Cmd.none )
 
-                newBook =
-                    { oldBook | public = not oldBook.public }
-            in
-            ( { model | currentBook = newBook, books = List.Extra.setIf (\b -> b.id == newBook.id) newBook model.books }, sendToBackend (SaveNotebook newBook) )
+            else
+                let
+                    oldBook =
+                        model.currentBook
+
+                    newBook =
+                        { oldBook | public = not oldBook.public }
+                in
+                ( { model | currentBook = newBook, books = List.Extra.setIf (\b -> b.id == newBook.id) newBook model.books }
+                , sendToBackend (SaveNotebook newBook)
+                )
 
         CancelDeleteNotebook ->
             ( { model | deleteNotebookState = WaitingToDeleteNotebook }, Cmd.none )
@@ -341,26 +355,30 @@ update msg model =
                     ( { model | appMode = mode }, Cmd.none )
 
         UpdateNotebookTitle ->
-            let
-                oldBook =
-                    model.currentBook
+            if not (Predicate.canSave model) then
+                ( { model | message = "You can't edit this notebook." }, Cmd.none )
 
-                compress str =
-                    str |> String.toLower |> String.replace " " "-"
+            else
+                let
+                    oldBook =
+                        model.currentBook
 
-                newBook =
-                    { oldBook | title = model.inputTitle, slug = compress (oldBook.author ++ "." ++ model.inputTitle) }
-            in
-            ( { model
-                | appMode = AMWorking
-                , currentBook = newBook
-                , books = List.Extra.setIf (\b -> b.id == newBook.id) newBook model.books
-              }
-            , Cmd.batch
-                [ sendToBackend (SaveNotebook newBook)
-                , sendToBackend (UpdateSlugDict newBook)
-                ]
-            )
+                    compress str =
+                        str |> String.toLower |> String.replace " " "-"
+
+                    newBook =
+                        { oldBook | title = model.inputTitle, slug = compress (oldBook.author ++ "." ++ model.inputTitle) }
+                in
+                ( { model
+                    | appMode = AMWorking
+                    , currentBook = newBook
+                    , books = List.Extra.setIf (\b -> b.id == newBook.id) newBook model.books
+                  }
+                , Cmd.batch
+                    [ sendToBackend (SaveNotebook newBook)
+                    , sendToBackend (UpdateSlugDict newBook)
+                    ]
+                )
 
         InputElmCode index str ->
             ( LiveBook.Update.updateCellText model index str, Cmd.none )

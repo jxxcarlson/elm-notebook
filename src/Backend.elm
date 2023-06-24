@@ -164,21 +164,25 @@ updateFromFrontend sessionId clientId msg model =
                 Just notebookRecord ->
                     case NotebookDict.lookup notebookRecord.author notebookRecord.id model.userToNoteBookDict of
                         Ok book ->
-                            let
-                                newModel =
-                                    BackendHelper.getUUID model
-                            in
-                            ( newModel
-                            , sendToFrontend clientId
-                                (GotNotebook
-                                    { book
-                                        | author = username
-                                        , id = newModel.uuid
-                                        , slug = BackendHelper.compress (username ++ "." ++ book.title)
-                                        , origin = Just slug
-                                    }
+                            if book.public == False then
+                                ( model, sendToFrontend clientId (SendMessage <| "Sorry, that notebook is private") )
+
+                            else
+                                let
+                                    newModel =
+                                        BackendHelper.getUUID model
+                                in
+                                ( newModel
+                                , sendToFrontend clientId
+                                    (GotNotebook
+                                        { book
+                                            | author = username
+                                            , id = newModel.uuid
+                                            , slug = BackendHelper.compress (username ++ "." ++ book.title)
+                                            , origin = Just slug
+                                        }
+                                    )
                                 )
-                            )
 
                         Err _ ->
                             ( model, sendToFrontend clientId (SendMessage <| "Sorry, couldn't get that notebook (1)") )
