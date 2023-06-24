@@ -76,13 +76,13 @@ allForUser username_ dict =
             Dict.values notebookDict
 
 
-allPublic : Types.UserToNoteBookDict -> List Book
-allPublic dict =
+allPublic : Types.Username -> Types.UserToNoteBookDict -> List Book
+allPublic username dict =
     dict
         |> Dict.values
         |> List.map Dict.values
         |> List.concat
-        |> List.filter (\book -> book.public)
+        |> List.filter (\book -> book.public && book.author /= username)
 
 
 {-|

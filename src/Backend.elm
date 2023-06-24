@@ -147,8 +147,8 @@ updateFromFrontend sessionId clientId msg model =
         GetUsersNotebooks username ->
             ( model, sendToFrontend clientId (GotNotebooks (NotebookDict.allForUser username model.userToNoteBookDict)) )
 
-        GetPublicNotebooks ->
-            ( model, sendToFrontend clientId (GotNotebooks (NotebookDict.allPublic model.userToNoteBookDict)) )
+        GetPublicNotebooks username ->
+            ( model, sendToFrontend clientId (GotNotebooks (NotebookDict.allPublic username model.userToNoteBookDict)) )
 
         UpdateSlugDict book ->
             case String.split "." book.slug of

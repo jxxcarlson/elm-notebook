@@ -275,7 +275,7 @@ update msg model =
                             sendToBackend (GetUsersNotebooks (model.currentUser |> Maybe.map .username |> Maybe.withDefault "--@@--"))
 
                         ShowPublicNotebooks ->
-                            sendToBackend GetPublicNotebooks
+                            sendToBackend (GetPublicNotebooks (model.currentUser |> Maybe.map .username |> Maybe.withDefault "--@@--"))
             in
             ( { model | showNotebooks = state }, cmd )
 

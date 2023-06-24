@@ -193,7 +193,7 @@ type ToBackend
     | GetPulledNotebook String String -- username slug
     | UpdateSlugDict Book
     | GetUsersNotebooks String -- username
-    | GetPublicNotebooks
+    | GetPublicNotebooks String --
       -- USER
     | SignUpBE String String String
     | SignInBEDev
