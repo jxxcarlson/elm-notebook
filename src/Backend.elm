@@ -186,6 +186,7 @@ updateFromFrontend sessionId clientId msg model =
                                             , id = newModel.uuid
                                             , slug = BackendHelper.compress (username ++ "." ++ book.title)
                                             , origin = Just slug
+                                            , public = False
                                         }
                                     )
                                 )

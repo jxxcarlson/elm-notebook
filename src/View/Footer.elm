@@ -2,6 +2,7 @@ module View.Footer exposing (view)
 
 import Element as E exposing (Element)
 import Element.Font as Font
+import Predicate
 import UILibrary.Color as Color
 import View.Button as Button
 import View.Geometry
@@ -41,15 +42,16 @@ view model =
                 , messageRow model
                 , case model.currentBook.origin of
                     Just origin ->
-                        E.el [ Font.color Color.lightGray ] (E.text <| "origin: " ++ origin ++ " -> ")
+                        E.el [ E.alignRight, Font.color Color.lightGray ] (E.text <| "origin: " ++ origin ++ " -> ")
 
                     Nothing ->
                         E.none
-                , E.el [ Font.color Color.lightGray ] (E.text model.currentBook.slug)
+                , E.el [ E.alignRight, Font.color Color.lightGray ] (E.text model.currentBook.slug)
                 , Button.public model.currentBook
-                , E.el [ E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] Button.pullNotebook
-                , Button.cloneNotebook
-                , View.Input.cloneReference model
+                , View.Utility.showIf (Predicate.canClone model) <| E.el [ E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] Button.pullNotebook
+                , View.Utility.showIf (Predicate.canClone model) Button.cloneNotebook
+
+                --, View.Input.cloneReference model
                 ]
         )
 

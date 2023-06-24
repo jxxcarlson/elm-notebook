@@ -280,12 +280,16 @@ update msg model =
             ( { model | showNotebooks = state }, cmd )
 
         CloneNotebook ->
-            case model.currentUser of
-                Nothing ->
-                    ( model, Cmd.none )
+            if not <| Predicate.canClone model then
+                ( model, Cmd.none )
 
-                Just user ->
-                    ( model, sendToBackend (GetClonedNotebook user.username model.cloneReference) )
+            else
+                case model.currentUser of
+                    Nothing ->
+                        ( model, Cmd.none )
+
+                    Just user ->
+                        ( model, sendToBackend (GetClonedNotebook user.username model.currentBook.slug) )
 
         PullNotebook ->
             case model.currentUser of
@@ -449,8 +453,15 @@ updateFromBackend msg model =
             let
                 book =
                     LiveBook.Book.initializeCellState book_
+
+                showNotebooks =
+                    if book.public then
+                        ShowUserNotebooks
+
+                    else
+                        ShowUserNotebooks
             in
-            ( { model | currentBook = book, books = book :: model.books }, Cmd.none )
+            ( { model | currentBook = book, books = book :: model.books, showNotebooks = showNotebooks }, Cmd.none )
 
         GotNotebooks books ->
             ( { model | books = books, currentBook = List.head books |> Maybe.withDefault model.currentBook }, Cmd.none )
