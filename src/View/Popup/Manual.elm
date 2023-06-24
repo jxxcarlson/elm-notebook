@@ -53,26 +53,28 @@ Click in a cell to edit it, then type ctrl-Enter to evaluate it.
 ## Public versus private notebooks
 
 Notebooks are either public or private.  Public notebooks are visible to all users.
-To change the status of a notebook, click on the 'Private' button in the notebook footer.
+To change the status of a notebook, click on the **Private** button in the notebook footer.
 
 You can work with a pubic notebook that does not belong to you: edit and evaluate
 cells, delete cells and make new ones. However, these changes will not be saved.
 If you want to save changes to a public notebook, clone it (see below)  Cloning a notebook
-creates a new notebook that belongs to you.
+creates a copy of the notebook that belongs to you.
 
 
 
 Note the two buttons **Mine** and **Public** at the top of the notebook list (right-hand column).
 Click on the **Mine**
-botton to show your documents. Click on **Public** to show public documents that do not
+button to show your documents. Click on **Public** to show public documents that do not
 belong to you.
 
 
 ## Cloning a notebook
 
-Public documents can be cloned by clicking on the 'Clone' button in the footer.
-A notebook that has been cloned can be updated by clicking on the 'Update' button in the footer.
-Updating a notebook will overwrite any changes you have made to it.
+Public documents can be cloned by clicking on the **Clone** button in the footer.
+
+You can also update a notebook that has been cloned: click on the **Update** button in the footer.
+Updating a notebook brings in new material from the original source.
+However this operation will overwrite any changes you have made to the clone.
 
 
 

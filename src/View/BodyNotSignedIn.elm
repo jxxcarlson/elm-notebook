@@ -27,7 +27,7 @@ view model =
 
             --, E.height (E.px (View.Geometry.mainColumnHeight model))
             , E.height (E.px 400)
-            , E.width (E.px (View.Geometry.appWidth model - 370))
+            , E.width (E.px (min 500 (View.Geometry.appWidth model - 300)))
             ]
             [ E.paragraph [ E.spacing 8 ]
                 [ E.text "Welcome to Elm Livebook — an app like Jupyter notebooks or Elixir's Livebook. "

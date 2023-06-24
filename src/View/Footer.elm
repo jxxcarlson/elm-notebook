@@ -53,7 +53,6 @@ view model =
                     Nothing ->
                         E.none
                 , E.el [ E.alignRight, Font.color Color.lightGray ] (E.text model.currentBook.slug)
-                , E.el [ E.alignRight, Font.color Color.lightGray ] (E.text model.currentBook.id)
                 , Button.public model.currentBook
                 , case model.currentBook.origin of
                     Just _ ->
