@@ -68,6 +68,7 @@ view width cellContents cell =
                 ]
                 [ viewIndex cell
                 , newCellAt cell.cellState cell.index
+                , deleteCellAt cell.cellState cell.index
 
                 --, editCellAt cell.cellState cell.index
                 , clearCellAt cell.cellState cell.index
@@ -152,6 +153,16 @@ newCellAt cellState index =
     case cellState of
         CSView ->
             Button.smallPrimary { msg = NewCell index, status = Button.ActiveTransparent, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
+
+        CSEdit ->
+            E.none
+
+
+deleteCellAt : CellState -> Int -> Element FrontendMsg
+deleteCellAt cellState index =
+    case cellState of
+        CSView ->
+            Button.smallPrimary { msg = DeleteCell index, status = Button.ActiveTransparent, label = Button.Text "Delete", tooltipText = Just "Insert  new cell" }
 
         CSEdit ->
             E.none

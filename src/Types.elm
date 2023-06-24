@@ -98,6 +98,7 @@ type FrontendMsg
     | KeyboardMsg Keyboard.Msg
       -- CELL
     | NewCell Int
+    | DeleteCell Int
     | EditCell Int
     | ClearCell Int
     | EvalCell Int

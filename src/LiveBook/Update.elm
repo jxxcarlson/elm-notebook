@@ -1,10 +1,10 @@
 module LiveBook.Update exposing
     ( clearCell
+    , deleteCell_
     , editCell
     , evalCell
     , evalCell_
     , makeNewCell
-    , removeCell_
     , updateCellText
     )
 
@@ -75,8 +75,8 @@ updateCellText model index str =
             { model | cellContent = str, currentBook = newBook }
 
 
-removeCell_ : Int -> FrontendModel -> FrontendModel
-removeCell_ index model =
+deleteCell_ : Int -> FrontendModel -> FrontendModel
+deleteCell_ index model =
     case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
             model

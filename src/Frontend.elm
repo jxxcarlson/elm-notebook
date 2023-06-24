@@ -433,6 +433,13 @@ update msg model =
         NewCell index ->
             LiveBook.Update.makeNewCell model index
 
+        DeleteCell index ->
+            if List.length model.currentBook.cells <= 1 then
+                ( model, Cmd.none )
+
+            else
+                ( LiveBook.Update.deleteCell_ index model, Cmd.none )
+
         EditCell index ->
             LiveBook.Update.editCell model index
 
