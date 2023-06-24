@@ -132,7 +132,7 @@ updateFromFrontend sessionId clientId msg model =
                         ( model
                         , Cmd.batch
                             [ sendToFrontend clientId (SendUser userData.user)
-                            , sendToFrontend clientId (GotNotebooks (NotebookDict.all username model.userToNoteBookDict))
+                            , sendToFrontend clientId (GotNotebooks (NotebookDict.allForUser username model.userToNoteBookDict))
                             , curentBookCmd
                             ]
                         )
@@ -144,6 +144,12 @@ updateFromFrontend sessionId clientId msg model =
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, password and username don't match (2)") )
 
         -- NOTEBOOKS
+        GetUsersNotebooks username ->
+            ( model, sendToFrontend clientId (GotNotebooks (NotebookDict.allForUser username model.userToNoteBookDict)) )
+
+        GetPublicNotebooks ->
+            ( model, sendToFrontend clientId (GotNotebooks (NotebookDict.allPublic model.userToNoteBookDict)) )
+
         UpdateSlugDict book ->
             case String.split "." book.slug of
                 author :: slug :: [] ->

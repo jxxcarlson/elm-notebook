@@ -1,6 +1,7 @@
 module NotebookDict exposing
     ( NotebookDataError(..)
-    , all
+    , allForUser
+    , allPublic
     , insert
     , lookup
     , remove
@@ -65,14 +66,23 @@ lookup username_ identifier userToNotbookDict =
     Return all notebooks belonging to a user.
 
 -}
-all : Types.Username -> Types.UserToNoteBookDict -> List Book
-all username_ dict =
+allForUser : Types.Username -> Types.UserToNoteBookDict -> List Book
+allForUser username_ dict =
     case Dict.get username_ dict of
         Nothing ->
             []
 
         Just notebookDict ->
             Dict.values notebookDict
+
+
+allPublic : Types.UserToNoteBookDict -> List Book
+allPublic dict =
+    dict
+        |> Dict.values
+        |> List.map Dict.values
+        |> List.concat
+        |> List.filter (\book -> book.public)
 
 
 {-|

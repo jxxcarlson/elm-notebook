@@ -40,8 +40,17 @@ viewNotebookList model user =
         , E.paddingXY 24 12
         ]
         (E.el [ Font.color Color.white, E.paddingEach { left = 0, right = 0, bottom = 8, top = 0 } ] (E.text "Notebooks")
+            :: controls model.showNotebooks
             :: List.map (View.Button.viewNotebookEntry model.currentBook) (List.sortBy (\b -> b.title) model.books)
         )
+
+
+controls : Types.ShowNotebooks -> Element FrontendMsg
+controls showNotebooks =
+    E.row [ E.spacing 12 ]
+        [ View.Button.myNotebooks showNotebooks
+        , E.el [ E.paddingXY 0 8 ] (View.Button.publicNotebooks showNotebooks)
+        ]
 
 
 viewNotebook : FrontendModel -> User.User -> Element FrontendMsg

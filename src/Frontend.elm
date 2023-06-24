@@ -70,6 +70,7 @@ init url key =
       , currentCellIndex = 0
       , cloneReference = ""
       , deleteNotebookState = WaitingToDeleteNotebook
+      , showNotebooks = ShowUserNotebooks
 
       -- UI
       , windowWidth = 600
@@ -266,6 +267,18 @@ update msg model =
             )
 
         -- CELLS, NOTEBOOKS
+        SetShowNotebooksState state ->
+            let
+                cmd =
+                    case state of
+                        ShowUserNotebooks ->
+                            sendToBackend (GetUsersNotebooks (model.currentUser |> Maybe.map .username |> Maybe.withDefault "--@@--"))
+
+                        ShowPublicNotebooks ->
+                            sendToBackend GetPublicNotebooks
+            in
+            ( { model | showNotebooks = state }, cmd )
+
         CloneNotebook ->
             case model.currentUser of
                 Nothing ->

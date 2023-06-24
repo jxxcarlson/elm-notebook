@@ -34,6 +34,7 @@ type alias FrontendModel =
     , currentCellIndex : Int
     , cloneReference : String
     , deleteNotebookState : DeleteNotebookState
+    , showNotebooks : ShowNotebooks
 
     -- USER
     , signupState : SignupState
@@ -75,6 +76,11 @@ type alias BackendModel =
     }
 
 
+type ShowNotebooks
+    = ShowUserNotebooks
+    | ShowPublicNotebooks
+
+
 type DeleteNotebookState
     = WaitingToDeleteNotebook
     | CanDeleteNotebook
@@ -105,6 +111,7 @@ type FrontendMsg
     | SetCurrentNotebook Book
     | CloneNotebook
     | PullNotebook
+    | SetShowNotebooksState ShowNotebooks
       -- UI
     | ChangePopup PopupState
     | GotViewport Browser.Dom.Viewport
@@ -185,6 +192,8 @@ type ToBackend
     | GetClonedNotebook String String -- username slug
     | GetPulledNotebook String String -- username slug
     | UpdateSlugDict Book
+    | GetUsersNotebooks String -- username
+    | GetPublicNotebooks
       -- USER
     | SignUpBE String String String
     | SignInBEDev

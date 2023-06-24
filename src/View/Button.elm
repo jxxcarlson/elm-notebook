@@ -8,8 +8,10 @@ module View.Button exposing
     , editTitle
     , manual
     , manualLarge
+    , myNotebooks
     , newNotebook
     , public
+    , publicNotebooks
     , pullNotebook
     , runTask
     , setUpUser
@@ -93,6 +95,26 @@ editTitle mode =
 newNotebook : Element FrontendMsg
 newNotebook =
     Button.smallPrimary { msg = NewNotebook, status = Button.Active, label = Button.Text "New Notebook", tooltipText = Nothing }
+
+
+myNotebooks : Types.ShowNotebooks -> Element FrontendMsg
+myNotebooks showNotebooks =
+    case showNotebooks of
+        ShowUserNotebooks ->
+            Button.smallPrimary { msg = NoOpFrontendMsg, status = Button.Highlighted, label = Button.Text "Mine", tooltipText = Nothing }
+
+        ShowPublicNotebooks ->
+            Button.smallPrimary { msg = SetShowNotebooksState Types.ShowUserNotebooks, status = Button.Active, label = Button.Text "Mine", tooltipText = Nothing }
+
+
+publicNotebooks : Types.ShowNotebooks -> Element FrontendMsg
+publicNotebooks showNotebooks =
+    case showNotebooks of
+        ShowUserNotebooks ->
+            Button.smallPrimary { msg = SetShowNotebooksState Types.ShowPublicNotebooks, status = Button.Active, label = Button.Text "Public", tooltipText = Nothing }
+
+        ShowPublicNotebooks ->
+            Button.smallPrimary { msg = NoOpFrontendMsg, status = Button.Highlighted, label = Button.Text "Public", tooltipText = Nothing }
 
 
 cancelDeleteNotebook : DeleteNotebookState -> Element FrontendMsg
