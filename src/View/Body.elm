@@ -39,10 +39,34 @@ viewNotebookList model user =
         , E.height (E.px (View.Geometry.bodyHeight model))
         , E.paddingXY 24 12
         ]
-        (E.el [ Font.color Color.white, E.paddingEach { left = 0, right = 0, bottom = 8, top = 0 } ] (E.text "Notebooks")
-            :: controls model.showNotebooks
-            :: List.map (View.Button.viewNotebookEntry model.currentBook) (List.sortBy (\b -> b.title) model.books)
+        (case model.showNotebooks of
+            Types.ShowUserNotebooks ->
+                viewMyNotebookList model user
+
+            Types.ShowPublicNotebooks ->
+                viewPublicNotebookList model user
         )
+
+
+viewMyNotebookList : FrontendModel -> User.User -> List (Element FrontendMsg)
+viewMyNotebookList model user =
+    E.el [ Font.color Color.white, E.paddingEach { left = 0, right = 0, bottom = 8, top = 0 } ] (E.text "Notebooks")
+        :: controls model.showNotebooks
+        :: List.map (View.Button.viewNotebookEntry model.currentBook) (List.sortBy (\b -> b.title) model.books)
+
+
+viewPublicNotebookList model user =
+    E.el [ Font.color Color.white, E.paddingEach { left = 0, right = 0, bottom = 8, top = 0 } ] (E.text "Notebooks")
+        :: controls model.showNotebooks
+        :: List.map (viewPublicNotebookEntry model.currentBook) (List.sortBy (\b -> b.title) model.books)
+
+
+viewPublicNotebookEntry : Types.Book -> Types.Book -> Element FrontendMsg
+viewPublicNotebookEntry currentBook book =
+    E.row []
+        [ E.el [ Font.color Color.white, E.paddingXY 0 8, E.width (E.px 80) ] (E.text book.author)
+        , View.Button.viewNotebookEntry currentBook book
+        ]
 
 
 controls : Types.ShowNotebooks -> Element FrontendMsg

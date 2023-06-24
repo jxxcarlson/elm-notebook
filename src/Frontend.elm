@@ -453,7 +453,7 @@ updateFromBackend msg model =
             ( { model | currentBook = book, books = book :: model.books }, Cmd.none )
 
         GotNotebooks books ->
-            ( { model | books = books }, Cmd.none )
+            ( { model | books = books, currentBook = List.head books |> Maybe.withDefault model.currentBook }, Cmd.none )
 
 
 view : Model -> { title : String, body : List (Html.Html FrontendMsg) }
