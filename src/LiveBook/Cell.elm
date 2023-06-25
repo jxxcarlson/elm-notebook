@@ -1,4 +1,13 @@
-module LiveBook.Cell exposing (evaluate, evaluateString, toLetInExpression, view)
+module LiveBook.Cell exposing (..)
+
+--( cellList
+--, evaluate
+--, evaluateString
+--, getBindings
+--, sourceText
+--, toLetInExpression
+--, view
+--)
 
 import Element as E exposing (Element)
 import Element.Background as Background
@@ -14,12 +23,88 @@ import UILibrary.Color as Color
 import Value exposing (Value)
 
 
+evaluate : Cell -> Cell
+evaluate cell =
+    { cell | value = evaluateSource cell, cellState = CSView }
+
+
+evaluateAccum : List Cell -> Cell -> Cell
+evaluateAccum cells cell =
+    let
+        bindings =
+            getBindings cell.index cells
+
+        lines =
+            cell.text
+                |> List.filter (\s -> String.left 1 s /= "#")
+                |> List.filter (\s -> String.trim s /= "")
+
+        n =
+            List.length lines
+
+        suffix =
+            List.drop (n - 1) lines
+
+        value =
+            "let"
+                :: (bindings ++ [ "in" ] ++ suffix)
+                |> String.join "\n"
+                |> evaluateString
+    in
+    { cell | value = Just value, cellState = CSView }
+
+
+evaluateSource : Cell -> Maybe String
+evaluateSource cell =
+    evaluateString (sourceText cell |> String.join "\n") |> Just
+
+
+sourceText_ : Cell -> List String
+sourceText_ cell =
+    cell.text
+        |> List.filter (\s -> String.left 1 s /= "#")
+        |> List.filter (\s -> String.trim s /= "")
+
+
 sourceText : Cell -> List String
 sourceText cell =
     cell.text
         |> List.filter (\s -> String.left 1 s /= "#")
         |> List.filter (\s -> String.trim s /= "")
         |> toLetInExpression
+
+
+getBindings_ : List String -> List String
+getBindings_ lines =
+    if (List.head lines |> Maybe.map String.trim) == Just "let" then
+        []
+
+    else
+        let
+            n =
+                List.length lines
+        in
+        List.take (n - 1) lines
+
+
+getBindings : Int -> List Cell -> List String
+getBindings k cells =
+    cells
+        |> List.take (k + 1)
+        |> List.map (getBindings_ << sourceText_)
+        |> List.concat
+
+
+cell1 =
+    { index = 0, text = String.lines "a = 1\nb = 5\n(a + b)*(a - b)", value = Nothing, cellState = CSView }
+
+
+cell2 =
+    { index = 1, text = String.lines "c = 11\n(2 * a) + (3 * b) + c", value = Nothing, cellState = CSView }
+
+
+cellList =
+    [ cell1, cell2 ]
 
 
 toLetInExpression : List String -> List String
@@ -45,11 +130,6 @@ toLetInExpression lines =
             "let" :: (letBody ++ ("in" :: lastLine))
 
 
-evaluateSource : Cell -> Maybe String
-evaluateSource cell =
-    evaluateString (sourceText cell |> String.join "\n") |> Just
-
-
 evaluateString : String -> String
 evaluateString input =
     case Eval.eval input |> Result.map Value.toString of
@@ -58,16 +138,6 @@ evaluateString input =
 
         Err err ->
             "Error"
-
-
-{-|
-
-    TODO: Dummy implementation of evaluate : Cell -> Cell
-
--}
-evaluate : Cell -> Cell
-evaluate cell =
-    { cell | value = evaluateSource cell, cellState = CSView }
 
 
 view : Int -> String -> Cell -> Element FrontendMsg

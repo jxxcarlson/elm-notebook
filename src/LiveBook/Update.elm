@@ -164,8 +164,11 @@ evalCell_ index model =
 
         Just cell_ ->
             let
-                updatedCell =
+                updatedCell_ =
                     LiveBook.Cell.evaluate cell_
+
+                updatedCell =
+                    LiveBook.Cell.evaluateAccum model.currentBook.cells cell_
 
                 prefix =
                     List.filter (\cell -> cell.index < index) model.currentBook.cells
