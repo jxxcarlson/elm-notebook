@@ -290,7 +290,7 @@ fixLines lines =
         |> List.map fixLine
         |> List.map String.trimRight
     )
-        ++ last
+        ++ List.map fixLine last
 
 
 fixLine : String -> String
