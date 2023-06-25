@@ -50,6 +50,9 @@ Click on the **Manual** button to show or hide the manual.
 
 Click in a cell to edit it, then type ctrl-Enter to evaluate it.
 
+For examples and a discussion of cell format, take a look at
+the public notoebook **Welcome to Elm Livebook.**
+
 ## Public versus private notebooks
 
 Notebooks are either public or private.  Public notebooks are visible to all users.

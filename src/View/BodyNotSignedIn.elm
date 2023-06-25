@@ -36,6 +36,7 @@ view model =
             , E.row [ E.height (E.px 8) ] []
             , E.paragraph [ E.spacing 8 ]
                 [ E.text "Please look at the manual before you start. (Click on 'Manual' button in header.) "
+                , E.text "See also the public notebook 'Welcome to Elm Livebook'. "
                 ]
             , E.row [ E.height (E.px 8) ] []
             , E.text "The engine that runs the app is @minibill's elm-interpreter. "
