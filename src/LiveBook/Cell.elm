@@ -54,12 +54,25 @@ evaluateWithCumulativeBindings cells cell =
             n =
                 List.length lines
 
+            suffix : List String
             suffix =
                 List.drop (n - 1) lines
+
+            isBinding : List String -> Bool
+            isBinding list =
+                case list |> List.head |> Maybe.map (String.contains "=") of
+                    Just True ->
+                        True
+
+                    _ ->
+                        False
 
             value =
                 if bindings == [] then
                     suffix |> String.join "\n" |> evaluateString
+
+                else if isBinding suffix then
+                    "()" |> evaluateString
 
                 else
                     "let"
