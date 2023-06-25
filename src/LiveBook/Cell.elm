@@ -18,7 +18,10 @@ sourceText : Cell -> List String
 sourceText cell =
     cell.text
         |> List.filter (\s -> String.left 1 s /= "#")
-        |> toLetInExpression
+
+
+
+--|> toLetInExpression
 
 
 toLetInExpression : List String -> List String
