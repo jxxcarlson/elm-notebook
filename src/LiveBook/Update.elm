@@ -168,7 +168,7 @@ evalCell_ index model =
                     LiveBook.Cell.evaluate cell_
 
                 updatedCell =
-                    LiveBook.Cell.evaluateAccum model.currentBook.cells cell_
+                    LiveBook.Cell.evaluateWithCumulativeBindings model.currentBook.cells cell_
 
                 prefix =
                     List.filter (\cell -> cell.index < index) model.currentBook.cells

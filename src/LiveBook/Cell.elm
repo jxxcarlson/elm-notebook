@@ -28,30 +28,43 @@ evaluate cell =
     { cell | value = evaluateSource cell, cellState = CSView }
 
 
-evaluateAccum : List Cell -> Cell -> Cell
-evaluateAccum cells cell =
+evaluateWithCumulativeBindings : List Cell -> Cell -> Cell
+evaluateWithCumulativeBindings cells cell =
     let
-        bindings =
-            getBindings cell.index cells
-
-        lines =
+        cellSourceLines =
             cell.text
                 |> List.filter (\s -> String.left 1 s /= "#")
                 |> List.filter (\s -> String.trim s /= "")
-
-        n =
-            List.length lines
-
-        suffix =
-            List.drop (n - 1) lines
-
-        value =
-            "let"
-                :: (bindings ++ [ "in" ] ++ suffix)
-                |> String.join "\n"
-                |> evaluateString
     in
-    { cell | value = Just value, cellState = CSView }
+    if (List.head cellSourceLines |> Maybe.map String.trim) == Just "let" then
+        { cell | value = Just <| evaluateString (cellSourceLines |> String.join "\n"), cellState = CSView }
+
+    else if List.length cellSourceLines == 1 then
+        { cell | value = Just <| evaluateString (cellSourceLines |> String.join "\n"), cellState = CSView }
+
+    else
+        let
+            bindings =
+                getBindings cell.index cells
+
+            lines =
+                cell.text
+                    |> List.filter (\s -> String.left 1 s /= "#")
+                    |> List.filter (\s -> String.trim s /= "")
+
+            n =
+                List.length lines
+
+            suffix =
+                List.drop (n - 1) lines
+
+            value =
+                "let"
+                    :: (bindings ++ [ "in" ] ++ suffix)
+                    |> String.join "\n"
+                    |> evaluateString
+        in
+        { cell | value = Just value, cellState = CSView }
 
 
 evaluateSource : Cell -> Maybe String
