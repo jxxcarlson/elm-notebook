@@ -33,16 +33,26 @@ image source description caption =
 
 
 image_ source description caption =
-    Element.column [ Element.spacing 8, Element.width (Element.px 400) ]
+    Element.column [ Element.spacing 8, Element.width (Element.px 400), Element.paddingEach { top = 12, bottom = 48, left = 0, right = 0 } ]
         [ Element.image [ Element.centerX, Element.width (Element.px 350) ] { src = source, description = description }
         , Element.el [ Element.centerX, Font.size 13 ] (Element.text caption)
         ]
 
 
+
+-- image "https://imagedelivery.net/9U-0Y4sEzXlO6BXzTnQnYQ/30f08d58-dbce-42a0-97a6-512735707700/public" "bird" "Mascot"
+--<img src="https://imagedelivery.net/9U-0Y4sEzXlO6BXzTnQnYQ/30f08d58-dbce-42a0-97a6-512735707700/public"
+--description="bird"
+--caption="Mascot">
+--</img>
+
+
 content =
     """
 
+
 ## This manual
+
 
 Click on the **Manual** button to show or hide the manual.
 

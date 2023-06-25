@@ -21,6 +21,8 @@ import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
 import Value exposing (Value)
+import View.CellThemed as MarkdownThemed
+import View.Utility
 
 
 evaluate : Cell -> Cell
@@ -241,17 +243,68 @@ viewIndex cell =
     E.el [ E.paddingEach { top = 8, bottom = 0, left = 8, right = 0 } ] (E.text <| String.fromInt (cell.index + 1))
 
 
-viewSource_ : Int -> Cell -> Element FrontendMsg
-viewSource_ width cell =
+viewSource__ : Int -> Cell -> Element FrontendMsg
+viewSource__ width cell =
     E.column
         [ E.spacing 8
         , Element.Events.onMouseDown (EditCell cell.index)
         , E.paddingEach { top = 8, right = 0, bottom = 8, left = 8 }
         , E.width (E.px width)
+        , E.height E.fill
         , Background.color (E.rgb 0.15 0.15 0.15)
         , Font.color (E.rgb 0.9 0.9 0.9)
         ]
         (cell.text |> List.map E.text)
+
+
+viewSource_ width cell =
+    E.column
+        [ E.spacing 8
+        , Element.Events.onMouseDown (EditCell cell.index)
+        , E.paddingEach { top = 8, right = 0, bottom = 8, left = 0 }
+        , E.width (E.px width)
+        , Font.size 14
+
+        --, Background.color (E.rgb 0.15 0.15 0.15)
+        --, Font.color (E.rgb 0.9 0.9 0.9)
+        ]
+        [ MarkdownThemed.renderFull (scale 1.0 width) (cellHeight cell) (cell.text |> fixLines |> String.join "\n") ]
+
+
+cellHeight : Cell -> Int
+cellHeight cell =
+    cell.text |> List.length |> scale 24.0
+
+
+fixLines : List String -> List String
+fixLines lines =
+    let
+        n =
+            List.length lines
+
+        last =
+            List.drop (n - 1) lines
+    in
+    (lines
+        |> List.take (n - 1)
+        |> List.map fixLine
+        |> List.map String.trimRight
+    )
+        ++ last
+
+
+fixLine : String -> String
+fixLine line =
+    if String.left 1 line == "#" then
+        String.replace "#" "" line ++ " \\"
+
+    else
+        line ++ " \\"
+
+
+scale : Float -> Int -> Int
+scale factor x =
+    round <| factor * toFloat x
 
 
 editCell : Int -> Cell -> String -> Element FrontendMsg
