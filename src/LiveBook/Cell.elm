@@ -290,7 +290,16 @@ fixLines lines =
         |> List.map fixLine
         |> List.map String.trimRight
     )
-        ++ List.map fixLine last
+        ++ List.map fixLastLine last
+
+
+fixLastLine : String -> String
+fixLastLine line =
+    if String.left 1 line == "#" then
+        String.replace "#" "" line
+
+    else
+        line
 
 
 fixLine : String -> String
