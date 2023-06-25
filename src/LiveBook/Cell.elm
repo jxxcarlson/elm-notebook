@@ -1,4 +1,4 @@
-module LiveBook.Cell exposing (evaluate, evaluateString, view)
+module LiveBook.Cell exposing (evaluate, evaluateString, toLetInExpression, view)
 
 import Element as E exposing (Element)
 import Element.Background as Background
@@ -18,6 +18,26 @@ sourceText : Cell -> List String
 sourceText cell =
     cell.text
         |> List.filter (\s -> String.left 1 s /= "#")
+        |> toLetInExpression
+
+
+toLetInExpression : List String -> List String
+toLetInExpression lines =
+    let
+        n =
+            List.length lines
+
+        letBody =
+            List.take (n - 1) lines
+
+        lastLine =
+            List.drop (n - 1) lines
+    in
+    if n < 2 then
+        lines
+
+    else
+        "let" :: (letBody ++ ("in" :: lastLine))
 
 
 evaluateSource : Cell -> Maybe String
