@@ -18,29 +18,31 @@ sourceText : Cell -> List String
 sourceText cell =
     cell.text
         |> List.filter (\s -> String.left 1 s /= "#")
-
-
-
---|> toLetInExpression
+        |> List.filter (\s -> String.trim s /= "")
+        |> toLetInExpression
 
 
 toLetInExpression : List String -> List String
 toLetInExpression lines =
-    let
-        n =
-            List.length lines
-
-        letBody =
-            List.take (n - 1) lines
-
-        lastLine =
-            List.drop (n - 1) lines
-    in
-    if n < 2 then
+    if (List.head lines |> Maybe.map String.trim) == Just "let" then
         lines
 
     else
-        "let" :: (letBody ++ ("in" :: lastLine))
+        let
+            n =
+                List.length lines
+
+            letBody =
+                List.take (n - 1) lines
+
+            lastLine =
+                List.drop (n - 1) lines
+        in
+        if n < 2 then
+            lines
+
+        else
+            "let" :: (letBody ++ ("in" :: lastLine))
 
 
 evaluateSource : Cell -> Maybe String
