@@ -268,7 +268,7 @@ viewSource_ width cell =
         --, Background.color (E.rgb 0.15 0.15 0.15)
         --, Font.color (E.rgb 0.9 0.9 0.9)
         ]
-        [ MarkdownThemed.renderFull (scale 1.0 width) (cellHeight cell) (cell.text |> fixLines |> String.join "\n") ]
+        [ MarkdownThemed.renderFull (scale 1.0 width) (cellHeight cell) (cell.text |> runMachine |> Debug.log "@@LINES" |> String.join "\n") ]
 
 
 cellHeight : Cell -> Int
@@ -291,6 +291,113 @@ fixLines lines =
         |> List.map String.trimRight
     )
         ++ List.map fixLastLine last
+
+
+type alias State =
+    { input : List String, output : List String, internalState : InternalState, lineCount : Int, numberOfLines : Int }
+
+
+type InternalState
+    = InCode
+    | InText
+
+
+nextState : State -> Step State (List String)
+nextState state =
+    case List.head state.input of
+        Nothing ->
+            Done state.output
+
+        Just line ->
+            if state.lineCount == state.numberOfLines - 1 then
+                case ( state.internalState, String.left 1 line ) of
+                    ( InText, "#" ) ->
+                        Done (String.dropLeft 1 line :: state.output)
+
+                    ( InText, _ ) ->
+                        Done ("```" :: line :: "```" :: state.output)
+
+                    ( InCode, "#" ) ->
+                        Done (String.dropLeft 1 line :: "```" :: state.output)
+
+                    ( InCode, _ ) ->
+                        Done ("```" :: line :: state.output)
+
+            else
+                case ( state.internalState, String.left 1 line ) of
+                    ( InText, "#" ) ->
+                        Loop
+                            { state
+                                | input = List.drop 1 state.input
+                                , lineCount = state.lineCount + 1
+                                , output =
+                                    (String.dropLeft 1 line ++ " \\") :: state.output
+                                , internalState = InText
+                            }
+
+                    ( InText, _ ) ->
+                        Loop
+                            { state
+                                | input = List.drop 1 state.input
+                                , lineCount = state.lineCount + 1
+                                , output = line :: "```" :: state.output
+                                , internalState = InCode
+                            }
+
+                    ( InCode, "#" ) ->
+                        Loop
+                            { state
+                                | input = List.drop 1 state.input
+                                , lineCount = state.lineCount + 1
+                                , output =
+                                    (String.dropLeft 1 line ++ " \\") :: "```" :: state.output
+                                , internalState = InText
+                            }
+
+                    ( InCode, _ ) ->
+                        Loop
+                            { state
+                                | input = List.drop 1 state.input
+                                , lineCount = state.lineCount + 1
+                                , output =
+                                    line :: state.output
+                                , internalState = InCode
+                            }
+
+
+runMachine : List String -> List String
+runMachine input =
+    loop { input = input, output = [], internalState = InText, lineCount = 0, numberOfLines = List.length input } nextState
+        |> List.reverse
+
+
+lines0 =
+    """# Example: 
+1 + 1 == 2""" |> String.lines
+
+
+lines1 =
+    """# AAA
+# BBB
+a = 1
+b = 1
+a + b
+# Thats' cool!""" |> String.lines
+
+
+type Step state a
+    = Loop state
+    | Done a
+
+
+loop : state -> (state -> Step state a) -> a
+loop s nextState_ =
+    case nextState_ s of
+        Loop s_ ->
+            loop s_ nextState_
+
+        Done b ->
+            b
 
 
 fixLastLine : String -> String

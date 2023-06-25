@@ -131,9 +131,9 @@ renderer theme =
                 |> Markdown.Html.withOptionalAttribute "maxwidth"
                 |> Markdown.Html.withOptionalAttribute "bg"
             ]
-    , text = \s -> Element.el [ Element.Font.color (Element.rgb 0.1 0.1 0.1) ] (Element.text s)
+    , text = \s -> Element.el [ Element.Font.color (Element.rgb 0.0 0.0 0.1) ] (Element.text s)
     , codeSpan =
-        \content -> Element.html (Html.code [] [ Html.text content ])
+        \content -> Element.html (Html.code [ Html.Attributes.height 100 ] [ Html.text content ])
     , strong = \list -> Element.paragraph [ Element.Font.bold ] list
     , emphasis = \list -> Element.paragraph [ Element.Font.italic ] list
     , hardLineBreak = Element.html (Html.br [] [])
