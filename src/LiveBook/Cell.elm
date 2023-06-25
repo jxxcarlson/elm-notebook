@@ -38,9 +38,8 @@ evaluateWithCumulativeBindings cells cell =
     in
     if (List.head cellSourceLines |> Maybe.map String.trim) == Just "let" then
         { cell | value = Just <| evaluateString (cellSourceLines |> String.join "\n"), cellState = CSView }
-
-    else if List.length cellSourceLines == 1 then
-        { cell | value = Just <| evaluateString (cellSourceLines |> String.join "\n"), cellState = CSView }
+        --else if List.length cellSourceLines == 1 then
+        --    { cell | value = Just <| evaluateString (cellSourceLines |> String.join "\n"), cellState = CSView }
 
     else
         let
@@ -59,10 +58,14 @@ evaluateWithCumulativeBindings cells cell =
                 List.drop (n - 1) lines
 
             value =
-                "let"
-                    :: (bindings ++ [ "in" ] ++ suffix)
-                    |> String.join "\n"
-                    |> evaluateString
+                if bindings == [] then
+                    suffix |> String.join "\n" |> evaluateString
+
+                else
+                    "let"
+                        :: (bindings ++ [ "in" ] ++ suffix)
+                        |> String.join "\n"
+                        |> evaluateString
         in
         { cell | value = Just value, cellState = CSView }
 
@@ -96,8 +99,15 @@ getBindings_ lines =
         let
             n =
                 List.length lines
+
+            last =
+                List.drop (n - 1) lines |> List.head |> Maybe.withDefault ""
         in
-        List.take (n - 1) lines
+        if String.contains "=" last then
+            lines
+
+        else
+            List.take (n - 1) lines
 
 
 getBindings : Int -> List Cell -> List String
