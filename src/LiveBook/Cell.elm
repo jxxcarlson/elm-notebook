@@ -105,8 +105,45 @@ sourceText cell =
         |> toLetInExpression
 
 
-getBindings_ : List String -> List String
-getBindings_ lines =
+getCellBindings : Cell -> List String
+getCellBindings cell =
+    let
+        lines =
+            sourceText_ cell
+
+        firstLine =
+            List.head lines |> Maybe.map String.trim |> Maybe.withDefault "---"
+    in
+    if firstLine == "let" then
+        []
+
+    else if String.contains "==" firstLine then
+        []
+
+    else if String.contains "=" firstLine then
+        let
+            n =
+                List.length lines
+
+            last =
+                List.drop (n - 1) lines |> List.head |> Maybe.withDefault ""
+        in
+        if String.contains "=" last then
+            lines
+
+        else
+            List.take (n - 1) lines
+
+    else
+        []
+
+
+getCellBindings1 : Cell -> List String
+getCellBindings1 cell =
+    let
+        lines =
+            sourceText_ cell
+    in
     if (List.head lines |> Maybe.map String.trim) == Just "let" then
         []
 
@@ -129,7 +166,7 @@ getBindings : Int -> List Cell -> List String
 getBindings k cells =
     cells
         |> List.take (k + 1)
-        |> List.map (getBindings_ << sourceText_)
+        |> List.map getCellBindings
         |> List.concat
 
 
