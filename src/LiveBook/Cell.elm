@@ -264,9 +264,6 @@ viewSource_ width cell =
         , E.paddingEach { top = 8, right = 0, bottom = 8, left = 0 }
         , E.width (E.px width)
         , Font.size 14
-
-        --, Background.color (E.rgb 0.15 0.15 0.15)
-        --, Font.color (E.rgb 0.9 0.9 0.9)
         ]
         [ MarkdownThemed.renderFull (scale 1.0 width) (cellHeight cell) (cell.text |> runMachine |> String.join "\n") ]
 
@@ -324,7 +321,7 @@ nextState state =
                         Done ("```" :: "" :: line :: "```" :: state.output)
 
                     ( InCode, "#" ) ->
-                        Done (String.dropLeft 2 line :: " \\" :: "```" :: state.output)
+                        Done (String.dropLeft 2 line :: "                                                    " :: "```" :: state.output)
 
                     ( InCode, _ ) ->
                         Done ("```" :: "" :: line :: state.output)
@@ -370,7 +367,6 @@ nextState state =
                             { state
                                 | input = List.drop 1 state.input
                                 , lineCount = state.lineCount + 1
-                                , linesOfCode = 1
                                 , output = line :: "" :: "```" :: state.output
                                 , internalState = InCode
                             }
@@ -408,7 +404,6 @@ nextState state =
                             { state
                                 | input = List.drop 1 state.input
                                 , lineCount = state.lineCount + 1
-                                , linesOfCode = state.linesOfCode + 1
                                 , output =
                                     if List.Extra.getAt 1 state.input == Just "" then
                                         line :: state.output
