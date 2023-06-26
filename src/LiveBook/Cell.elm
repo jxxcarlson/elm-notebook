@@ -276,7 +276,15 @@ viewSource_ width cell =
 
 cellHeight : Cell -> Int
 cellHeight cell =
-    (cell.text |> List.length |> scale 22.0) + 35
+    let
+        x =
+            cell.text |> List.length |> scale 16.5
+    in
+    if x < 30 then
+        (cell.text |> List.length |> scale 16.5) + 35
+
+    else
+        (cell.text |> List.length |> scale 16.5) + 55
 
 
 fixLines : List String -> List String
