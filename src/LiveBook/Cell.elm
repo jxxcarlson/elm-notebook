@@ -265,7 +265,13 @@ viewSource_ width cell =
         , E.width (E.px width)
         , Font.size 14
         ]
-        [ MarkdownThemed.renderFull (scale 1.0 width) (cellHeight cell) (cell.text |> runMachine |> String.join "\n") ]
+        [ MarkdownThemed.renderFull (scale 1.0 width)
+            (cellHeight cell)
+            (cell.text
+                |> runMachine
+                |> String.join "\n"
+            )
+        ]
 
 
 cellHeight : Cell -> Int
@@ -321,7 +327,7 @@ nextState state =
                         Done ("```" :: "" :: line :: "```" :: state.output)
 
                     ( InCode, "#" ) ->
-                        Done (String.dropLeft 2 line :: "                                                    " :: "```" :: state.output)
+                        Done (String.dropLeft 2 line :: "" :: "```" :: state.output)
 
                     ( InCode, _ ) ->
                         Done ("```" :: "" :: line :: state.output)
@@ -339,7 +345,7 @@ nextState state =
                                         String.dropLeft 2 line :: state.output
 
                                     else if List.Extra.getAt 1 state.input /= Just "#" then
-                                        (String.dropLeft 2 line ++ " \\") :: state.output
+                                        String.dropLeft 2 line :: state.output
 
                                     else
                                         (String.dropLeft 2 line ++ " \\") :: state.output
