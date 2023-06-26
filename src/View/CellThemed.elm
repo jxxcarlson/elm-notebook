@@ -216,13 +216,13 @@ renderer theme =
                 , Element.Font.color theme.codeColor
                 , Element.Border.rounded 5
                 , Element.padding 10
-                , Element.height Element.fill
+                , Element.height (Element.px <| textHeight body)
                 , Element.width Element.fill
                 , Element.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
                 , Element.htmlAttribute (Html.Attributes.class "preserve-white-space")
                 , Element.scrollbarX
                 ]
-                [ Element.html (Html.text body)
+                [ Element.html (Html.text (String.trim body))
                 ]
     , thematicBreak = Element.none
     , table = \children -> Element.column [ Element.width Element.fill ] children
@@ -233,6 +233,15 @@ renderer theme =
     , tableHeaderCell = \_ children -> Element.column [ Element.width Element.fill ] children
     , strikethrough = \children -> Element.paragraph [ Element.Font.strike ] children
     }
+
+
+textHeight str =
+    str |> String.lines |> List.length |> scale 13
+
+
+scale : Float -> Int -> Int
+scale factor x =
+    round <| factor * toFloat x
 
 
 heading1 : List (Element.Attr () msg)

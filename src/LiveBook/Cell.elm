@@ -248,7 +248,7 @@ viewSource__ width cell =
     E.column
         [ E.spacing 8
         , Element.Events.onMouseDown (EditCell cell.index)
-        , E.paddingEach { top = 8, right = 0, bottom = 8, left = 8 }
+        , E.paddingEach { top = 8, right = 0, bottom = 0, left = 8 }
         , E.width (E.px width)
         , E.height E.fill
         , Background.color (E.rgb 0.15 0.15 0.15)
@@ -268,12 +268,12 @@ viewSource_ width cell =
         --, Background.color (E.rgb 0.15 0.15 0.15)
         --, Font.color (E.rgb 0.9 0.9 0.9)
         ]
-        [ MarkdownThemed.renderFull (scale 1.0 width) (cellHeight cell) (cell.text |> runMachine |> Debug.log "@@LINES" |> String.join "\n") ]
+        [ MarkdownThemed.renderFull (scale 1.0 width) (cellHeight cell) (cell.text |> runMachine |> String.join "\n") ]
 
 
 cellHeight : Cell -> Int
 cellHeight cell =
-    (cell.text |> List.length |> scale 20.0) + 15
+    (cell.text |> List.length |> scale 23.0) + 35
 
 
 fixLines : List String -> List String
@@ -294,7 +294,13 @@ fixLines lines =
 
 
 type alias State =
-    { input : List String, output : List String, internalState : InternalState, lineCount : Int, numberOfLines : Int }
+    { input : List String
+    , output : List String
+    , internalState : InternalState
+    , lineCount : Int
+    , linesOfCode : Int
+    , numberOfLines : Int
+    }
 
 
 type InternalState
@@ -315,24 +321,28 @@ nextState state =
                         Done (String.dropLeft 2 line :: state.output)
 
                     ( InText, _ ) ->
-                        Done ("```" :: line :: "```" :: state.output)
+                        Done ("```" :: "" :: line :: "```" :: state.output)
 
                     ( InCode, "#" ) ->
-                        Done (String.dropLeft 2 line :: "```" :: state.output)
+                        Done (String.dropLeft 2 line :: " \\" :: "```" :: state.output)
 
                     ( InCode, _ ) ->
-                        Done ("```" :: line :: state.output)
+                        Done ("```" :: "" :: line :: state.output)
 
             else
                 case ( state.internalState, String.left 1 line ) of
                     ( InText, "#" ) ->
                         Loop
+                            -- InText => InText
                             { state
                                 | input = List.drop 1 state.input
                                 , lineCount = state.lineCount + 1
                                 , output =
                                     if List.Extra.getAt 1 state.input == Just "" then
                                         String.dropLeft 2 line :: state.output
+
+                                    else if List.Extra.getAt 1 state.input /= Just "#" then
+                                        (String.dropLeft 2 line ++ " \\") :: state.output
 
                                     else
                                         (String.dropLeft 2 line ++ " \\") :: state.output
@@ -340,6 +350,7 @@ nextState state =
                             }
 
                     ( InText, "" ) ->
+                        -- InText => InText
                         Loop
                             { state
                                 | input = List.drop 1 state.input
@@ -349,34 +360,39 @@ nextState state =
                                         String.dropLeft 2 line :: state.output
 
                                     else
-                                        (String.dropLeft 2 line ++ " \\") :: state.output
+                                        String.dropLeft 2 line :: state.output
                                 , internalState = InText
                             }
 
                     ( InText, _ ) ->
+                        -- InText => InCode
                         Loop
                             { state
                                 | input = List.drop 1 state.input
                                 , lineCount = state.lineCount + 1
-                                , output = line :: "```" :: state.output
+                                , linesOfCode = 1
+                                , output = line :: "" :: "```" :: state.output
                                 , internalState = InCode
                             }
 
                     ( InCode, "#" ) ->
+                        -- InCode => InText
                         Loop
                             { state
                                 | input = List.drop 1 state.input
                                 , lineCount = state.lineCount + 1
                                 , output =
                                     if List.Extra.getAt 1 state.input == Just "" then
-                                        String.dropLeft 2 line :: state.output
+                                        String.dropLeft 2 line :: "" :: "```" :: state.output
 
                                     else
-                                        (String.dropLeft 2 line ++ " \\") :: state.output
+                                        -- (String.dropLeft 2 line ++ " \\") :: state.output
+                                        line :: "" :: "```" :: state.output
                                 , internalState = InText
                             }
 
-                    ( InCode, _ ) ->
+                    ( InCode, "" ) ->
+                        -- InCode => InCode
                         Loop
                             { state
                                 | input = List.drop 1 state.input
@@ -386,10 +402,35 @@ nextState state =
                                 , internalState = InCode
                             }
 
+                    ( InCode, _ ) ->
+                        -- InCode => InCode
+                        Loop
+                            { state
+                                | input = List.drop 1 state.input
+                                , lineCount = state.lineCount + 1
+                                , linesOfCode = state.linesOfCode + 1
+                                , output =
+                                    if List.Extra.getAt 1 state.input == Just "" then
+                                        line :: state.output
+
+                                    else
+                                        -- (String.dropLeft 2 line ++ " \\") :: state.output
+                                        line :: state.output
+                                , internalState = InCode
+                            }
+
 
 runMachine : List String -> List String
 runMachine input =
-    loop { input = input, output = [], internalState = InText, lineCount = 0, numberOfLines = List.length input } nextState
+    loop
+        { input = input
+        , output = []
+        , internalState = InText
+        , lineCount = 0
+        , linesOfCode = 0
+        , numberOfLines = List.length input
+        }
+        nextState
         |> List.reverse
 
 
