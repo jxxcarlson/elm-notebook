@@ -18,6 +18,8 @@ type alias Theme =
     , mutedText : Element.Color
     , grey : Element.Color
     , lightGrey : Element.Color
+    , codeBackground : Element.Color
+    , codeColor : Element.Color
     , link : Element.Color
     , elmText : Element.Color
     , background : Element.Color
@@ -30,6 +32,8 @@ lightTheme =
     , mutedText = Element.rgb255 74 94 122
     , link = Element.rgb255 12 82 109
     , lightGrey = Element.rgb255 220 240 255
+    , codeBackground = Element.rgb255 20 20 20
+    , codeColor = Element.rgb255 255 180 50
     , grey = Element.rgb255 200 220 240
     , elmText = Element.rgb255 30 46 50
     , background = Element.rgb255 220 220 255
@@ -63,7 +67,7 @@ render chosenRenderer width_ height_ markdownBody =
                         [ Element.width (Element.px width_)
                         , Element.Background.color lightTheme.background
                         , Element.height (Element.px <| height_)
-                        , Element.paddingEach { left = 12, right = 0, top = 8, bottom = 0 }
+                        , Element.paddingEach { left = 12, right = 12, top = 8, bottom = 0 }
                         , Element.scrollbarY
                         ]
            )
@@ -133,7 +137,7 @@ renderer theme =
             ]
     , text = \s -> Element.el [ Element.Font.color (Element.rgb 0.0 0.0 0.1) ] (Element.text s)
     , codeSpan =
-        \content -> Element.html (Html.code [ Html.Attributes.height 100 ] [ Html.text content ])
+        \content -> Element.html (Html.code [] [ Html.text content ])
     , strong = \list -> Element.paragraph [ Element.Font.bold ] list
     , emphasis = \list -> Element.paragraph [ Element.Font.italic ] list
     , hardLineBreak = Element.html (Html.br [] [])
@@ -208,10 +212,13 @@ renderer theme =
         \{ body } ->
             Element.column
                 [ Element.Font.family [ Element.Font.monospace ]
-                , Element.Background.color theme.lightGrey
+                , Element.Background.color theme.codeBackground
+                , Element.Font.color theme.codeColor
                 , Element.Border.rounded 5
                 , Element.padding 10
+                , Element.height Element.fill
                 , Element.width Element.fill
+                , Element.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
                 , Element.htmlAttribute (Html.Attributes.class "preserve-white-space")
                 , Element.scrollbarX
                 ]

@@ -304,7 +304,7 @@ type InternalState
 
 nextState : State -> Step State (List String)
 nextState state =
-    case List.head state.input of
+    case List.Extra.getAt 0 state.input of
         Nothing ->
             Done state.output
 
@@ -312,13 +312,13 @@ nextState state =
             if state.lineCount == state.numberOfLines - 1 then
                 case ( state.internalState, String.left 1 line ) of
                     ( InText, "#" ) ->
-                        Done (String.dropLeft 1 line :: state.output)
+                        Done (String.dropLeft 2 line :: state.output)
 
                     ( InText, _ ) ->
                         Done ("```" :: line :: "```" :: state.output)
 
                     ( InCode, "#" ) ->
-                        Done (String.dropLeft 1 line :: "```" :: state.output)
+                        Done (String.dropLeft 2 line :: "```" :: state.output)
 
                     ( InCode, _ ) ->
                         Done ("```" :: line :: state.output)
@@ -331,7 +331,25 @@ nextState state =
                                 | input = List.drop 1 state.input
                                 , lineCount = state.lineCount + 1
                                 , output =
-                                    (String.dropLeft 1 line ++ " \\") :: state.output
+                                    if List.Extra.getAt 1 state.input == Just "" then
+                                        String.dropLeft 2 line :: state.output
+
+                                    else
+                                        (String.dropLeft 2 line ++ " \\") :: state.output
+                                , internalState = InText
+                            }
+
+                    ( InText, "" ) ->
+                        Loop
+                            { state
+                                | input = List.drop 1 state.input
+                                , lineCount = state.lineCount + 1
+                                , output =
+                                    if List.Extra.getAt 1 state.input == Just "" then
+                                        String.dropLeft 2 line :: state.output
+
+                                    else
+                                        (String.dropLeft 2 line ++ " \\") :: state.output
                                 , internalState = InText
                             }
 
@@ -350,7 +368,11 @@ nextState state =
                                 | input = List.drop 1 state.input
                                 , lineCount = state.lineCount + 1
                                 , output =
-                                    (String.dropLeft 1 line ++ " \\") :: "```" :: state.output
+                                    if List.Extra.getAt 1 state.input == Just "" then
+                                        String.dropLeft 2 line :: state.output
+
+                                    else
+                                        (String.dropLeft 2 line ++ " \\") :: state.output
                                 , internalState = InText
                             }
 
