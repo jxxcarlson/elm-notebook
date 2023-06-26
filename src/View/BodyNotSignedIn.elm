@@ -41,7 +41,8 @@ view model =
             , E.row [ E.height (E.px 8) ] []
             , E.paragraph [ E.spacing 8 ]
                 [ E.text "Please look at the manual before you start. (Click on 'Manual' button in header.) "
-                , E.text "See also the public notebook 'Welcome to Elm Livebook'. "
+                , E.text "See also the public notebook 'Welcome to Elm Livebook'. You will need to be signed in to see it. "
+                ]
                 ]
             , E.row [ E.height (E.px 8) ] []
             , E.paragraph [ E.spacing 8 ]
