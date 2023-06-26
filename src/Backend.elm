@@ -132,8 +132,8 @@ updateFromFrontend sessionId clientId msg model =
                         ( model
                         , Cmd.batch
                             [ sendToFrontend clientId (SendUser userData.user)
-                            , sendToFrontend clientId (GotNotebooks (NotebookDict.allForUser username model.userToNoteBookDict))
                             , curentBookCmd
+                            , sendToFrontend clientId (GotNotebooks (NotebookDict.allForUser username model.userToNoteBookDict))
                             ]
                         )
 
