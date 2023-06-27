@@ -1,4 +1,4 @@
-module Livebook.Eval exposing (evaluate, evaluateSource, evaluateWithCumulativeBindings)
+module LiveBook.Eval exposing (evaluate, evaluateSource, evaluateWithCumulativeBindings)
 
 import Eval
 import Types exposing (Cell, CellState(..))
