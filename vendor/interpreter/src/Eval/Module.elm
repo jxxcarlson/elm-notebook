@@ -14,6 +14,7 @@ import Eval.Expression
 import Eval.Log as Log
 import Eval.Types as Types exposing (CallTree, CallTreeContinuation(..), Error(..))
 import FastDict as Dict
+import Maybe.Extra
 import Result.MyExtra
 import Rope exposing (Rope)
 import Syntax exposing (fakeNode)
@@ -25,6 +26,15 @@ eval source expression =
     let
         ( result, _, _ ) =
             traceOrEvalModule { trace = False } source expression
+
+        --|> Debug.log "@@EVAL"
+        --_ =
+        --    case result of
+        --        Ok value ->
+        --            "@@@: EVAL, VALUE: " ++ Debug.toString value
+        --
+        --        Err err ->
+        --            "@@@: EVAL, ERROR: " ++ Debug.toString err
     in
     result
 
@@ -32,6 +42,42 @@ eval source expression =
 trace : String -> Expression -> ( Result Error Value, Rope CallTree, Rope Log.Line )
 trace source expression =
     traceOrEvalModule { trace = True } source expression
+
+
+
+--
+--
+--Example 2:
+--
+--a = 1
+--a
+--
+--
+--
+-- main =
+--            Maybe.andThen (Dict.get [ "Main" ]) functions
+--                |> Maybe.andThen (Dict.get "main")
+--                |> Maybe.map (.expression >> Node.value)
+--                |> Debug.log "@@@MAIN"
+--
+--Just (
+--  LetExpression {
+--     declarations = [
+--       Node { end = { column = 10, row = 5 }, start = { column = 5, row = 5 } } (LetFunction
+--           { declaration = Node { end = { column = 10, row = 5 }, start = { column = 5, row = 5 } }
+--                  { arguments = []
+--                  , expression = Node { end = { column = 10, row = 5 }, start = { column = 9, row = 5 } } (Integer 1)
+--                  , name = Node { end = { column = 6, row = 5 }, start = { column = 5, row = 5 } } "a"
+--                  }
+--           , documentation = Nothing
+--           , signature = Nothing
+--       }
+--
+--       )
+--       ]
+--    , expression = Node { end = { column = 6, row = 7 }, start = { column = 5, row = 7 } } (FunctionOrValue [] "a")
+--     }
+--  )
 
 
 traceOrEvalModule : { trace : Bool } -> String -> Expression -> ( Result Error Value, Rope CallTree, Rope Log.Line )
@@ -52,6 +98,28 @@ traceOrEvalModule cfg source expression =
                         Elm.Processing.process context rawFile
                     )
                 |> Result.andThen buildInitialEnv
+
+        --|> Debug.log "@@MAYBE_ENV"
+        mEnv =
+            Result.toMaybe maybeEnv
+
+        values =
+            Maybe.map .values mEnv
+
+        --|> Debug.log "@@@VALUES"
+        moduleNames =
+            Maybe.map (.functions >> Dict.keys) mEnv
+
+        -- |> Debug.log "@@@KEYS"
+        functions =
+            Maybe.map .functions mEnv
+
+        main =
+            Maybe.andThen (Dict.get [ "Main" ]) functions
+
+        --|> Maybe.andThen (Dict.get "main")
+        --|> Maybe.map (.expression >> Node.value)
+        --|> Debug.log "@@@MAIN"
     in
     case maybeEnv of
         Err e ->

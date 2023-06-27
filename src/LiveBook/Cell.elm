@@ -295,6 +295,23 @@ viewSource__ width cell =
 
 
 viewSource_ width cell =
+    let
+        processedLines =
+            cell.text |> List.Extra.dropWhileRight (\line -> String.trim line == "") |> runMachine
+
+        delta x =
+            if x < 6 then
+                30
+
+            else
+                0
+
+        cellHeight_ =
+            List.length processedLines |> (\x -> scale 14.0 x + delta x)
+
+        source =
+            processedLines |> String.join "\n"
+    in
     E.column
         [ E.spacing 8
         , Element.Events.onMouseDown (EditCell cell.index)
@@ -303,12 +320,14 @@ viewSource_ width cell =
         , Font.size 14
         ]
         [ MarkdownThemed.renderFull (scale 1.0 width)
-            (cellHeight cell)
-            (cell.text
-                |> runMachine
-                |> String.join "\n"
-            )
+            cellHeight_
+            source
         ]
+
+
+stepFunction : List ( number, number ) -> number -> number
+stepFunction steps x =
+    List.Extra.find (\( a, b ) -> x <= a) steps |> Maybe.map Tuple.second |> Maybe.withDefault 0
 
 
 cellHeight : Cell -> Int
@@ -316,12 +335,14 @@ cellHeight cell =
     let
         x =
             cell.text |> List.length |> scale 16.5
-    in
-    if x < 30 then
-        (cell.text |> List.length |> scale 16.5) + 35
 
-    else
-        (cell.text |> List.length |> scale 16.5) + 55
+        n =
+            cell.text |> List.length
+
+        delta =
+            stepFunction [ ( 0, 0 ), ( 10, 40 ), ( 40, 80 ) ]
+    in
+    (n |> scale 16.5) + delta n
 
 
 fixLines : List String -> List String

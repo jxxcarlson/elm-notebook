@@ -15,9 +15,12 @@ eval expressionSource =
         source =
             toModule expressionSource
 
+        -- |> Debug.log "@@@SOURCE"
         expression : Expression
         expression =
             Expression.FunctionOrValue [] "main"
+
+        -- |> Debug.log "@@@EXPRESSION"
     in
     Eval.Module.eval source expression
 

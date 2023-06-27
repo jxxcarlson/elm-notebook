@@ -20,6 +20,7 @@ type alias Theme =
     , lightGrey : Element.Color
     , codeBackground : Element.Color
     , codeColor : Element.Color
+    , codeSpanColor : Element.Color
     , link : Element.Color
     , elmText : Element.Color
     , background : Element.Color
@@ -34,6 +35,7 @@ lightTheme =
     , lightGrey = Element.rgb255 220 240 255
     , codeBackground = Element.rgb255 20 20 20
     , codeColor = Element.rgb255 255 180 50
+    , codeSpanColor = Element.rgb255 180 50 255
     , grey = Element.rgb255 200 220 240
     , elmText = Element.rgb255 30 46 50
     , background = Element.rgb255 220 220 255
@@ -137,7 +139,12 @@ renderer theme =
             ]
     , text = \s -> Element.el [ Element.Font.color (Element.rgb 0.0 0.0 0.1) ] (Element.text s)
     , codeSpan =
-        \content -> Element.html (Html.code [] [ Html.text content ])
+        \content ->
+            Element.el
+                [ Element.Font.color theme.codeSpanColor
+                , Element.Font.family [ Element.Font.monospace ]
+                ]
+                (Element.html (Html.code [] [ Html.text content ]))
     , strong = \list -> Element.paragraph [ Element.Font.bold ] list
     , emphasis = \list -> Element.paragraph [ Element.Font.italic ] list
     , hardLineBreak = Element.html (Html.br [] [])
