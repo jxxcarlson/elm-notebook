@@ -1,186 +1,16 @@
-module LiveBook.Cell exposing (evaluate, evaluateWithCumulativeBindings, view)
+module LiveBook.Cell exposing (view)
 
 import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Events
 import Element.Font as Font
 import Element.Input
-import Eval
 import List.Extra
 import LiveBook.Process
 import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
-import Value exposing (Value)
 import View.CellThemed as MarkdownThemed
-
-
-evaluate : Cell -> Cell
-evaluate cell =
-    { cell | value = evaluateSource cell, cellState = CSView }
-
-
-evaluateWithCumulativeBindings : List Cell -> Cell -> Cell
-evaluateWithCumulativeBindings cells cell =
-    let
-        cellSourceLines =
-            cell.text
-                |> List.filter (\s -> String.left 1 s /= "#")
-                |> List.filter (\s -> String.trim s /= "")
-    in
-    if (List.head cellSourceLines |> Maybe.map String.trim) == Just "let" then
-        { cell | value = Just <| evaluateString (cellSourceLines |> String.join "\n"), cellState = CSView }
-
-    else
-        let
-            bindings =
-                getPriorBindings cell.index cells
-
-            lines =
-                cell.text
-                    |> List.filter (\s -> String.left 1 s /= "#")
-                    |> List.filter (\s -> String.trim s /= "")
-
-            n =
-                List.length lines
-
-            suffix : List String
-            suffix =
-                List.drop (n - 1) lines
-
-            isBinding : List String -> Bool
-            isBinding list =
-                case list |> List.head |> Maybe.map (String.contains "=") of
-                    Just True ->
-                        True
-
-                    _ ->
-                        False
-
-            value =
-                if bindings == [] then
-                    suffix |> String.join "\n" |> evaluateString
-
-                else if isBinding suffix then
-                    "()" |> evaluateString
-
-                else
-                    "let"
-                        :: (bindings ++ [ "in" ] ++ suffix)
-                        |> String.join "\n"
-                        |> evaluateString
-        in
-        { cell | value = Just value, cellState = CSView }
-
-
-evaluateSource : Cell -> Maybe String
-evaluateSource cell =
-    evaluateString (sourceText_ cell |> toLetInExpression |> String.join "\n") |> Just
-
-
-sourceText_ : Cell -> List String
-sourceText_ cell =
-    cell.text
-        |> List.filter (\s -> String.left 1 s /= "#")
-        |> List.filter (\s -> String.trim s /= "")
-
-
-getCellBindings : Cell -> List String
-getCellBindings cell =
-    let
-        lines =
-            sourceText_ cell
-
-        firstLine =
-            List.head lines |> Maybe.map String.trim |> Maybe.withDefault "---"
-    in
-    if firstLine == "let" then
-        []
-
-    else if String.contains "==" firstLine then
-        []
-
-    else if String.contains "=" firstLine then
-        let
-            n =
-                List.length lines
-
-            last =
-                List.drop (n - 1) lines |> List.head |> Maybe.withDefault ""
-        in
-        if String.contains "=" last then
-            lines
-
-        else
-            List.take (n - 1) lines
-
-    else
-        []
-
-
-getCellBindings1 : Cell -> List String
-getCellBindings1 cell =
-    let
-        lines =
-            sourceText_ cell
-    in
-    if (List.head lines |> Maybe.map String.trim) == Just "let" then
-        []
-
-    else
-        let
-            n =
-                List.length lines
-
-            last =
-                List.drop (n - 1) lines |> List.head |> Maybe.withDefault ""
-        in
-        if String.contains "=" last then
-            lines
-
-        else
-            List.take (n - 1) lines
-
-
-getPriorBindings : Int -> List Cell -> List String
-getPriorBindings k cells =
-    cells
-        |> List.take (k + 1)
-        |> List.map getCellBindings
-        |> List.concat
-
-
-toLetInExpression : List String -> List String
-toLetInExpression lines =
-    if (List.head lines |> Maybe.map String.trim) == Just "let" then
-        lines
-
-    else
-        let
-            n =
-                List.length lines
-
-            letBody =
-                List.take (n - 1) lines
-
-            lastLine =
-                List.drop (n - 1) lines
-        in
-        if n < 2 then
-            lines
-
-        else
-            "let" :: (letBody ++ ("in" :: lastLine))
-
-
-evaluateString : String -> String
-evaluateString input =
-    case Eval.eval input |> Result.map Value.toString of
-        Ok output ->
-            output
-
-        Err err ->
-            "Error"
 
 
 view : Int -> String -> Cell -> Element FrontendMsg
@@ -342,16 +172,6 @@ deleteCellAt cellState index =
             E.none
 
 
-editCellAt : CellState -> Int -> Element FrontendMsg
-editCellAt cellState index =
-    case cellState of
-        CSView ->
-            Button.smallPrimary { msg = EditCell index, status = Button.ActiveTransparent, label = Button.Text "Edit", tooltipText = Just "Edit cell" }
-
-        CSEdit ->
-            E.none
-
-
 clearCellAt : CellState -> Int -> Element FrontendMsg
 clearCellAt cellState index =
     case cellState of
@@ -360,17 +180,3 @@ clearCellAt cellState index =
 
         CSEdit ->
             Button.smallPrimary { msg = ClearCell index, status = Button.Active, label = Button.Text "x", tooltipText = Just "Edit cell" }
-
-
-evalCellAt : CellState -> Int -> Element FrontendMsg
-evalCellAt cellState index =
-    case cellState of
-        CSView ->
-            Button.smallPrimary { msg = EvalCell index, status = Button.ActiveTransparent, label = Button.Text "Eval", tooltipText = Just "Evaluate cell" }
-
-        CSEdit ->
-            Button.smallPrimary { msg = EvalCell index, status = Button.Active, label = Button.Text "Eval", tooltipText = Just "Evaluate cell" }
-
-
-
----

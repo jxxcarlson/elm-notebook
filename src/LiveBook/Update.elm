@@ -10,6 +10,7 @@ module LiveBook.Update exposing
 
 import List.Extra
 import LiveBook.Cell
+import Livebook.Eval
 import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
 
 
@@ -164,11 +165,8 @@ evalCell_ index model =
 
         Just cell_ ->
             let
-                updatedCell_ =
-                    LiveBook.Cell.evaluate cell_
-
                 updatedCell =
-                    LiveBook.Cell.evaluateWithCumulativeBindings model.currentBook.cells cell_
+                    Livebook.Eval.evaluateWithCumulativeBindings model.currentBook.cells cell_
 
                 prefix =
                     List.filter (\cell -> cell.index < index) model.currentBook.cells
