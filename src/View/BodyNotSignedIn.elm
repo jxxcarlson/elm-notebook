@@ -45,7 +45,7 @@ view model =
                 ]
             , E.row [ E.height (E.px 8) ] []
             , E.paragraph [ E.spacing 8 ]
-                [ E.text "Quick start: (1) Sign up.  (2) To edit a cell, click on it.  (3) To run the code in a cell, type ctrl-Enter in a cell to evaluate it "
+                [ E.text "Quick start: (1) Sign up.  (2) To edit a cell, click on it.  (3) To run the code in a cell, type ctrl-Enter. "
                 ]
             , E.row [ E.height (E.px 8) ] []
             , E.paragraph [ E.spacing 8 ]
