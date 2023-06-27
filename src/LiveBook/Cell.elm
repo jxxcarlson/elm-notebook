@@ -377,8 +377,8 @@ type InternalState
     | InText
 
 
-nextState : State -> Step State (List String)
-nextState state =
+nextStep : State -> Step State (List String)
+nextStep state =
     case List.Extra.getAt 0 state.input of
         Nothing ->
             Done state.output
@@ -411,7 +411,7 @@ nextState state =
                                         String.dropLeft 2 line :: state.output
 
                                     else if List.Extra.getAt 1 state.input /= Just "#" then
-                                        String.dropLeft 2 line :: state.output
+                                        (String.dropLeft 2 line ++ "\\") :: state.output
 
                                     else
                                         (String.dropLeft 2 line ++ " \\") :: state.output
@@ -497,7 +497,7 @@ runMachine input =
         , linesOfCode = 0
         , numberOfLines = List.length input
         }
-        nextState
+        nextStep
         |> List.reverse
 
 
