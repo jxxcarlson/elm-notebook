@@ -1,28 +1,18 @@
-module LiveBook.Cell exposing (..)
-
---( cellList
---, evaluate
---, evaluateString
---, getBindings
---, sourceText
---, toLetInExpression
---, view
---)
+module LiveBook.Cell exposing (evaluate, evaluateWithCumulativeBindings, view)
 
 import Element as E exposing (Element)
 import Element.Background as Background
-import Element.Border as Border
 import Element.Events
 import Element.Font as Font
 import Element.Input
 import Eval
 import List.Extra
+import LiveBook.Process
 import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
 import Value exposing (Value)
 import View.CellThemed as MarkdownThemed
-import View.Utility
 
 
 evaluate : Cell -> Cell
@@ -40,13 +30,11 @@ evaluateWithCumulativeBindings cells cell =
     in
     if (List.head cellSourceLines |> Maybe.map String.trim) == Just "let" then
         { cell | value = Just <| evaluateString (cellSourceLines |> String.join "\n"), cellState = CSView }
-        --else if List.length cellSourceLines == 1 then
-        --    { cell | value = Just <| evaluateString (cellSourceLines |> String.join "\n"), cellState = CSView }
 
     else
         let
             bindings =
-                getBindings cell.index cells
+                getPriorBindings cell.index cells
 
             lines =
                 cell.text
@@ -87,7 +75,7 @@ evaluateWithCumulativeBindings cells cell =
 
 evaluateSource : Cell -> Maybe String
 evaluateSource cell =
-    evaluateString (sourceText cell |> String.join "\n") |> Just
+    evaluateString (sourceText_ cell |> toLetInExpression |> String.join "\n") |> Just
 
 
 sourceText_ : Cell -> List String
@@ -95,14 +83,6 @@ sourceText_ cell =
     cell.text
         |> List.filter (\s -> String.left 1 s /= "#")
         |> List.filter (\s -> String.trim s /= "")
-
-
-sourceText : Cell -> List String
-sourceText cell =
-    cell.text
-        |> List.filter (\s -> String.left 1 s /= "#")
-        |> List.filter (\s -> String.trim s /= "")
-        |> toLetInExpression
 
 
 getCellBindings : Cell -> List String
@@ -162,24 +142,12 @@ getCellBindings1 cell =
             List.take (n - 1) lines
 
 
-getBindings : Int -> List Cell -> List String
-getBindings k cells =
+getPriorBindings : Int -> List Cell -> List String
+getPriorBindings k cells =
     cells
         |> List.take (k + 1)
         |> List.map getCellBindings
         |> List.concat
-
-
-cell1 =
-    { index = 0, text = String.lines "a = 1\nb = 5\n(a + b)*(a - b)", value = Nothing, cellState = CSView }
-
-
-cell2 =
-    { index = 1, text = String.lines "c = 11\n(2 * a) + (3 * b) + c", value = Nothing, cellState = CSView }
-
-
-cellList =
-    [ cell1, cell2 ]
 
 
 toLetInExpression : List String -> List String
@@ -224,28 +192,33 @@ view width cellContents cell =
         ]
         [ E.row
             [ E.width (E.px width) ]
-            [ E.column [ E.alignBottom ]
-                [ viewSource (width - controlWidth) cell cellContents
-                , viewValue (width - controlWidth) cell
-                ]
-            , E.column
-                [ E.spacing 2
-                , E.width (E.px controlWidth)
-                , E.alignTop
-                , E.height E.fill
-                , E.paddingEach { top = 0, bottom = 8, left = 4, right = 0 }
-                , Background.color Color.darkSteelGray
-                ]
-                [ viewIndex cell
-                , newCellAt cell.cellState cell.index
-                , deleteCellAt cell.cellState cell.index
-
-                --, editCellAt cell.cellState cell.index
-                , clearCellAt cell.cellState cell.index
-
-                --, evalCellAt cell.cellState cell.index
-                ]
+            [ viewSourceAndValue width cellContents cell
+            , controls cell
             ]
+        ]
+
+
+viewSourceAndValue : Int -> String -> Cell -> Element FrontendMsg
+viewSourceAndValue width cellContents cell =
+    E.column [ E.alignBottom ]
+        [ viewSource (width - controlWidth) cell cellContents
+        , viewValue (width - controlWidth) cell
+        ]
+
+
+controls cell =
+    E.column
+        [ E.spacing 2
+        , E.width (E.px controlWidth)
+        , E.alignTop
+        , E.height E.fill
+        , E.paddingEach { top = 0, bottom = 8, left = 4, right = 0 }
+        , Background.color Color.darkSteelGray
+        ]
+        [ viewIndex cell
+        , newCellAt cell.cellState cell.index
+        , deleteCellAt cell.cellState cell.index
+        , clearCellAt cell.cellState cell.index
         ]
 
 
@@ -280,26 +253,13 @@ viewIndex cell =
     E.el [ E.paddingEach { top = 8, bottom = 0, left = 8, right = 0 } ] (E.text <| String.fromInt (cell.index + 1))
 
 
-viewSource__ : Int -> Cell -> Element FrontendMsg
-viewSource__ width cell =
-    E.column
-        [ E.spacing 8
-        , Element.Events.onMouseDown (EditCell cell.index)
-        , E.paddingEach { top = 8, right = 0, bottom = 0, left = 8 }
-        , E.width (E.px width)
-        , E.height E.fill
-        , Background.color (E.rgb 0.15 0.15 0.15)
-        , Font.color (E.rgb 0.9 0.9 0.9)
-        ]
-        (cell.text |> List.map E.text)
-
-
 viewSource_ width cell =
     let
         processedLines =
-            cell.text |> List.Extra.dropWhileRight (\line -> String.trim line == "") |> runMachine
+            LiveBook.Process.cellContents cell
 
         delta nLines =
+            -- TODO: Bad code!
             if nLines < 3 then
                 10
 
@@ -336,164 +296,6 @@ stepFunction steps x =
     List.Extra.find (\( a, b ) -> x <= a) steps |> Maybe.map Tuple.second |> Maybe.withDefault 0
 
 
-type alias State =
-    { input : List String
-    , output : List String
-    , internalState : InternalState
-    , lineCount : Int
-    , linesOfCode : Int
-    , numberOfLines : Int
-    }
-
-
-type InternalState
-    = InCode
-    | InText
-
-
-nextStep : State -> Step State (List String)
-nextStep state =
-    case List.head state.input of
-        Nothing ->
-            Done state.output
-
-        Just line ->
-            if state.lineCount == state.numberOfLines - 1 then
-                case ( state.internalState, String.left 1 line ) of
-                    ( InText, "#" ) ->
-                        Done (String.dropLeft 2 line :: state.output)
-
-                    ( InText, _ ) ->
-                        Done ("```" :: "" :: line :: "```" :: state.output)
-
-                    ( InCode, "#" ) ->
-                        Done (String.dropLeft 2 line :: "" :: "```" :: state.output)
-
-                    ( InCode, _ ) ->
-                        Done ("```" :: "" :: line :: state.output)
-
-            else
-                case ( state.internalState, String.left 1 line ) of
-                    ( InText, "#" ) ->
-                        let
-                            input =
-                                List.drop 1 state.input
-                        in
-                        Loop
-                            -- InText => InText
-                            { state
-                                | input = input
-                                , lineCount = state.lineCount + 1
-                                , output =
-                                    if List.head input == Just "" then
-                                        String.dropLeft 2 line :: state.output
-
-                                    else if (List.head input |> Maybe.map (String.left 1)) == Just "#" then
-                                        (String.dropLeft 2 line ++ "\\") :: state.output
-
-                                    else
-                                        String.dropLeft 2 line :: state.output
-                                , internalState = InText
-                            }
-
-                    ( InText, "" ) ->
-                        -- InText => InText
-                        Loop
-                            { state
-                                | input = List.drop 1 state.input
-                                , lineCount = state.lineCount + 1
-                                , output =
-                                    if List.Extra.getAt 1 state.input == Just "" then
-                                        String.dropLeft 2 line :: state.output
-
-                                    else
-                                        String.dropLeft 2 line :: state.output
-                                , internalState = InText
-                            }
-
-                    ( InText, _ ) ->
-                        -- InText => InCode
-                        Loop
-                            { state
-                                | input = List.drop 1 state.input
-                                , lineCount = state.lineCount + 1
-                                , output = line :: "" :: "```" :: state.output
-                                , internalState = InCode
-                            }
-
-                    ( InCode, "#" ) ->
-                        -- InCode => InText
-                        Loop
-                            { state
-                                | input = List.drop 1 state.input
-                                , lineCount = state.lineCount + 1
-                                , output =
-                                    if List.Extra.getAt 1 state.input == Just "" then
-                                        String.dropLeft 2 line :: "" :: "```" :: state.output
-
-                                    else
-                                        -- (String.dropLeft 2 line ++ " \\") :: state.output
-                                        line :: "" :: "```" :: state.output
-                                , internalState = InText
-                            }
-
-                    ( InCode, "" ) ->
-                        -- InCode => InCode
-                        Loop
-                            { state
-                                | input = List.drop 1 state.input
-                                , lineCount = state.lineCount + 1
-                                , output =
-                                    line :: state.output
-                                , internalState = InCode
-                            }
-
-                    ( InCode, _ ) ->
-                        -- InCode => InCode
-                        Loop
-                            { state
-                                | input = List.drop 1 state.input
-                                , lineCount = state.lineCount + 1
-                                , output =
-                                    if List.Extra.getAt 1 state.input == Just "" then
-                                        line :: state.output
-
-                                    else
-                                        -- (String.dropLeft 2 line ++ " \\") :: state.output
-                                        line :: state.output
-                                , internalState = InCode
-                            }
-
-
-runMachine : List String -> List String
-runMachine input =
-    loop
-        { input = input
-        , output = []
-        , internalState = InText
-        , lineCount = 0
-        , linesOfCode = 0
-        , numberOfLines = List.length input
-        }
-        nextStep
-        |> List.reverse
-
-
-type Step state a
-    = Loop state
-    | Done a
-
-
-loop : state -> (state -> Step state a) -> a
-loop s nextState_ =
-    case nextState_ s of
-        Loop s_ ->
-            loop s_ nextState_
-
-        Done b ->
-            b
-
-
 scale : Float -> Int -> Int
 scale factor x =
     round <| factor * toFloat x
@@ -518,10 +320,6 @@ editCell width cell cellContent =
             , spellcheck = False
             }
         ]
-
-
-
--- (cell.text |> List.map E.text)
 
 
 newCellAt : CellState -> Int -> Element FrontendMsg
