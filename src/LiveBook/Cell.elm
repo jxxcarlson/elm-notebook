@@ -299,15 +299,21 @@ viewSource_ width cell =
         processedLines =
             cell.text |> List.Extra.dropWhileRight (\line -> String.trim line == "") |> runMachine
 
-        delta x =
-            if x < 6 then
-                30
+        delta nLines =
+            if nLines < 3 then
+                10
+
+            else if nLines < 8 then
+                20
+
+            else if nLines < 11 then
+                40
 
             else
-                0
+                50
 
         cellHeight_ =
-            List.length processedLines |> (\x -> scale 14.0 x + delta x)
+            List.length processedLines |> (\x -> scale 14.5 x + delta x)
 
         source =
             processedLines |> String.join "\n"
@@ -330,38 +336,6 @@ stepFunction steps x =
     List.Extra.find (\( a, b ) -> x <= a) steps |> Maybe.map Tuple.second |> Maybe.withDefault 0
 
 
-cellHeight : Cell -> Int
-cellHeight cell =
-    let
-        x =
-            cell.text |> List.length |> scale 16.5
-
-        n =
-            cell.text |> List.length
-
-        delta =
-            stepFunction [ ( 0, 0 ), ( 10, 40 ), ( 40, 80 ) ]
-    in
-    (n |> scale 16.5) + delta n
-
-
-fixLines : List String -> List String
-fixLines lines =
-    let
-        n =
-            List.length lines
-
-        last =
-            List.drop (n - 1) lines
-    in
-    (lines
-        |> List.take (n - 1)
-        |> List.map fixLine
-        |> List.map String.trimRight
-    )
-        ++ List.map fixLastLine last
-
-
 type alias State =
     { input : List String
     , output : List String
@@ -379,7 +353,7 @@ type InternalState
 
 nextStep : State -> Step State (List String)
 nextStep state =
-    case List.Extra.getAt 0 state.input of
+    case List.head state.input of
         Nothing ->
             Done state.output
 
@@ -401,20 +375,24 @@ nextStep state =
             else
                 case ( state.internalState, String.left 1 line ) of
                     ( InText, "#" ) ->
+                        let
+                            input =
+                                List.drop 1 state.input
+                        in
                         Loop
                             -- InText => InText
                             { state
-                                | input = List.drop 1 state.input
+                                | input = input
                                 , lineCount = state.lineCount + 1
                                 , output =
-                                    if List.Extra.getAt 1 state.input == Just "" then
+                                    if List.head input == Just "" then
                                         String.dropLeft 2 line :: state.output
 
-                                    else if List.Extra.getAt 1 state.input /= Just "#" then
+                                    else if (List.head input |> Maybe.map (String.left 1)) == Just "#" then
                                         (String.dropLeft 2 line ++ "\\") :: state.output
 
                                     else
-                                        (String.dropLeft 2 line ++ " \\") :: state.output
+                                        String.dropLeft 2 line :: state.output
                                 , internalState = InText
                             }
 
@@ -501,20 +479,6 @@ runMachine input =
         |> List.reverse
 
 
-lines0 =
-    """# Example: 
-1 + 1 == 2""" |> String.lines
-
-
-lines1 =
-    """# AAA
-# BBB
-a = 1
-b = 1
-a + b
-# Thats' cool!""" |> String.lines
-
-
 type Step state a
     = Loop state
     | Done a
@@ -528,24 +492,6 @@ loop s nextState_ =
 
         Done b ->
             b
-
-
-fixLastLine : String -> String
-fixLastLine line =
-    if String.left 1 line == "#" then
-        String.replace "#" "" line
-
-    else
-        line
-
-
-fixLine : String -> String
-fixLine line =
-    if String.left 1 line == "#" then
-        String.replace "#" "" line ++ " \\"
-
-    else
-        line ++ " \\"
 
 
 scale : Float -> Int -> Int

@@ -69,7 +69,7 @@ render chosenRenderer width_ height_ markdownBody =
                         [ Element.width (Element.px width_)
                         , Element.Background.color lightTheme.background
                         , Element.height (Element.px <| height_)
-                        , Element.paddingEach { left = 12, right = 12, top = 8, bottom = 0 }
+                        , Element.paddingEach { left = 12, right = 12, top = 8, bottom = 12 }
                         , Element.scrollbarY
                         ]
            )
@@ -91,7 +91,10 @@ bulletPoint children =
 renderer : Theme -> Markdown.Renderer.Renderer (Element msg)
 renderer theme =
     { heading = \data -> Element.row [] [ heading theme data ]
-    , paragraph = Element.paragraph [ Element.paddingEach { left = 0, right = 0, top = 0, bottom = 20 } ]
+    , paragraph =
+        Element.paragraph
+            [ Element.paddingEach { left = 0, right = 0, top = 0, bottom = 20 }
+            ]
     , blockQuote =
         \children ->
             Element.column
@@ -217,20 +220,22 @@ renderer theme =
                 )
     , codeBlock =
         \{ body } ->
-            Element.column
-                [ Element.Font.family [ Element.Font.monospace ]
-                , Element.Background.color theme.codeBackground
-                , Element.Font.color theme.codeColor
-                , Element.Border.rounded 5
-                , Element.padding 10
-                , Element.height (Element.px <| textHeight body)
-                , Element.width Element.fill
-                , Element.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
-                , Element.htmlAttribute (Html.Attributes.class "preserve-white-space")
-                , Element.scrollbarX
-                ]
-                [ Element.html (Html.text (String.trim body))
-                ]
+            Element.el [ Element.width Element.fill, Element.paddingEach { left = 0, right = 0, bottom = 18, top = 0 } ]
+                (Element.column
+                    [ Element.Font.family [ Element.Font.monospace ]
+                    , Element.Background.color theme.codeBackground
+                    , Element.Font.color theme.codeColor
+                    , Element.Border.rounded 5
+                    , Element.padding 10
+                    , Element.height (Element.px <| textHeight 14 -5 body)
+                    , Element.width Element.fill
+                    , Element.paddingEach { top = 12, bottom = 12, left = 12, right = 12 }
+                    , Element.htmlAttribute (Html.Attributes.class "preserve-white-space")
+                    , Element.scrollbarX
+                    ]
+                    [ Element.html (Html.text (String.trim body))
+                    ]
+                )
     , thematicBreak = Element.none
     , table = \children -> Element.column [ Element.width Element.fill ] children
     , tableHeader = \children -> Element.column [] children
@@ -242,8 +247,8 @@ renderer theme =
     }
 
 
-textHeight str =
-    str |> String.lines |> List.length |> scale 13
+textHeight scale_ shiftUp str =
+    (str |> String.lines |> List.length |> scale scale_) + shiftUp
 
 
 scale : Float -> Int -> Int
