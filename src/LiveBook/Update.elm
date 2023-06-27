@@ -9,7 +9,6 @@ module LiveBook.Update exposing
     )
 
 import List.Extra
-import LiveBook.Cell
 import Livebook.Eval
 import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
 
