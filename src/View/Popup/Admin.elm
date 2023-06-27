@@ -42,13 +42,13 @@ viewUsers users =
     E.column
         [ E.spacing 8
         ]
-        (List.map viewUser (List.sortBy (\user -> user.username) users))
+        (List.indexedMap viewUser (List.sortBy (\user -> user.username) users))
 
 
-viewUser : User -> Element msg
-viewUser user =
+viewUser : Int -> User -> Element msg
+viewUser k user =
     E.row
         [ E.spacing 8
         , E.width (E.px 450)
         ]
-        [ E.el [] (E.text user.username) ]
+        [ E.el [] (E.text <| String.fromInt k ++ ". " ++ user.username) ]
