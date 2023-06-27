@@ -51,4 +51,4 @@ viewUser k user =
         [ E.spacing 8
         , E.width (E.px 450)
         ]
-        [ E.el [] (E.text <| String.fromInt k ++ ". " ++ user.username) ]
+        [ E.el [] (E.text <| String.fromInt (k + 1) ++ ". " ++ user.username) ]
