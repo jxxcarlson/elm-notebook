@@ -69,7 +69,7 @@ render chosenRenderer width_ height_ markdownBody =
                         [ Element.width (Element.px width_)
                         , Element.Background.color lightTheme.background
                         , Element.height (Element.px <| height_)
-                        , Element.paddingEach { left = 12, right = 12, top = 8, bottom = 12 }
+                        , Element.paddingEach { left = 12, right = 12, top = 18, bottom = 0 }
                         , Element.scrollbarY
                         ]
            )
