@@ -1,8 +1,37 @@
-module LiveBook.Eval exposing (evaluate, evaluateSource, evaluateWithCumulativeBindings)
+module LiveBook.Eval exposing
+    ( evaluate
+    , evaluateSource
+    , evaluateWithCumulativeBindings
+    , getCellBindings
+    , testCell
+    )
 
 import Eval
+import List.Extra
 import Types exposing (Cell, CellState(..))
 import Value exposing (Value)
+
+
+cText =
+    """
+factoriaTC n =
+    let
+        f x acc =
+            if x == 0 then
+                acc
+            else
+                f (x - 1) (x * acc)
+    in
+    f n 1
+"""
+
+
+
+--{ index : Int, text : List String, value : Maybe String, cellState : CellState }
+
+
+testCell =
+    { index = 0, text = String.lines cText, value = Nothing, cellState = CSView }
 
 
 evaluate : Cell -> Cell
@@ -34,8 +63,8 @@ evaluateWithCumulativeBindings cells cell =
             n =
                 List.length lines
 
-            suffix : List String
-            suffix =
+            expression : List String
+            expression =
                 List.drop (n - 1) lines
 
             isBinding : List String -> Bool
@@ -47,16 +76,22 @@ evaluateWithCumulativeBindings cells cell =
                     _ ->
                         False
 
+            --_ =
+            --    isBinding (expression |> Debug.log "EXPR") |> Debug.log "IS_BINDING (expression)"
             value =
                 if bindings == [] then
-                    suffix |> String.join "\n" |> evaluateString
+                    expression |> String.join "\n" |> evaluateString
 
-                else if isBinding suffix then
+                else if isBinding expression then
+                    "()" |> evaluateString
+
+                else if Maybe.map (String.contains "let") (List.Extra.getAt 1 lines) == Just True then
                     "()" |> evaluateString
 
                 else
                     "let"
-                        :: (bindings ++ [ "in" ] ++ suffix)
+                        -- :: ((bindings |> Debug.log "BINDINGS") ++ [ "in" ] ++ expression)
+                        :: (bindings ++ [ "in" ] ++ expression)
                         |> String.join "\n"
                         |> evaluateString
         in
@@ -95,7 +130,10 @@ getCellBindings cell =
             last =
                 List.drop (n - 1) lines |> List.head |> Maybe.withDefault ""
         in
-        if String.contains "=" last then
+        if Maybe.map (String.contains "let") (List.Extra.getAt 1 lines) == Just True then
+            lines
+
+        else if String.contains "=" last then
             lines
 
         else
