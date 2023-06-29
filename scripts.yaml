@@ -5,4 +5,4 @@ scripts:
   vendor:
     - cp -r /Users/carlson/dev/lamdera/bluesky/my-elm-book/src/UILibrary/* vendor/uiStuff/UILibrary/
 
-  cloc: cloc --by-file --exclude-dir=Evergreen src/ 
+  cloc: cloc --by-file --exclude-dir=Evergreen src/

@@ -11,10 +11,8 @@ import Elm.Syntax.ModuleName exposing (ModuleName)
 import Elm.Syntax.Node as Node exposing (Node(..))
 import Environment
 import Eval.Expression
-import Eval.Log as Log
-import Eval.Types as Types exposing (CallTree, CallTreeContinuation(..), Error(..))
+import Eval.Types as Types exposing (CallTree, Error(..))
 import FastDict as Dict
-import Maybe.Extra
 import Result.MyExtra
 import Rope exposing (Rope)
 import Syntax exposing (fakeNode)
@@ -26,61 +24,16 @@ eval source expression =
     let
         ( result, _, _ ) =
             traceOrEvalModule { trace = False } source expression
-
-        --|> Debug.log "@@EVAL"
-        --_ =
-        --    case result of
-        --        Ok value ->
-        --            "@@@: EVAL, VALUE: " ++ Debug.toString value
-        --
-        --        Err err ->
-        --            "@@@: EVAL, ERROR: " ++ Debug.toString err
     in
     result
 
 
-trace : String -> Expression -> ( Result Error Value, Rope CallTree, Rope Log.Line )
+trace : String -> Expression -> ( Result Error Value, Rope CallTree, Rope String )
 trace source expression =
     traceOrEvalModule { trace = True } source expression
 
 
-
---
---
---Example 2:
---
---a = 1
---a
---
---
---
--- main =
---            Maybe.andThen (Dict.get [ "Main" ]) functions
---                |> Maybe.andThen (Dict.get "main")
---                |> Maybe.map (.expression >> Node.value)
---                |> Debug.log "@@@MAIN"
---
---Just (
---  LetExpression {
---     declarations = [
---       Node { end = { column = 10, row = 5 }, start = { column = 5, row = 5 } } (LetFunction
---           { declaration = Node { end = { column = 10, row = 5 }, start = { column = 5, row = 5 } }
---                  { arguments = []
---                  , expression = Node { end = { column = 10, row = 5 }, start = { column = 9, row = 5 } } (Integer 1)
---                  , name = Node { end = { column = 6, row = 5 }, start = { column = 5, row = 5 } } "a"
---                  }
---           , documentation = Nothing
---           , signature = Nothing
---       }
---
---       )
---       ]
---    , expression = Node { end = { column = 6, row = 7 }, start = { column = 5, row = 7 } } (FunctionOrValue [] "a")
---     }
---  )
-
-
-traceOrEvalModule : { trace : Bool } -> String -> Expression -> ( Result Error Value, Rope CallTree, Rope Log.Line )
+traceOrEvalModule : { trace : Bool } -> String -> Expression -> ( Result Error Value, Rope CallTree, Rope String )
 traceOrEvalModule cfg source expression =
     let
         maybeEnv : Result Error Env
@@ -98,28 +51,6 @@ traceOrEvalModule cfg source expression =
                         Elm.Processing.process context rawFile
                     )
                 |> Result.andThen buildInitialEnv
-
-        --|> Debug.log "@@MAYBE_ENV"
-        mEnv =
-            Result.toMaybe maybeEnv
-
-        values =
-            Maybe.map .values mEnv
-
-        --|> Debug.log "@@@VALUES"
-        moduleNames =
-            Maybe.map (.functions >> Dict.keys) mEnv
-
-        -- |> Debug.log "@@@KEYS"
-        functions =
-            Maybe.map .functions mEnv
-
-        main =
-            Maybe.andThen (Dict.get [ "Main" ]) functions
-
-        --|> Maybe.andThen (Dict.get "main")
-        --|> Maybe.map (.expression >> Node.value)
-        --|> Debug.log "@@@MAIN"
     in
     case maybeEnv of
         Err e ->
@@ -127,17 +58,10 @@ traceOrEvalModule cfg source expression =
 
         Ok env ->
             let
-                callTreeContinuation : CallTreeContinuation
-                callTreeContinuation =
-                    CTCRoot
-
                 ( result, callTrees, logLines ) =
                     Eval.Expression.evalExpression
                         (fakeNode expression)
-                        { trace = cfg.trace
-                        , callTreeContinuation = callTreeContinuation
-                        , logContinuation = Log.Done
-                        }
+                        { trace = cfg.trace }
                         env
             in
             ( Result.mapError Types.EvalError result
