@@ -53,7 +53,7 @@ evaluateWithCumulativeBindings cells cell =
     else
         let
             bindings =
-                getPriorBindings cell.index cells
+                getPriorBindings cell.index cells |> Debug.log "BINDINGS"
 
             lines =
                 cell.text
@@ -80,7 +80,11 @@ evaluateWithCumulativeBindings cells cell =
             --    isBinding (expression |> Debug.log "EXPR") |> Debug.log "IS_BINDING (expression)"
             value =
                 if bindings == [] then
-                    expression |> String.join "\n" |> evaluateString
+                    if expression == [] then
+                        "()" |> evaluateString
+
+                    else
+                        expression |> String.join "\n" |> evaluateString
 
                 else if isBinding expression then
                     "()" |> evaluateString
@@ -88,10 +92,14 @@ evaluateWithCumulativeBindings cells cell =
                 else if Maybe.map (String.contains "let") (List.Extra.getAt 1 lines) == Just True then
                     "()" |> evaluateString
 
+                else if expression == [] then
+                    "()" |> evaluateString
+
                 else
                     "let"
                         --:: ((bindings |> Debug.log "BINDINGS") ++ [ "in" ] ++ expression)
                         :: (bindings ++ [ "in" ] ++ expression)
+                        |> Debug.log "LET IN EXPRESSION"
                         |> String.join "\n"
                         |> evaluateString
         in

@@ -90,7 +90,10 @@ viewSource_ width cell =
 
         delta nLines =
             -- TODO: Bad code!
-            if nLines < 3 then
+            if nLines == 1 then
+                30
+
+            else if nLines < 3 then
                 10
 
             else if nLines < 8 then

@@ -4,6 +4,7 @@ module LiveBook.Update exposing
     , editCell
     , evalCell
     , evalCell_
+    , executeCell_
     , makeNewCell
     , updateCellText
     )
@@ -11,6 +12,45 @@ module LiveBook.Update exposing
 import List.Extra
 import LiveBook.Eval
 import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
+
+
+executeCell_ : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
+executeCell_ index model =
+    case List.Extra.getAt index model.currentBook.cells of
+        Nothing ->
+            let
+                _ =
+                    Debug.log "NO CELL FOUND AT" index
+            in
+            ( model, Cmd.none )
+
+        Just cell_ ->
+            let
+                updatedCell =
+                    { cell_ | cellState = CSView }
+
+                prefix =
+                    List.filter (\cell -> cell.index < index) model.currentBook.cells
+                        |> List.map (\cell -> { cell | cellState = CSView })
+
+                suffix =
+                    List.filter (\cell -> cell.index > index) model.currentBook.cells
+                        |> List.map (\cell -> { cell | index = cell.index + 1 })
+                        |> List.map (\cell -> { cell | cellState = CSView })
+
+                oldBook =
+                    model.currentBook
+
+                newBook =
+                    { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
+
+                _ =
+                    Debug.log "CELL FOUND AT" index
+
+                _ =
+                    cell_ |> Debug.log "CELL"
+            in
+            ( { model | currentBook = newBook }, Cmd.none )
 
 
 makeNewCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )

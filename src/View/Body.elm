@@ -119,9 +119,3 @@ viewNotebook model user =
                 model.currentBook.cells
             )
         ]
-
-
-
---view : Int -> String -> Cell -> Element FrontendMsg
---view width cellContents cell
--- view width cell cellContents

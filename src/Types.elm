@@ -96,6 +96,10 @@ type FrontendMsg
     | NoOpFrontendMsg
     | FETick Time.Posix
     | KeyboardMsg Keyboard.Msg
+      -- FILE
+    | CsvRequested
+    | CsvSelected File
+    | CsvLoaded String
       -- CELL
     | NewCell Int
     | DeleteCell Int

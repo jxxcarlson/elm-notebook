@@ -104,18 +104,20 @@ update msg model =
                 pressedKeys =
                     Keyboard.update keyMsg model.pressedKeys
 
-                newModel =
+                ( newModel, cmd ) =
                     if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
-                        LiveBook.Update.evalCell_ model.currentCellIndex model
+                        ( LiveBook.Update.evalCell_ model.currentCellIndex model, Cmd.none )
+
+                    else if List.member Keyboard.Shift pressedKeys && List.member Keyboard.Enter pressedKeys then
+                        ( LiveBook.Update.evalCell_ model.currentCellIndex model, Cmd.none )
+
+                    else if List.member Keyboard.Control pressedKeys && List.member (Keyboard.Character "X") pressedKeys then
+                        LiveBook.Update.executeCell_ model.currentCellIndex model
 
                     else
-                        model
+                        ( model, Cmd.none )
             in
-            ( { newModel
-                | pressedKeys = pressedKeys
-              }
-            , Cmd.none
-            )
+            ( { newModel | pressedKeys = pressedKeys }, cmd )
 
         FETick time ->
             if Predicate.canSave model && model.currentBook.dirty then
