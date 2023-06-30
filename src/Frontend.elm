@@ -108,16 +108,12 @@ update msg model =
                     Keyboard.update keyMsg model.pressedKeys
 
                 ( newModel, cmd ) =
-                    if List.member Keyboard.Control pressedKeys then
-                        if List.member Keyboard.Enter pressedKeys then
-                            ( LiveBook.Update.evalCell_ model.currentCellIndex model, Cmd.none )
+                    if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
+                        ( LiveBook.Update.evalCell_ model.currentCellIndex model, Cmd.none )
 
-                        else if List.member (Keyboard.Character "X") pressedKeys then
-                            LiveBook.Update.executeCell_ model.currentCellIndex model
-                                |> (\( model_, cmd_ ) -> ( LiveBook.Update.evalCell_ model.currentCellIndex model_, cmd_ ))
-
-                        else
-                            ( model, Cmd.none )
+                    else if List.member Keyboard.Control pressedKeys && List.member (Keyboard.Character "X") pressedKeys then
+                        LiveBook.Update.executeCell_ model.currentCellIndex model
+                            |> (\( model_, cmd_ ) -> ( LiveBook.Update.evalCell_ model.currentCellIndex model_, cmd_ ))
 
                     else
                         ( model, Cmd.none )
