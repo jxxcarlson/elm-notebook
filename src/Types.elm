@@ -6,6 +6,7 @@ import Browser.Dom
 import Browser.Navigation exposing (Key)
 import Bytes
 import Dict exposing (Dict)
+import File exposing (File)
 import Keyboard
 import Lamdera exposing (ClientId)
 import Random
@@ -28,6 +29,7 @@ type alias FrontendModel =
     , users : List User
 
     -- NOTEBOOKS
+    , stringData : Maybe String
     , books : List Book
     , currentBook : Book
     , cellContent : String
@@ -97,9 +99,9 @@ type FrontendMsg
     | FETick Time.Posix
     | KeyboardMsg Keyboard.Msg
       -- FILE
-    | CsvRequested
-    | CsvSelected File
-    | CsvLoaded String
+    | StringDataRequested
+    | StringDataSelected File
+    | StringDataLoaded String
       -- CELL
     | NewCell Int
     | DeleteCell Int

@@ -64,6 +64,7 @@ init url key =
       , users = []
 
       -- NOTEBOOKS
+      , stringData = Nothing
       , books = []
       , currentBook = LiveBook.Book.scratchPad "anonymous"
       , cellContent = ""
@@ -279,6 +280,15 @@ update msg model =
             )
 
         -- CELLS, NOTEBOOKS
+        StringDataRequested ->
+            ( model, Cmd.none )
+
+        StringDataSelected file ->
+            ( model, Cmd.none )
+
+        StringDataLoaded str ->
+            ( model, Cmd.none )
+
         SetShowNotebooksState state ->
             let
                 cmd =
