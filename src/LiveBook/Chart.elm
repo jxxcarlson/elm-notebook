@@ -54,14 +54,15 @@ chart args properties data_ =
             , domain = Dict.get "domain" properties |> Maybe.andThen getRange
             , range = Dict.get "range" properties |> Maybe.andThen getRange
             }
+                |> Debug.log "@@OPTIONS"
 
         data : Maybe ChartData
         data =
-            csvToChartData options data_
+            csvToChartData options (data_ |> Debug.log "@@DATA in RAW STRING )-)" |> String.split ";" |> Debug.log "@@DATA in RAW LINE (-)") |> Debug.log "@@DATA in RAW LINE (1)"
     in
     Element.column [ Element.width (Element.px 400), Element.paddingEach { left = 48, right = 0, top = 36, bottom = 72 }, Element.spacing 24 ]
         [ Element.el [ Element.width (Element.px 400) ]
-            (rawLineChart options data)
+            (rawLineChart options (data |> Debug.log "@@DATA in RAW LINE (2)"))
         , case ( options.label, options.caption ) of
             ( Nothing, Nothing ) ->
                 Element.none
@@ -130,31 +131,36 @@ makeTimeseries data =
     List.indexedMap (\i oneList -> String.fromInt i :: oneList) data
 
 
-csvToChartData : Options -> String -> Maybe ChartData
-csvToChartData options str =
+csvToChartData : Options -> List String -> Maybe ChartData
+csvToChartData options inputLines_ =
     let
-        dataLines : List String
-        dataLines =
-            str
-                |> String.lines
-                |> List.filter (\line -> String.trim line /= "" && String.left 1 line /= "#")
-                |> maybeApply options.reverse List.reverse
+        _ =
+            inputLines |> Debug.log "@@@STRING"
 
+        inputLines =
+            inputLines_
+                --|> List.filter (\line -> String.trim line /= "" && String.left 1 line /= "#")
+                |> Debug.log "@@DATA (1)"
+
+        -- |> maybeApply options.reverse List.reverse
         data_ : Maybe (List (List String))
         data_ =
             case options.timeseries of
                 Just _ ->
-                    List.map (String.split "," >> List.map String.trim) dataLines
+                    List.map (String.split "," >> List.map String.trim) inputLines
                         |> selectColumns options.columns
                         |> Maybe.map makeTimeseries
+                        |> Debug.log "@@DATA (X1)"
 
                 Nothing ->
-                    List.map (String.split "," >> List.map String.trim) dataLines
+                    List.map (String.split "," >> List.map String.trim) inputLines
                         |> selectColumns options.columns
+                        |> Debug.log "@@DATA (X2)"
 
         dimension : Maybe Int
         dimension =
-            data_ |> Maybe.andThen List.head |> Maybe.map List.length
+            -- data_ |> Maybe.andThen List.head |> Maybe.map List.length |> Debug.log "@@DIMENSION"
+            Just 2
     in
     case ( dimension, data_ ) of
         ( Nothing, _ ) ->

@@ -31,7 +31,7 @@ type alias FrontendModel =
     , users : List User
 
     -- NOTEBOOKS
-    , stringData : Maybe String
+    , kvDict : Dict String String
     , books : List Book
     , currentBook : Book
     , cellContent : String

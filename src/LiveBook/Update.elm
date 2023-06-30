@@ -49,6 +49,9 @@ executeCell_ index model =
                         Just "image" ->
                             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
 
+                        Just "chart" ->
+                            { cell_ | cellState = CSView, value = CVVisual VTChart [ String.replace "chart " "" (cell_.text |> Debug.log "@@@TEXT" |> String.join "\n") ] }
+
                         _ ->
                             { cell_ | cellState = CSView }
 
@@ -238,7 +241,7 @@ evalCell_ index model =
         Just cell_ ->
             let
                 updatedCell =
-                    LiveBook.Eval.evaluateWithCumulativeBindings model.currentBook.cells cell_
+                    LiveBook.Eval.evaluateWithCumulativeBindings model.kvDict model.currentBook.cells cell_
 
                 prefix =
                     List.filter (\cell -> cell.index < index) model.currentBook.cells

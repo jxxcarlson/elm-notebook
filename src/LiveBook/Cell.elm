@@ -1,11 +1,13 @@
 module LiveBook.Cell exposing (view)
 
+import Dict
 import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Events
 import Element.Font as Font
 import Element.Input
 import List.Extra
+import LiveBook.Chart
 import LiveBook.Process
 import Types exposing (Cell, CellState(..), CellValue(..), FrontendModel, FrontendMsg(..), VisualType(..))
 import UILibrary.Button as Button
@@ -94,8 +96,12 @@ renderVT vt args =
                 []
                 { src = getArg 0 args, description = "image" }
 
-        _ ->
-            E.text "TODO"
+        VTChart ->
+            let
+                dict =
+                    Dict.fromList [ ( "columns", "1" ), ( "lowest", "3700" ), ( "label", "S&P Index, 06/14/2021 to 06/10/2022" ) ]
+            in
+            LiveBook.Chart.chart [ "timeseries", "reverse" ] dict (args |> Debug.log "ARGS" |> String.join "\\n")
 
 
 getArg : Int -> List String -> String

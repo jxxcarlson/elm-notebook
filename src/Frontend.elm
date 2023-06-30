@@ -5,6 +5,7 @@ import Browser exposing (UrlRequest(..))
 import Browser.Dom
 import Browser.Events
 import Browser.Navigation as Nav
+import Dict
 import File
 import File.Select
 import Frontend.Authentication
@@ -66,7 +67,7 @@ init url key =
       , users = []
 
       -- NOTEBOOKS
-      , stringData = Nothing
+      , kvDict = Dict.empty
       , books = []
       , currentBook = LiveBook.Book.scratchPad "anonymous"
       , cellContent = ""
@@ -297,11 +298,11 @@ update msg model =
 
         StringDataLoaded index variable dataString ->
             let
-                updatedCellText =
-                    "# read " ++ variable ++ "\n" ++ variable ++ " = \"\"\"" ++ dataString ++ "\"\"\""
+                quote str =
+                    "\"" ++ str ++ "\""
             in
-            ( { model | stringData = Just dataString, pressedKeys = [] }
-                |> (\model_ -> LiveBook.Update.updateCellText model_ index updatedCellText)
+            ( { model | kvDict = Dict.insert variable (quote dataString) model.kvDict, pressedKeys = [] }
+              --|> (\model_ -> LiveBook.Update.updateCellText model_ index updatedCellText)
             , Cmd.none
             )
 

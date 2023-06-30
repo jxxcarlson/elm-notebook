@@ -1,11 +1,14 @@
 module LiveBook.Eval exposing
     ( evaluate
     , evaluateSource
+    , evaluateString
     , evaluateWithCumulativeBindings
     , getCellBindings
     , testCell
+    , transformWordsWithKVDict
     )
 
+import Dict exposing (Dict)
 import Eval
 import List.Extra
 import Types exposing (Cell, CellState(..), CellValue(..))
@@ -48,28 +51,32 @@ evaluate cell =
     }
 
 
-evaluateWithCumulativeBindings : List Cell -> Cell -> Cell
-evaluateWithCumulativeBindings cells cell =
+evaluateWithCumulativeBindings : Dict String String -> List Cell -> Cell -> Cell
+evaluateWithCumulativeBindings kvDict cells cell =
     case cell.value of
         CVVisual _ _ ->
             cell
 
         _ ->
-            evaluateWithCumulativeBindings_ cells cell
+            evaluateWithCumulativeBindings_ kvDict cells cell
 
 
-evaluateWithCumulativeBindings_ : List Cell -> Cell -> Cell
-evaluateWithCumulativeBindings_ cells cell =
+evaluateWithCumulativeBindings_ : Dict String String -> List Cell -> Cell -> Cell
+evaluateWithCumulativeBindings_ kvDict cells cell =
     let
+        _ =
+            Debug.log "@@kvDict" kvDict
+
         cellSourceLines =
             cell.text
                 |> List.filter (\s -> String.left 1 s /= "#")
                 |> List.filter (\s -> String.trim s /= "")
+                |> Debug.log "@@CELL SOURCE LINES"
     in
     if (List.head cellSourceLines |> Maybe.map String.trim) == Just "let" then
         { cell
             | value =
-                CVString <| evaluateString (cellSourceLines |> String.join "\n")
+                CVString <| evaluateString (cellSourceLines |> String.join "\n" |> transformWordsWithKVDict kvDict |> Debug.log "@@VALUE (1)")
             , cellState = CSView
         }
 
@@ -107,7 +114,7 @@ evaluateWithCumulativeBindings_ cells cell =
                         "()" |> evaluateString
 
                     else
-                        expression |> String.join "\n" |> evaluateString
+                        expression |> String.join "\n" |> transformWordsWithKVDict kvDict |> Debug.log "@@VALUE (2)" |> evaluateString |> Debug.log "@@VALUE (2B)"
 
                 else if isBinding expression then
                     "()" |> evaluateString
@@ -123,9 +130,26 @@ evaluateWithCumulativeBindings_ cells cell =
                         --:: ((bindings |> Debug.log "BINDINGS") ++ [ "in" ] ++ expression)
                         :: (bindings ++ [ "in" ] ++ expression)
                         |> String.join "\n"
+                        |> transformWordsWithKVDict kvDict
+                        |> Debug.log "@@VALUE (3)"
                         |> evaluateString
         in
         { cell | value = CVString value, cellState = CSView }
+
+
+transformWordsWithKVDict : Dict String String -> String -> String
+transformWordsWithKVDict dict str =
+    str |> String.words |> List.map (transformWordWithKVDict dict) |> String.join " "
+
+
+transformWordWithKVDict : Dict String String -> String -> String
+transformWordWithKVDict dict word =
+    case Dict.get word dict of
+        Nothing ->
+            word
+
+        Just substitute ->
+            substitute
 
 
 evaluateSource : Cell -> Maybe String
