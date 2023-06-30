@@ -9,6 +9,7 @@ module LiveBook.Update exposing
     , updateCellText
     )
 
+import File.Select
 import List.Extra
 import LiveBook.Eval
 import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
@@ -18,10 +19,6 @@ executeCell_ : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 executeCell_ index model =
     case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
-            let
-                _ =
-                    Debug.log "NO CELL FOUND AT" index
-            in
             ( model, Cmd.none )
 
         Just cell_ ->
@@ -44,13 +41,30 @@ executeCell_ index model =
                 newBook =
                     { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
 
-                _ =
-                    Debug.log "CELL FOUND AT" index
+                commandWords =
+                    cell_.text
+                        |> String.join "\n"
+                        |> String.trim
+                        |> String.replace "# " ""
+                        |> String.words
 
-                _ =
-                    cell_ |> Debug.log "CELL"
+                cmd =
+                    case List.head commandWords of
+                        Nothing ->
+                            Cmd.none
+
+                        Just "read" ->
+                            case List.Extra.getAt 1 commandWords of
+                                Nothing ->
+                                    Cmd.none
+
+                                Just variable ->
+                                    File.Select.file [ "text/csv" ] (StringDataSelected index variable)
+
+                        _ ->
+                            Cmd.none
             in
-            ( { model | currentBook = newBook }, Cmd.none )
+            ( { model | currentBook = newBook }, cmd )
 
 
 makeNewCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
@@ -177,7 +191,7 @@ clearCell model index =
         Just cell_ ->
             let
                 updatedCell =
-                    { cell_ | text = [ "" ] }
+                    { cell_ | text = [ "" ], cellState = CSView }
 
                 prefix =
                     List.filter (\cell -> cell.index < index) model.currentBook.cells

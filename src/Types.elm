@@ -99,9 +99,9 @@ type FrontendMsg
     | FETick Time.Posix
     | KeyboardMsg Keyboard.Msg
       -- FILE
-    | StringDataRequested
-    | StringDataSelected File
-    | StringDataLoaded String
+    | StringDataRequested Int String -- int is the cell index, string is the variable name
+    | StringDataSelected Int String File
+    | StringDataLoaded Int String String
       -- CELL
     | NewCell Int
     | DeleteCell Int

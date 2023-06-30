@@ -53,7 +53,7 @@ evaluateWithCumulativeBindings cells cell =
     else
         let
             bindings =
-                getPriorBindings cell.index cells |> Debug.log "BINDINGS"
+                getPriorBindings cell.index cells
 
             lines =
                 cell.text
@@ -99,7 +99,6 @@ evaluateWithCumulativeBindings cells cell =
                     "let"
                         --:: ((bindings |> Debug.log "BINDINGS") ++ [ "in" ] ++ expression)
                         :: (bindings ++ [ "in" ] ++ expression)
-                        |> Debug.log "LET IN EXPRESSION"
                         |> String.join "\n"
                         |> evaluateString
         in

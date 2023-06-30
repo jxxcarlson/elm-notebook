@@ -5,6 +5,8 @@ import Browser exposing (UrlRequest(..))
 import Browser.Dom
 import Browser.Events
 import Browser.Navigation as Nav
+import File
+import File.Select
 import Frontend.Authentication
 import Frontend.Message
 import Html exposing (Html)
@@ -106,14 +108,16 @@ update msg model =
                     Keyboard.update keyMsg model.pressedKeys
 
                 ( newModel, cmd ) =
-                    if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
-                        ( LiveBook.Update.evalCell_ model.currentCellIndex model, Cmd.none )
+                    if List.member Keyboard.Control pressedKeys then
+                        if List.member Keyboard.Enter pressedKeys then
+                            ( LiveBook.Update.evalCell_ model.currentCellIndex model, Cmd.none )
 
-                    else if List.member Keyboard.Shift pressedKeys && List.member Keyboard.Enter pressedKeys then
-                        ( LiveBook.Update.evalCell_ model.currentCellIndex model, Cmd.none )
+                        else if List.member (Keyboard.Character "X") pressedKeys then
+                            LiveBook.Update.executeCell_ model.currentCellIndex model
+                                |> (\( model_, cmd_ ) -> ( LiveBook.Update.evalCell_ model.currentCellIndex model_, cmd_ ))
 
-                    else if List.member Keyboard.Control pressedKeys && List.member (Keyboard.Character "X") pressedKeys then
-                        LiveBook.Update.executeCell_ model.currentCellIndex model
+                        else
+                            ( model, Cmd.none )
 
                     else
                         ( model, Cmd.none )
@@ -280,14 +284,25 @@ update msg model =
             )
 
         -- CELLS, NOTEBOOKS
-        StringDataRequested ->
-            ( model, Cmd.none )
+        StringDataRequested index variable ->
+            ( model
+            , File.Select.file [ "text/csv" ] (StringDataSelected index variable)
+            )
 
-        StringDataSelected file ->
-            ( model, Cmd.none )
+        StringDataSelected index variable file ->
+            ( model
+            , Task.perform (StringDataLoaded index variable) (File.toString file)
+            )
 
-        StringDataLoaded str ->
-            ( model, Cmd.none )
+        StringDataLoaded index variable dataString ->
+            let
+                updatedCellText =
+                    "# read " ++ variable ++ "\n" ++ variable ++ " = \"" ++ dataString ++ "\""
+            in
+            ( { model | stringData = Just dataString }
+                |> (\model_ -> LiveBook.Update.updateCellText model_ index updatedCellText)
+            , Cmd.none
+            )
 
         SetShowNotebooksState state ->
             let
