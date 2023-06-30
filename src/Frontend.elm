@@ -359,7 +359,7 @@ update msg model =
                             { user_ | currentNotebookId = Just book.id }
                     in
                     ( { model | currentUser = Just user, currentBook = LiveBook.Book.initializeCellState book }
-                    , sendToBackend (UpdateUserWith user)
+                    , Cmd.batch [ sendToBackend (UpdateUserWith user), sendToBackend (SaveNotebook model.currentBook) ]
                     )
 
         TogglePublic ->
