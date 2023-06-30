@@ -1,6 +1,7 @@
 module View.Button exposing
     ( adminPopup
     , cancelDeleteNotebook
+    , clearValues
     , cloneNotebook
     , deleteNotebook
     , dismissPopup
@@ -95,6 +96,11 @@ editTitle mode =
 newNotebook : Element FrontendMsg
 newNotebook =
     Button.smallPrimary { msg = NewNotebook, status = Button.Active, label = Button.Text "New Notebook", tooltipText = Nothing }
+
+
+clearValues : Element FrontendMsg
+clearValues =
+    Button.smallPrimary { msg = ClearNotebookValues, status = Button.Active, label = Button.Text "Clear Values", tooltipText = Nothing }
 
 
 myNotebooks : Types.ShowNotebooks -> Element FrontendMsg

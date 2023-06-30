@@ -1,5 +1,6 @@
 module LiveBook.Update exposing
     ( clearCell
+    , clearNotebookValues
     , deleteCell_
     , editCell
     , evalCell
@@ -10,9 +11,19 @@ module LiveBook.Update exposing
     )
 
 import File.Select
+import Lamdera
 import List.Extra
 import LiveBook.Eval
 import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
+
+
+clearNotebookValues : Types.Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
+clearNotebookValues book model =
+    let
+        newBook =
+            { book | cells = List.map (\cell -> { cell | value = Nothing }) book.cells }
+    in
+    ( { model | currentBook = newBook }, Lamdera.sendToBackend (Types.SaveNotebook newBook) )
 
 
 executeCell_ : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )

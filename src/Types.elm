@@ -115,6 +115,7 @@ type FrontendMsg
     | CancelDeleteNotebook
     | ChangeAppMode AppMode
     | TogglePublic
+    | ClearNotebookValues
     | SetCurrentNotebook Book
     | CloneNotebook
     | PullNotebook

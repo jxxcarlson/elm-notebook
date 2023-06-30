@@ -66,6 +66,7 @@ signedInHeader model user =
         , Button.editTitle model.appMode
         , Button.newNotebook
         , Button.deleteNotebook model.deleteNotebookState
+        , Button.clearValues
         , Button.cancelDeleteNotebook model.deleteNotebookState
         , Button.manual
 

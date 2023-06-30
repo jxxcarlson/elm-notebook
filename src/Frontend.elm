@@ -378,6 +378,9 @@ update msg model =
                 , sendToBackend (SaveNotebook newBook)
                 )
 
+        ClearNotebookValues ->
+            LiveBook.Update.clearNotebookValues model.currentBook model
+
         CancelDeleteNotebook ->
             ( { model | deleteNotebookState = WaitingToDeleteNotebook }, Cmd.none )
 
