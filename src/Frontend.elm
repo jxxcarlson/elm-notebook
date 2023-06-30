@@ -105,7 +105,7 @@ update msg model =
         KeyboardMsg keyMsg ->
             let
                 pressedKeys =
-                    Keyboard.update keyMsg model.pressedKeys
+                    Keyboard.update keyMsg model.pressedKeys |> Debug.log "PRESSED KEYS"
 
                 ( newModel, cmd ) =
                     if List.member Keyboard.Control pressedKeys then

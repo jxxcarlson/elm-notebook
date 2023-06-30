@@ -32,7 +32,7 @@ executeCell_ index model =
 
                 suffix =
                     List.filter (\cell -> cell.index > index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | index = cell.index + 1 })
+                        |> List.map (\cell -> { cell | index = cell.index })
                         |> List.map (\cell -> { cell | cellState = CSView })
 
                 oldBook =
