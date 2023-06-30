@@ -7,7 +7,7 @@ import Element.Font as Font
 import Element.Input
 import List.Extra
 import LiveBook.Process
-import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
+import Types exposing (Cell, CellState(..), CellValue(..), FrontendModel, FrontendMsg(..), VisualType(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
 import View.CellThemed as MarkdownThemed
@@ -74,8 +74,33 @@ viewValue width cell =
         , E.width (E.px width)
         , Background.color (E.rgb 0.85 0.85 0.95)
         ]
-        [ E.text (cell.value |> Maybe.withDefault "-- unevaluated --")
+        [ case cell.value of
+            CVNone ->
+                E.text "-- unevaluated --"
+
+            CVString str ->
+                E.text str
+
+            CVVisual vt args ->
+                renderVT vt args
         ]
+
+
+renderVT : VisualType -> List String -> Element FrontendMsg
+renderVT vt args =
+    case vt of
+        VTImage ->
+            E.image
+                []
+                { src = getArg 0 args, description = "image" }
+
+        _ ->
+            E.text "TODO"
+
+
+getArg : Int -> List String -> String
+getArg k args =
+    List.Extra.getAt k args |> Maybe.withDefault "--"
 
 
 viewIndex : Cell -> Element msg

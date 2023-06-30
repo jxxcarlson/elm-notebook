@@ -8,7 +8,7 @@ module LiveBook.Eval exposing
 
 import Eval
 import List.Extra
-import Types exposing (Cell, CellState(..))
+import Types exposing (Cell, CellState(..), CellValue(..))
 import Value exposing (Value)
 
 
@@ -36,11 +36,30 @@ testCell =
 
 evaluate : Cell -> Cell
 evaluate cell =
-    { cell | value = evaluateSource cell, cellState = CSView }
+    { cell
+        | value =
+            case evaluateSource cell of
+                Nothing ->
+                    CVNone
+
+                Just str ->
+                    CVString str
+        , cellState = CSView
+    }
 
 
 evaluateWithCumulativeBindings : List Cell -> Cell -> Cell
 evaluateWithCumulativeBindings cells cell =
+    case cell.value of
+        CVVisual _ _ ->
+            cell
+
+        _ ->
+            evaluateWithCumulativeBindings_ cells cell
+
+
+evaluateWithCumulativeBindings_ : List Cell -> Cell -> Cell
+evaluateWithCumulativeBindings_ cells cell =
     let
         cellSourceLines =
             cell.text
@@ -48,7 +67,11 @@ evaluateWithCumulativeBindings cells cell =
                 |> List.filter (\s -> String.trim s /= "")
     in
     if (List.head cellSourceLines |> Maybe.map String.trim) == Just "let" then
-        { cell | value = Just <| evaluateString (cellSourceLines |> String.join "\n"), cellState = CSView }
+        { cell
+            | value =
+                CVString <| evaluateString (cellSourceLines |> String.join "\n")
+            , cellState = CSView
+        }
 
     else
         let
@@ -102,7 +125,7 @@ evaluateWithCumulativeBindings cells cell =
                         |> String.join "\n"
                         |> evaluateString
         in
-        { cell | value = Just value, cellState = CSView }
+        { cell | value = CVString value, cellState = CSView }
 
 
 evaluateSource : Cell -> Maybe String

@@ -14,14 +14,14 @@ import File.Select
 import Lamdera
 import List.Extra
 import LiveBook.Eval
-import Types exposing (Cell, CellState(..), FrontendModel, FrontendMsg(..))
+import Types exposing (Cell, CellState(..), CellValue(..), FrontendModel, FrontendMsg(..), VisualType(..))
 
 
 clearNotebookValues : Types.Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 clearNotebookValues book model =
     let
         newBook =
-            { book | cells = List.map (\cell -> { cell | value = Nothing }) book.cells }
+            { book | cells = List.map (\cell -> { cell | value = CVNone }) book.cells }
     in
     ( { model | currentBook = newBook }, Lamdera.sendToBackend (Types.SaveNotebook newBook) )
 
@@ -34,8 +34,23 @@ executeCell_ index model =
 
         Just cell_ ->
             let
+                commandWords =
+                    cell_.text
+                        |> String.join "\n"
+                        |> String.trim
+                        |> String.replace "# " ""
+                        |> String.words
+
                 updatedCell =
-                    { cell_ | cellState = CSView }
+                    case List.head commandWords of
+                        Nothing ->
+                            { cell_ | cellState = CSView }
+
+                        Just "image" ->
+                            { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
+
+                        _ ->
+                            { cell_ | cellState = CSView }
 
                 prefix =
                     List.filter (\cell -> cell.index < index) model.currentBook.cells
@@ -51,13 +66,6 @@ executeCell_ index model =
 
                 newBook =
                     { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
-
-                commandWords =
-                    cell_.text
-                        |> String.join "\n"
-                        |> String.trim
-                        |> String.replace "# " ""
-                        |> String.words
 
                 cmd =
                     case List.head commandWords of
@@ -84,7 +92,7 @@ makeNewCell model index =
         newCell =
             { index = index + 1
             , text = [ "# New cell (" ++ String.fromInt (index + 2) ++ ") ", "-- code --" ]
-            , value = Nothing
+            , value = CVNone
             , cellState = CSEdit
             }
 

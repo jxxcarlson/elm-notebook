@@ -1,7 +1,7 @@
 module LiveBook.Book exposing (initializeCellState, new, scratchPad)
 
 import Time
-import Types exposing (Book, Cell, CellState(..))
+import Types exposing (Book, Cell, CellState(..), CellValue(..))
 
 
 scratchPad : String -> Book
@@ -15,7 +15,7 @@ scratchPad username =
     , updatedAt = Time.millisToPosix 0
     , public = False
     , title = "Scatchpad"
-    , cells = [ { index = 0, text = [ "# Example: ", "1 + 1 == 2" ], value = Just "True", cellState = CSView } ]
+    , cells = [ { index = 0, text = [ "# Example: ", "1 + 1 == 2" ], value = CVNone, cellState = CSView } ]
     , currentIndex = 0
     }
 
@@ -30,7 +30,7 @@ new author title =
     , updatedAt = Time.millisToPosix 0
     , public = False
     , title = title
-    , cells = [ { index = 0, text = [ "# Example: ", "1 + 1 == 2" ], value = Just "True", cellState = CSView } ]
+    , cells = [ { index = 0, text = [ "# Example: ", "1 + 1 == 2" ], value = CVString "True", cellState = CSView } ]
     , currentIndex = 0
     }
 

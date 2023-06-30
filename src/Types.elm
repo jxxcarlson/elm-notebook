@@ -6,7 +6,9 @@ import Browser.Dom
 import Browser.Navigation exposing (Key)
 import Bytes
 import Dict exposing (Dict)
+import Element
 import File exposing (File)
+import Html exposing (Html)
 import Keyboard
 import Lamdera exposing (ClientId)
 import Random
@@ -142,7 +144,18 @@ type FrontendMsg
 
 
 type alias Cell =
-    { index : Int, text : List String, value : Maybe String, cellState : CellState }
+    { index : Int, text : List String, value : CellValue, cellState : CellState }
+
+
+type CellValue
+    = CVNone
+    | CVString String
+    | CVVisual VisualType (List String)
+
+
+type VisualType
+    = VTChart
+    | VTImage
 
 
 type CellState
