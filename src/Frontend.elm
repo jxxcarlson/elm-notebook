@@ -113,7 +113,12 @@ update msg model =
 
                     else if List.member Keyboard.Control pressedKeys && List.member (Keyboard.Character "X") pressedKeys then
                         LiveBook.Update.executeCell_ model.currentCellIndex model
-                            |> (\( model_, cmd_ ) -> ( LiveBook.Update.evalCell_ model.currentCellIndex model_, cmd_ ))
+                            |> (\( model_, cmd_ ) ->
+                                    ( LiveBook.Update.evalCell_ model.currentCellIndex
+                                        { model_ | pressedKeys = [] }
+                                    , cmd_
+                                    )
+                               )
 
                     else
                         ( model, Cmd.none )
@@ -293,9 +298,9 @@ update msg model =
         StringDataLoaded index variable dataString ->
             let
                 updatedCellText =
-                    "# read " ++ variable ++ "\n" ++ variable ++ " = \"" ++ dataString ++ "\""
+                    "# read " ++ variable ++ "\n" ++ variable ++ " = \"\"\"" ++ dataString ++ "\"\"\""
             in
-            ( { model | stringData = Just dataString }
+            ( { model | stringData = Just dataString, pressedKeys = [] }
                 |> (\model_ -> LiveBook.Update.updateCellText model_ index updatedCellText)
             , Cmd.none
             )

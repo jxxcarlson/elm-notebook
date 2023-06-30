@@ -39,7 +39,9 @@ view model =
             Just _ ->
                 [ View.Utility.showIfIsAdmin model (Button.adminPopup model)
                 , View.Utility.showIfIsAdmin model Button.runTask
-                , messageRow model
+
+                --, messageRow model
+                , E.el [ Font.color (E.rgb 1 1 1) ] (E.text (Debug.toString model.pressedKeys))
                 , case model.currentBook.origin of
                     Just origin ->
                         E.el [ E.alignRight, Font.color Color.lightGray ] (E.text <| origin)
