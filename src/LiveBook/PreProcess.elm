@@ -69,7 +69,7 @@ nextStep state =
                     ( InText, "#" ) ->
                         let
                             input =
-                                List.drop 1 state.input |> Debug.log "@@INPUT@@"
+                                List.drop 1 state.input
                         in
                         Loop
                             -- InText => InText
