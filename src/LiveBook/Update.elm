@@ -35,10 +35,12 @@ executeCell_ index model =
             let
                 commandWords =
                     cell_.text
+                        |> List.filter (\line -> not <| String.startsWith "#" line)
                         |> String.join "\n"
                         |> String.trim
                         |> String.replace "# " ""
                         |> String.words
+                        |> Debug.log "@@COMMAND_WORDS"
 
                 updatedCell =
                     case List.head commandWords of

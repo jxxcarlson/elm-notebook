@@ -118,11 +118,21 @@ renderVT width kvDict vt args =
                         { src = url, description = "image" }
 
         VTChart ->
-            let
-                dict =
-                    Dict.fromList [ ( "columns", "1" ), ( "lowest", "3700" ), ( "label", "S&P Index, 06/14/2021 to 06/10/2022" ) ]
-            in
-            LiveBook.Chart.chart [ "timeseries", "reverse" ] dict (args |> String.join "\\n" |> LiveBook.Eval.transformWordsWithKVDict kvDict)
+            case List.Extra.unconsLast args of
+                Nothing ->
+                    E.image
+                        [ E.width (E.px width) ]
+                        { src = getArg 0 args, description = "image" }
+
+                Just ( dataVariable, args_ ) ->
+                    let
+                        options =
+                            LiveBook.Utility.keyValueDict args_
+
+                        dict =
+                            Dict.fromList [ ( "columns", "1" ), ( "lowest", "3700" ), ( "label", "S&P Index, 06/14/2021 to 06/10/2022" ) ]
+                    in
+                    LiveBook.Chart.chart [ "timeseries", "reverse" ] dict (dataVariable |> Debug.log "@@DATA_VAR" |> LiveBook.Eval.transformWordsWithKVDict kvDict)
 
 
 getArg : Int -> List String -> String
