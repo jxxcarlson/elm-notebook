@@ -1,6 +1,6 @@
 module LiveBook.Cell exposing (view)
 
-import Dict
+import Dict exposing (Dict)
 import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Events
@@ -8,6 +8,7 @@ import Element.Font as Font
 import Element.Input
 import List.Extra
 import LiveBook.Chart
+import LiveBook.Eval
 import LiveBook.Process
 import Types exposing (Cell, CellState(..), CellValue(..), FrontendModel, FrontendMsg(..), VisualType(..))
 import UILibrary.Button as Button
@@ -15,8 +16,8 @@ import UILibrary.Color as Color
 import View.CellThemed as MarkdownThemed
 
 
-view : Int -> String -> Cell -> Element FrontendMsg
-view width cellContents cell =
+view : Dict String String -> Int -> String -> Cell -> Element FrontendMsg
+view kvDict width cellContents cell =
     E.column
         [ E.paddingEach { top = 0, right = 0, bottom = 0, left = 0 }
         , E.width (E.px width)
@@ -24,17 +25,17 @@ view width cellContents cell =
         ]
         [ E.row
             [ E.width (E.px width) ]
-            [ viewSourceAndValue width cellContents cell
+            [ viewSourceAndValue kvDict width cellContents cell
             , controls cell
             ]
         ]
 
 
-viewSourceAndValue : Int -> String -> Cell -> Element FrontendMsg
-viewSourceAndValue width cellContents cell =
+viewSourceAndValue : Dict String String -> Int -> String -> Cell -> Element FrontendMsg
+viewSourceAndValue kvDict width cellContents cell =
     E.column [ E.alignBottom ]
         [ viewSource (width - controlWidth) cell cellContents
-        , viewValue (width - controlWidth) cell
+        , viewValue kvDict (width - controlWidth) cell
         ]
 
 
@@ -68,7 +69,7 @@ viewSource width cell cellContent =
             editCell width cell cellContent
 
 
-viewValue width cell =
+viewValue kvDict width cell =
     E.paragraph
         [ E.spacing 8
         , Font.color Color.black
@@ -84,12 +85,12 @@ viewValue width cell =
                 E.text str
 
             CVVisual vt args ->
-                renderVT vt args
+                renderVT kvDict vt args
         ]
 
 
-renderVT : VisualType -> List String -> Element FrontendMsg
-renderVT vt args =
+renderVT : Dict String String -> VisualType -> List String -> Element FrontendMsg
+renderVT kvDict vt args =
     case vt of
         VTImage ->
             E.image
@@ -101,7 +102,7 @@ renderVT vt args =
                 dict =
                     Dict.fromList [ ( "columns", "1" ), ( "lowest", "3700" ), ( "label", "S&P Index, 06/14/2021 to 06/10/2022" ) ]
             in
-            LiveBook.Chart.chart [ "timeseries", "reverse" ] dict (args |> Debug.log "ARGS" |> String.join "\\n")
+            LiveBook.Chart.chart [ "timeseries", "reverse" ] dict (args |> String.join "\\n" |> LiveBook.Eval.transformWordsWithKVDict kvDict)
 
 
 getArg : Int -> List String -> String

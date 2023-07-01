@@ -115,7 +115,7 @@ viewNotebook model user =
             , E.paddingEach { top = 19, bottom = 48, left = 0, right = 0 }
             ]
             (List.map
-                (LiveBook.Cell.view (View.Geometry.notebookWidth model) model.cellContent)
+                (LiveBook.Cell.view model.kvDict (View.Geometry.notebookWidth model) model.cellContent)
                 model.currentBook.cells
             )
         ]

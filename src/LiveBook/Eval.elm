@@ -64,19 +64,15 @@ evaluateWithCumulativeBindings kvDict cells cell =
 evaluateWithCumulativeBindings_ : Dict String String -> List Cell -> Cell -> Cell
 evaluateWithCumulativeBindings_ kvDict cells cell =
     let
-        _ =
-            Debug.log "@@kvDict" kvDict
-
         cellSourceLines =
             cell.text
                 |> List.filter (\s -> String.left 1 s /= "#")
                 |> List.filter (\s -> String.trim s /= "")
-                |> Debug.log "@@CELL SOURCE LINES"
     in
     if (List.head cellSourceLines |> Maybe.map String.trim) == Just "let" then
         { cell
             | value =
-                CVString <| evaluateString (cellSourceLines |> String.join "\n" |> transformWordsWithKVDict kvDict |> Debug.log "@@VALUE (1)")
+                CVString <| evaluateString (cellSourceLines |> String.join "\n" |> transformWordsWithKVDict kvDict)
             , cellState = CSView
         }
 
@@ -114,7 +110,7 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
                         "()" |> evaluateString
 
                     else
-                        expression |> String.join "\n" |> transformWordsWithKVDict kvDict |> Debug.log "@@VALUE (2)" |> evaluateString |> Debug.log "@@VALUE (2B)"
+                        expression |> String.join "\n" |> transformWordsWithKVDict kvDict |> evaluateString
 
                 else if isBinding expression then
                     "()" |> evaluateString
@@ -131,7 +127,6 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
                         :: (bindings ++ [ "in" ] ++ expression)
                         |> String.join "\n"
                         |> transformWordsWithKVDict kvDict
-                        |> Debug.log "@@VALUE (3)"
                         |> evaluateString
         in
         { cell | value = CVString value, cellState = CSView }

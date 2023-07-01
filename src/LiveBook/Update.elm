@@ -50,7 +50,7 @@ executeCell_ index model =
                             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
 
                         Just "chart" ->
-                            { cell_ | cellState = CSView, value = CVVisual VTChart [ String.replace "chart " "" (cell_.text |> Debug.log "@@@TEXT" |> String.join "\n") ] }
+                            { cell_ | cellState = CSView, value = CVVisual VTChart [ String.replace "chart " "" (cell_.text |> String.join "\n") ] }
 
                         _ ->
                             { cell_ | cellState = CSView }
