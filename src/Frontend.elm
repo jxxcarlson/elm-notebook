@@ -112,11 +112,6 @@ update msg model =
                     -- TODO: cmd?
                     if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
                         LiveBook.Update.evalCell model.currentCellIndex model
-                        --else if List.member Keyboard.Control pressedKeys && List.member (Keyboard.Character "X") pressedKeys then
-                        --    LiveBook.Update.executeCell_ model.currentCellIndex model
-                        --        |> (\( model_, cmd_ ) ->
-                        --                LiveBook.Update.evalCell model.currentCellIndex { model_ | pressedKeys = [] }
-                        --           )
 
                     else
                         ( model, Cmd.none )
@@ -300,7 +295,7 @@ update msg model =
 
                 updatedCellText =
                     [ "readinto " ++ variable
-                    , ""
+                    , "#"
                     , "# "
                         ++ (String.length dataString |> String.fromInt)
                         ++ " characters, "

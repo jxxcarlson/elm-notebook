@@ -10,6 +10,7 @@ import List.Extra
 import LiveBook.Chart
 import LiveBook.Eval
 import LiveBook.PreProcess
+import LiveBook.Utility
 import Types exposing (Cell, CellState(..), CellValue(..), FrontendModel, FrontendMsg(..), VisualType(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
@@ -93,9 +94,28 @@ renderVT : Int -> Dict String String -> VisualType -> List String -> Element Fro
 renderVT width kvDict vt args =
     case vt of
         VTImage ->
-            E.image
-                [ E.width (E.px width) ]
-                { src = getArg 0 args, description = "image" }
+            case List.Extra.unconsLast args of
+                Nothing ->
+                    E.image
+                        [ E.width (E.px width) ]
+                        { src = getArg 0 args, description = "image" }
+
+                Just ( url, args_ ) ->
+                    let
+                        options =
+                            LiveBook.Utility.keyValueDict args_
+
+                        width_ =
+                            case Dict.get "width" options of
+                                Just w ->
+                                    w |> String.toInt |> Maybe.withDefault width
+
+                                Nothing ->
+                                    width
+                    in
+                    E.image
+                        [ E.width (E.px width_) ]
+                        { src = url, description = "image" }
 
         VTChart ->
             let
