@@ -49,7 +49,7 @@ executeCell_ index model =
                         Just "image" ->
                             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
 
-                        Just "chart" ->
+                        Just "chartfrom" ->
                             { cell_ | cellState = CSView, value = CVVisual VTChart [ String.replace "chart " "" (cell_.text |> String.join "\n") ] }
 
                         _ ->
@@ -75,7 +75,7 @@ executeCell_ index model =
                         Nothing ->
                             Cmd.none
 
-                        Just "read" ->
+                        Just "readinto" ->
                             case List.Extra.getAt 1 commandWords of
                                 Nothing ->
                                     Cmd.none

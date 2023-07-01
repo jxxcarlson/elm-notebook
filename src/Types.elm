@@ -103,7 +103,7 @@ type FrontendMsg
       -- FILE
     | StringDataRequested Int String -- int is the cell index, string is the variable name
     | StringDataSelected Int String File
-    | StringDataLoaded Int String String
+    | StringDataLoaded String Int String String
       -- CELL
     | NewCell Int
     | DeleteCell Int

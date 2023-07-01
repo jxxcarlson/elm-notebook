@@ -293,16 +293,31 @@ update msg model =
 
         StringDataSelected index variable file ->
             ( model
-            , Task.perform (StringDataLoaded index variable) (File.toString file)
+            , Task.perform (StringDataLoaded (File.name file) index variable) (File.toString file)
             )
 
-        StringDataLoaded index variable dataString ->
+        StringDataLoaded fileName index variable dataString ->
             let
                 quote str =
                     "\"" ++ str ++ "\""
+
+                updatedCellText =
+                    [ "# readinto " ++ variable
+                    , ""
+                    , "# "
+                        ++ (String.length dataString |> String.fromInt)
+                        ++ " characters, "
+                        ++ (dataString |> String.lines |> List.length |> String.fromInt)
+                        ++ " lines"
+                    , "# read from file " ++ fileName
+                    , "#  and stored in variable `" ++ variable ++ "`"
+                    , "#"
+                    , "#"
+                    ]
+                        |> String.join "\n"
             in
             ( { model | kvDict = Dict.insert variable (quote dataString) model.kvDict, pressedKeys = [] }
-              --|> (\model_ -> LiveBook.Update.updateCellText model_ index updatedCellText)
+                |> (\model_ -> LiveBook.Update.updateCellText model_ index updatedCellText)
             , Cmd.none
             )
 
