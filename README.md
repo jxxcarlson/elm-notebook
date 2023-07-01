@@ -25,4 +25,4 @@ is more descriptive.
 
 The project is still in its infancy, and still in an exploratory phase, 
 with first commit on June 20, 2023.  I welcome
-commments and suggestions.
+comments and suggestions.
