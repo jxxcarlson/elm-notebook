@@ -118,10 +118,6 @@ renderVT width kvDict vt args =
                         { src = url, description = "image" }
 
         VTChart ->
-            let
-                _ =
-                    Debug.log "@@VTCHART_ARGS" args
-            in
             case List.Extra.unconsLast args of
                 Nothing ->
                     E.image
@@ -131,12 +127,12 @@ renderVT width kvDict vt args =
                 Just ( dataVariable, args_ ) ->
                     let
                         options =
-                            LiveBook.Utility.keyValueDict args_
+                            LiveBook.Utility.keyValueDict (("width:" ++ String.fromInt width) :: args_)
 
-                        dict =
-                            Dict.fromList [ ( "columns", "1" ), ( "lowest", "3700" ), ( "label", "S&P Index, 06/14/2021 to 06/10/2022" ) ]
+                        innerArgs =
+                            List.filter (\s -> not (String.contains s ":")) args_
                     in
-                    LiveBook.Chart.chart [ "timeseries", "reverse" ] dict (dataVariable |> Debug.log "@@DATA_VAR" |> LiveBook.Eval.transformWordsWithKVDict kvDict)
+                    LiveBook.Chart.chart innerArgs options (dataVariable |> LiveBook.Eval.transformWordsWithKVDict kvDict)
 
 
 getArg : Int -> List String -> String

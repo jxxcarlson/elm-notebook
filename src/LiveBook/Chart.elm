@@ -24,6 +24,7 @@ type alias Options =
     , kind : Maybe String -- e.g, kind:line or --kind:scatter
     , domain : Maybe Range
     , range : Maybe Range
+    , width : Int
     }
 
 
@@ -53,14 +54,15 @@ chart args properties data_ =
             , kind = Dict.get "kind" properties
             , domain = Dict.get "domain" properties |> Maybe.andThen getRange
             , range = Dict.get "range" properties |> Maybe.andThen getRange
+            , width = Dict.get "width" properties |> Maybe.andThen String.toInt |> Maybe.withDefault 300
             }
 
         data : Maybe ChartData
         data =
             csvToChartData options (data_ |> String.trim |> String.split "\n")
     in
-    Element.column [ Element.width (Element.px 400), Element.paddingEach { left = 48, right = 0, top = 36, bottom = 72 }, Element.spacing 24 ]
-        [ Element.el [ Element.width (Element.px 400) ]
+    Element.column [ Element.width (Element.px options.width), Element.paddingEach { left = 48, right = 0, top = 36, bottom = 72 }, Element.spacing 24 ]
+        [ Element.el [ Element.width (Element.px options.width) ]
             (rawLineChart options data)
         , case ( options.label, options.caption ) of
             ( Nothing, Nothing ) ->

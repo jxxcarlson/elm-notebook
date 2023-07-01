@@ -102,8 +102,6 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
                     _ ->
                         False
 
-            --_ =
-            --    isBinding (expression |> Debug.log "EXPR") |> Debug.log "IS_BINDING (expression)"
             value =
                 if bindings == [] then
                     if expression == [] then
@@ -123,7 +121,6 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
 
                 else
                     "let"
-                        --:: ((bindings |> Debug.log "BINDINGS") ++ [ "in" ] ++ expression)
                         :: (bindings ++ [ "in" ] ++ expression)
                         |> String.join "\n"
                         |> transformWordsWithKVDict kvDict
@@ -178,13 +175,6 @@ getCellBindings cell =
 
             last =
                 List.drop (n - 1) lines |> List.head |> Maybe.withDefault ""
-
-            --
-            --_ =
-            --    Debug.log "COND 1" (Maybe.map (String.contains "let") (List.Extra.getAt 1 lines) == Just True)
-            --
-            --_ =
-            --    Debug.log "COND 2" (String.contains "=" last)
         in
         if Maybe.map (String.contains "let") (List.Extra.getAt 1 lines) == Just True then
             lines

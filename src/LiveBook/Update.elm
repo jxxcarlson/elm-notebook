@@ -40,7 +40,6 @@ executeCell_ index model =
                         |> String.trim
                         |> String.replace "# " ""
                         |> String.words
-                        |> Debug.log "@@COMMAND_WORDS"
 
                 updatedCell =
                     case List.head commandWords of
