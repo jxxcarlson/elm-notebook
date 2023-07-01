@@ -9,7 +9,7 @@ import Element.Input
 import List.Extra
 import LiveBook.Chart
 import LiveBook.Eval
-import LiveBook.Process
+import LiveBook.PreProcess
 import Types exposing (Cell, CellState(..), CellValue(..), FrontendModel, FrontendMsg(..), VisualType(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
@@ -118,7 +118,7 @@ viewIndex cell =
 viewSource_ width cell =
     let
         processedLines =
-            LiveBook.Process.cellContents cell
+            LiveBook.PreProcess.cellContents cell
 
         delta nLines =
             -- TODO: Bad code!

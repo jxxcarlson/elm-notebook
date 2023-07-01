@@ -1,4 +1,4 @@
-module LiveBook.Process exposing (cellContents)
+module LiveBook.PreProcess exposing (cellContents)
 
 import List.Extra
 
@@ -69,7 +69,7 @@ nextStep state =
                     ( InText, "#" ) ->
                         let
                             input =
-                                List.drop 1 state.input
+                                List.drop 1 state.input |> Debug.log "@@INPUT@@"
                         in
                         Loop
                             -- InText => InText
@@ -77,11 +77,11 @@ nextStep state =
                                 | input = input
                                 , lineCount = state.lineCount + 1
                                 , output =
-                                    if List.head input == Just "" then
+                                    if List.head input == Just "#" then
                                         String.dropLeft 2 line :: state.output
 
                                     else if (List.head input |> Maybe.map (String.left 1)) == Just "#" then
-                                        (String.dropLeft 2 line ++ "\\") :: state.output
+                                        (String.dropLeft 2 line ++ " \\") :: state.output
 
                                     else
                                         String.dropLeft 2 line :: state.output
@@ -124,7 +124,6 @@ nextStep state =
                                         String.dropLeft 2 line :: "" :: "```" :: state.output
 
                                     else
-                                        -- (String.dropLeft 2 line ++ " \\") :: state.output
                                         line :: "" :: "```" :: state.output
                                 , internalState = InText
                             }
@@ -151,7 +150,6 @@ nextStep state =
                                         line :: state.output
 
                                     else
-                                        -- (String.dropLeft 2 line ++ " \\") :: state.output
                                         line :: state.output
                                 , internalState = InCode
                             }
