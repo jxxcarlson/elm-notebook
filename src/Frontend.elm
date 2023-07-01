@@ -309,7 +309,7 @@ update msg model =
                         ++ " characters, "
                         ++ (dataString |> String.lines |> List.length |> String.fromInt)
                         ++ " lines"
-                    , "# read from file " ++ fileName
+                    , "# read from file `" ++ fileName ++ "`"
                     , "#  and stored in variable `" ++ variable ++ "`"
                     , "#"
                     , "#"
