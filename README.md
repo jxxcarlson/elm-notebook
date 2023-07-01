@@ -30,3 +30,8 @@ is more descriptive.
 The project is still in its infancy, and still in an exploratory phase, 
 with first commit on June 20, 2023.  I welcome
 comments and suggestions.
+
+**Note.** For people who have made notebooks using [livebook.lamdera.app](https://livebook.lamdera.app),
+in a day or two I will have a tool for exporting and importing notebooks.  You will be able
+to use this tool to transfer notebooks between apps (or accounts).
+
