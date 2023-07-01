@@ -19,6 +19,10 @@ type VisualType
     | VTImage
 ```
 
+In the `CVVisual` variant, the `List String` component is data that will
+be processed to Html by, for example, a chart function.  We are using
+[elm-charts-alpha](https://package.elm-lang.org/packages/terezka/charts/latest/).
+
 The project began as [livebook.lamdera.app](https://livebook.lamdera.app), but
 I realized that [elm-notebook.lamdera.app](https://elm-notebook.lamdera.app)
 is more descriptive.  
