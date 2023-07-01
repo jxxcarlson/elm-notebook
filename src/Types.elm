@@ -78,7 +78,7 @@ type alias BackendModel =
     , randomAtmosphericInt : Maybe Int
 
     -- NOTEBOOK
-    , library : Dict String LiveBook.DataSet.DataSet
+    , dataSetLibrary : Dict String LiveBook.DataSet.DataSet
     , userToNoteBookDict : UserToNoteBookDict
     , slugDict : Dict.Dict String NotebookRecord -- keys are slugs, values are notebook ids
 
@@ -224,6 +224,8 @@ type ToBackend
       -- ADMIN
     | RunTask
     | SendUsers
+      -- DATA
+    | CreateDataSet LiveBook.DataSet.DataSet
       -- NOTEBOOK
     | CreateNotebook String String -- authorname title
     | SaveNotebook Book

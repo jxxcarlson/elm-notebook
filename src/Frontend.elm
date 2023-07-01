@@ -16,6 +16,7 @@ import Lamdera exposing (sendToBackend)
 import List.Extra
 import LiveBook.Book
 import LiveBook.Cell
+import LiveBook.DataSet
 import LiveBook.Update
 import Loading
 import Predicate
@@ -309,7 +310,7 @@ update msg model =
 
         -- DATA
         AskToCreateDataSet ->
-            ( model, Cmd.none )
+            ( model, sendToBackend (CreateDataSet (LiveBook.DataSet.makeDataSet model)) )
 
         -- CELLS, NOTEBOOKS
         StringDataRequested index variable ->
@@ -558,6 +559,7 @@ updateFromBackend msg model =
             else
                 ( { model | currentUser = Just user, message = "" }, Cmd.none )
 
+        -- DATA
         -- NOTEBOOKS
         GotNotebook book_ ->
             let

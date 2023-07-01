@@ -29,6 +29,15 @@ compressWhitespace string =
     userReplace "\\s\\s+" (\_ -> " ") string
 
 
+slugify : String -> String
+slugify str =
+    str
+        |> removeNonAlphaNum
+        |> compressWhitespace
+        |> String.replace " " "-"
+        |> String.toLower
+
+
 removeNonAlphaNum : String -> String
 removeNonAlphaNum string =
     userReplace "[^A-Za-z0-9\\-]" (\_ -> "") string

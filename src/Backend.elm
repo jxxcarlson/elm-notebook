@@ -3,7 +3,7 @@ module Backend exposing (..)
 import Authentication
 import Backend.Authentication
 import BackendHelper
-import Dict
+import Dict exposing (Dict)
 import Env exposing (Mode(..))
 import Hex
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
@@ -40,7 +40,7 @@ init =
       , currentTime = Time.millisToPosix 0
 
       -- NOTEBOOK
-      , library = Dict.empty
+      , dataSetLibrary = Dict.empty
       , userToNoteBookDict = Dict.empty
       , slugDict = Dict.empty
 
@@ -143,6 +143,26 @@ updateFromFrontend sessionId clientId msg model =
 
                 Nothing ->
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, password and username don't match (2)") )
+
+        -- DATA
+        CreateDataSet dataSet_ ->
+            let
+                identifier =
+                    getUniqueIdentifier dataSet_.identifier model.dataSetLibrary
+
+                dataSet =
+                    { dataSet_
+                        | createdAt = model.currentTime
+                        , modifiedAt = model.currentTime
+                        , identifier = identifier
+                    }
+
+                dataSetLibrary =
+                    Dict.insert identifier dataSet model.dataSetLibrary
+            in
+            ( { model | dataSetLibrary = dataSetLibrary }
+            , sendToFrontend clientId (SendMessage <| "Data set " ++ dataSet.name ++ " added with identifier = " ++ identifier)
+            )
 
         -- NOTEBOOKS
         GetUsersNotebooks username ->
@@ -297,3 +317,23 @@ setupUser model clientId email transitPassword username =
 
 idMessage model =
     "ids: " ++ (List.map .id model.documents |> String.join ", ")
+
+
+getUniqueIdentifier : String -> Dict String a -> String
+getUniqueIdentifier id dict =
+    case Dict.get id dict of
+        Nothing ->
+            id
+
+        Just _ ->
+            getUniqueIdentifier_ 1 id dict
+
+
+getUniqueIdentifier_ : Int -> String -> Dict String a -> String
+getUniqueIdentifier_ counter id dict =
+    case Dict.get (id ++ "-" ++ String.fromInt counter) dict of
+        Nothing ->
+            id ++ "-" ++ String.fromInt counter
+
+        Just _ ->
+            getUniqueIdentifier_ (counter + 1) id dict

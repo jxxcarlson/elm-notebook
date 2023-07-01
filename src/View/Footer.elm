@@ -41,8 +41,7 @@ view model =
             Just _ ->
                 [ View.Utility.showIfIsAdmin model (Button.adminPopup model)
                 , View.Utility.showIfIsAdmin model Button.runTask
-
-                --, messageRow model
+                , messageRow model
                 , E.el [ Font.color (E.rgb 1 1 1) ] (E.text (String.fromInt <| List.length model.pressedKeys))
                 , Button.dataSet
                 , case model.currentBook.origin of
