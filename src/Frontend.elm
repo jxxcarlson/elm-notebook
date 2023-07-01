@@ -109,17 +109,14 @@ update msg model =
                     Keyboard.update keyMsg model.pressedKeys
 
                 ( newModel, cmd ) =
+                    -- TODO: cmd?
                     if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
-                        ( LiveBook.Update.evalCell_ model.currentCellIndex model, Cmd.none )
-
-                    else if List.member Keyboard.Control pressedKeys && List.member (Keyboard.Character "X") pressedKeys then
-                        LiveBook.Update.executeCell_ model.currentCellIndex model
-                            |> (\( model_, cmd_ ) ->
-                                    ( LiveBook.Update.evalCell_ model.currentCellIndex
-                                        { model_ | pressedKeys = [] }
-                                    , cmd_
-                                    )
-                               )
+                        LiveBook.Update.evalCell model.currentCellIndex model
+                        --else if List.member Keyboard.Control pressedKeys && List.member (Keyboard.Character "X") pressedKeys then
+                        --    LiveBook.Update.executeCell_ model.currentCellIndex model
+                        --        |> (\( model_, cmd_ ) ->
+                        --                LiveBook.Update.evalCell model.currentCellIndex { model_ | pressedKeys = [] }
+                        --           )
 
                     else
                         ( model, Cmd.none )
@@ -302,7 +299,7 @@ update msg model =
                     "\"" ++ str ++ "\""
 
                 updatedCellText =
-                    [ "# readinto " ++ variable
+                    [ "readinto " ++ variable
                     , ""
                     , "# "
                         ++ (String.length dataString |> String.fromInt)
@@ -494,7 +491,7 @@ update msg model =
             LiveBook.Update.clearCell model index
 
         EvalCell index ->
-            LiveBook.Update.evalCell model index
+            LiveBook.Update.evalCell index model
 
         -- NOTEBOOKS
         -- ADMIN

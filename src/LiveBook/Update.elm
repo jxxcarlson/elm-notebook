@@ -4,7 +4,6 @@ module LiveBook.Update exposing
     , deleteCell_
     , editCell
     , evalCell
-    , evalCell_
     , executeCell_
     , makeNewCell
     , updateCellText
@@ -232,35 +231,53 @@ clearCell model index =
             ( { model | cellContent = "", currentBook = newBook }, Cmd.none )
 
 
-evalCell_ : Int -> FrontendModel -> FrontendModel
-evalCell_ index model =
+evalCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
+evalCell index model =
     case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
-            model
+            ( model, Cmd.none )
 
         Just cell_ ->
             let
-                updatedCell =
-                    LiveBook.Eval.evaluateWithCumulativeBindings model.kvDict model.currentBook.cells cell_
-
-                prefix =
-                    List.filter (\cell -> cell.index < index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                suffix =
-                    List.filter (\cell -> cell.index > index) model.currentBook.cells
-
-                oldBook =
-                    model.currentBook
-
-                newBook =
-                    { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
-
-                --|> List.map LiveBook.Cell.evaluate
+                command =
+                    cell_.text
+                        |> List.head
+                        |> Maybe.withDefault ""
+                        |> String.words
+                        |> List.map String.trim
+                        |> List.head
             in
-            { model | currentBook = newBook }
+            if List.member command (List.map Just [ "chartfrom", "readinto", "image" ]) then
+                executeCell_ index model
+
+            else
+                ( evaluateWithCumulativeBindings model index cell_, Cmd.none )
 
 
-evalCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
-evalCell model index =
-    ( evalCell_ index model, Cmd.none )
+evaluateWithCumulativeBindings model index cell_ =
+    let
+        updatedCell =
+            LiveBook.Eval.evaluateWithCumulativeBindings model.kvDict model.currentBook.cells cell_
+
+        prefix =
+            List.filter (\cell -> cell.index < index) model.currentBook.cells
+                |> List.map (\cell -> { cell | cellState = CSView })
+
+        suffix =
+            List.filter (\cell -> cell.index > index) model.currentBook.cells
+
+        oldBook =
+            model.currentBook
+
+        newBook =
+            { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
+
+        --|> List.map LiveBook.Cell.evaluate
+    in
+    { model | currentBook = newBook }
+
+
+
+--evalCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
+--evalCell model index =
+--    evalCell_ index model
