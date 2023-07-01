@@ -16,6 +16,10 @@ import LiveBook.Eval
 import Types exposing (Cell, CellState(..), CellValue(..), FrontendModel, FrontendMsg(..), VisualType(..))
 
 
+commands =
+    [ "chartfrom", "readinto", "image", "import" ]
+
+
 clearNotebookValues : Types.Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 clearNotebookValues book model =
     let
@@ -50,6 +54,9 @@ executeCell_ index model =
                             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
 
                         Just "chartfrom" ->
+                            { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
+
+                        Just "import" ->
                             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
 
                         _ ->
@@ -248,7 +255,7 @@ evalCell index model =
                         |> List.map String.trim
                         |> List.head
             in
-            if List.member command (List.map Just [ "chartfrom", "readinto", "image" ]) then
+            if List.member command (List.map Just commands) then
                 executeCell_ index model
 
             else

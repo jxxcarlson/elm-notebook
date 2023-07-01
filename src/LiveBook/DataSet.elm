@@ -29,7 +29,7 @@ makeDataSet :
 makeDataSet model =
     { author = model.inputAuthor
     , name = model.inputName
-    , identifier = model.inputAuthor ++ "." ++ model.inputName |> LiveBook.Utility.slugify
+    , identifier = LiveBook.Utility.slugify model.inputAuthor ++ "." ++ LiveBook.Utility.slugify model.inputName
     , public = False
     , createdAt = Time.millisToPosix 0
     , modifiedAt = Time.millisToPosix 0
