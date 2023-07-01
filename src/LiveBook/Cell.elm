@@ -118,6 +118,10 @@ renderVT width kvDict vt args =
                         { src = url, description = "image" }
 
         VTChart ->
+            let
+                _ =
+                    Debug.log "@@VTCHART_ARGS" args
+            in
             case List.Extra.unconsLast args of
                 Nothing ->
                     E.image
