@@ -33,6 +33,7 @@
             "lamdera/core": "1.0.0",
             "mdgriffith/elm-ui": "1.1.8",
             "micahhahn/elm-safe-recursion": "2.0.0",
+            "miniBill/elm-codec": "2.0.0",
             "miniBill/elm-fast-dict": "1.1.0",
             "miniBill/elm-rope": "1.0.0",
             "miniBill/elm-unicode": "1.0.3",
