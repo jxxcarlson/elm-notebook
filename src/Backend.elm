@@ -40,6 +40,7 @@ init =
       , currentTime = Time.millisToPosix 0
 
       -- NOTEBOOK
+      , library = Dict.empty
       , userToNoteBookDict = Dict.empty
       , slugDict = Dict.empty
 

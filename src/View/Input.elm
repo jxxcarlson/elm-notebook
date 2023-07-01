@@ -1,6 +1,11 @@
 module View.Input exposing
-    ( cloneReference
+    ( author
+    , cloneReference
+    , comments
+    , data
+    , description
     , email
+    , name
     , password
     , passwordAgain
     , signupUsername
@@ -27,10 +32,6 @@ multiLineTemplate width_ height_ default msg text =
         }
 
 
-
--- IMAGE
-
-
 inputFieldTemplate2 : List (E.Attr () msg) -> E.Length -> String -> (String -> msg) -> String -> Element msg
 inputFieldTemplate2 attr width_ default msg text =
     Input.text ([ E.moveUp 5, Font.size 16, E.height (px 33), E.width width_ ] ++ attr)
@@ -39,6 +40,26 @@ inputFieldTemplate2 attr width_ default msg text =
         , label = Input.labelHidden default
         , placeholder = Just <| Input.placeholder [ E.moveUp 6 ] (E.text default)
         }
+
+
+name model =
+    inputFieldTemplate (E.px 300) "Name" InputName model.inputName
+
+
+author model =
+    inputFieldTemplate (E.px 300) "Author" InputAuthor model.inputAuthor
+
+
+description model =
+    multiLineTemplate 300 80 "Description" InputDescription model.inputDescription
+
+
+comments model =
+    multiLineTemplate 300 80 "Comments" InputComments model.inputComments
+
+
+data model =
+    multiLineTemplate 300 200 "Data" InputData model.inputData
 
 
 

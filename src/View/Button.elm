@@ -3,6 +3,8 @@ module View.Button exposing
     , cancelDeleteNotebook
     , clearValues
     , cloneNotebook
+    , createDataSet
+    , dataSet
     , deleteNotebook
     , dismissPopup
     , dismissPopupSmall
@@ -179,6 +181,16 @@ manual =
 manualLarge : Element FrontendMsg
 manualLarge =
     Button.largePrimary { msg = ChangePopup ManualPopup, status = Button.Active, label = Button.Text "Manual", tooltipText = Nothing }
+
+
+dataSet : Element FrontendMsg
+dataSet =
+    Button.smallPrimary { msg = ChangePopup DataSetPopup, status = Button.Active, label = Button.Text "New Data Set", tooltipText = Nothing }
+
+
+createDataSet : Element FrontendMsg
+createDataSet =
+    Button.largePrimary { msg = AskToCreateDataSet, status = Button.Active, label = Button.Text "Create", tooltipText = Nothing }
 
 
 

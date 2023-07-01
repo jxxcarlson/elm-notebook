@@ -11,6 +11,7 @@ import File exposing (File)
 import Html exposing (Html)
 import Keyboard
 import Lamdera exposing (ClientId)
+import LiveBook.DataSet
 import Random
 import Time
 import Url exposing (Url)
@@ -29,6 +30,13 @@ type alias FrontendModel =
 
     -- ADMIN
     , users : List User
+
+    -- INPUT FIELDS
+    , inputName : String
+    , inputAuthor : String
+    , inputDescription : String
+    , inputComments : String
+    , inputData : String
 
     -- NOTEBOOKS
     , kvDict : Dict String String
@@ -70,6 +78,7 @@ type alias BackendModel =
     , randomAtmosphericInt : Maybe Int
 
     -- NOTEBOOK
+    , library : Dict String LiveBook.DataSet.DataSet
     , userToNoteBookDict : UserToNoteBookDict
     , slugDict : Dict.Dict String NotebookRecord -- keys are slugs, values are notebook ids
 
@@ -104,6 +113,14 @@ type FrontendMsg
     | StringDataRequested Int String -- int is the cell index, string is the variable name
     | StringDataSelected Int String File
     | StringDataLoaded String Int String String
+      -- INPUT FIELDS
+    | InputName String
+    | InputDescription String
+    | InputComments String
+    | InputData String
+    | InputAuthor String
+      -- DATA
+    | AskToCreateDataSet
       -- CELL
     | NewCell Int
     | DeleteCell Int
@@ -193,6 +210,7 @@ type PopupState
     = NoPopup
     | AdminPopup
     | ManualPopup
+    | DataSetPopup
     | SignUpPopup
     | NewNotebookPopup
 

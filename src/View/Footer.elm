@@ -9,6 +9,7 @@ import View.Geometry
 import View.Input
 import View.MarkdownThemed
 import View.Popup.Admin
+import View.Popup.DataSet
 import View.Popup.Manual
 import View.Popup.NewNotebook
 import View.Popup.SignUp
@@ -26,6 +27,7 @@ view model =
         , E.inFront (View.Popup.SignUp.view model)
         , E.inFront (View.Popup.NewNotebook.view model)
         , E.inFront (View.Popup.Manual.view model View.MarkdownThemed.lightTheme)
+        , E.inFront (View.Popup.DataSet.view model)
         , View.Style.bgGray 0.0
         , E.spacing 12
         ]
@@ -42,6 +44,7 @@ view model =
 
                 --, messageRow model
                 , E.el [ Font.color (E.rgb 1 1 1) ] (E.text (String.fromInt <| List.length model.pressedKeys))
+                , Button.dataSet
                 , case model.currentBook.origin of
                     Just origin ->
                         E.el [ E.alignRight, Font.color Color.lightGray ] (E.text <| origin)

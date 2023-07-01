@@ -66,6 +66,13 @@ init url key =
       -- ADMIN
       , users = []
 
+      --
+      , inputName = ""
+      , inputAuthor = ""
+      , inputDescription = ""
+      , inputComments = ""
+      , inputData = ""
+
       -- NOTEBOOKS
       , kvDict = Dict.empty
       , books = []
@@ -194,6 +201,13 @@ update msg model =
                     else
                         ( { model | popupState = ManualPopup }, Cmd.none )
 
+                DataSetPopup ->
+                    if model.popupState == DataSetPopup then
+                        ( { model | popupState = NoPopup }, Cmd.none )
+
+                    else
+                        ( { model | popupState = DataSetPopup }, Cmd.none )
+
                 SignUpPopup ->
                     if model.popupState == SignUpPopup then
                         ( { model | popupState = NoPopup }, Cmd.none )
@@ -276,6 +290,26 @@ update msg model =
                     Cmd.none
                 ]
             )
+
+        -- INPUT FIELDS
+        InputName str ->
+            ( { model | inputName = str }, Cmd.none )
+
+        InputAuthor str ->
+            ( { model | inputAuthor = str }, Cmd.none )
+
+        InputDescription str ->
+            ( { model | inputDescription = str }, Cmd.none )
+
+        InputComments str ->
+            ( { model | inputComments = str }, Cmd.none )
+
+        InputData str ->
+            ( { model | inputData = str }, Cmd.none )
+
+        -- DATA
+        AskToCreateDataSet ->
+            ( model, Cmd.none )
 
         -- CELLS, NOTEBOOKS
         StringDataRequested index variable ->

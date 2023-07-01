@@ -1,6 +1,6 @@
-module LiveBook.Codec exposing (..)
+module LiveBook.Codec exposing (exportBook, importBook)
 
-import Codec exposing (Codec, Value)
+import Codec exposing (Codec, Error, Value)
 import Time
 import Types exposing (Cell, CellState(..), CellValue(..), VisualType(..))
 
@@ -18,6 +18,16 @@ type alias Book =
     , cells : List Cell
     , currentIndex : Int
     }
+
+
+exportBook : Book -> String
+exportBook book =
+    Codec.encodeToString 4 bookCodec book
+
+
+importBook : String -> Result Error Book
+importBook str =
+    Codec.decodeString bookCodec str
 
 
 bookCodec : Codec Book
