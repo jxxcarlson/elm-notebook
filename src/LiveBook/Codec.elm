@@ -2,7 +2,7 @@ module LiveBook.Codec exposing (..)
 
 import Codec exposing (Codec, Value)
 import Time
-import Types exposing (CellValue(..), VisualType(..))
+import Types exposing (Cell, CellState(..), CellValue(..), VisualType(..))
 
 
 type alias Book =
@@ -20,8 +20,26 @@ type alias Book =
     }
 
 
-type alias Cell =
-    { index : Int, text : List String, value : CellValue, cellState : CellState }
+bookCodec : Codec Book
+bookCodec =
+    Codec.object Book
+        |> Codec.field "id" .id Codec.string
+        |> Codec.field "dirty" .dirty Codec.bool
+        |> Codec.field "slug" .slug Codec.string
+        |> Codec.field "origin" .origin (Codec.maybe Codec.string)
+        |> Codec.field "author" .author Codec.string
+        |> Codec.field "createdAt" .createdAt timeCodec
+        |> Codec.field "updatedAt" .updatedAt timeCodec
+        |> Codec.field "public" .public Codec.bool
+        |> Codec.field "title" .title Codec.string
+        |> Codec.field "cells" .cells (Codec.list cellCodec)
+        |> Codec.field "currentIndex" .currentIndex Codec.int
+        |> Codec.buildObject
+
+
+timeCodec : Codec Time.Posix
+timeCodec =
+    Codec.map Time.millisToPosix Time.posixToMillis Codec.int
 
 
 cellCodec : Codec Cell
@@ -74,11 +92,6 @@ visualTypeCodec =
         |> Codec.buildCustom
 
 
-type CellState
-    = CSEdit
-    | CSView
-
-
 cellStateCodec : Codec CellState
 cellStateCodec =
     Codec.custom
@@ -93,22 +106,3 @@ cellStateCodec =
         |> Codec.variant0 "CSEdit" CSEdit
         |> Codec.variant0 "CSView" CSView
         |> Codec.buildCustom
-
-
-
---|> Codec.field "value" .value cellValueCodec
---|> Codec.field "cellState" .cellState cellStateCodec
-
-
-type alias Point =
-    { x : Float
-    , y : Float
-    }
-
-
-pointCodec : Codec Point
-pointCodec =
-    Codec.object Point
-        |> Codec.field "x" .x Codec.float
-        |> Codec.field "y" .y Codec.float
-        |> Codec.buildObject
