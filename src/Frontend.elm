@@ -552,7 +552,7 @@ updateFromBackend msg model =
 
 view : Model -> { title : String, body : List (Html.Html FrontendMsg) }
 view model =
-    { title = "Elm Livebook"
+    { title = "Elm Notebook"
     , body =
         [ View.Main.view model ]
     }

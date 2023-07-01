@@ -57,7 +57,7 @@ signedInHeader model user =
         , Element.Border.widthEach { left = 0, right = 0, top = 0, bottom = 1 }
         , Element.Border.color Color.stillDarkerSteelGray
         ]
-        [ title "Elm Livebook"
+        [ title "Elm Notebook"
         , if model.appMode == AMEditTitle then
             View.Input.title model
 

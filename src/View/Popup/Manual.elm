@@ -61,7 +61,7 @@ Click on the **Manual** button to show or hide the manual.
 Click in a cell to edit it, then type ctrl-Enter to evaluate it.
 
 For examples and a discussion of cell format, take a look at
-the public notebook **Welcome to Elm Livebook.** For this you
+the public notebook **Welcome to Elm Notebook.** For this you
 need to be signed in.  Then click on the **Public** button at the top
 of the notebook list, right-hand column.
 
