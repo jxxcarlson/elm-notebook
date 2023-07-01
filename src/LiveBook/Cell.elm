@@ -85,16 +85,16 @@ viewValue kvDict width cell =
                 E.text str
 
             CVVisual vt args ->
-                renderVT kvDict vt args
+                renderVT width kvDict vt args
         ]
 
 
-renderVT : Dict String String -> VisualType -> List String -> Element FrontendMsg
-renderVT kvDict vt args =
+renderVT : Int -> Dict String String -> VisualType -> List String -> Element FrontendMsg
+renderVT width kvDict vt args =
     case vt of
         VTImage ->
             E.image
-                []
+                [ E.width (E.px width) ]
                 { src = getArg 0 args, description = "image" }
 
         VTChart ->
