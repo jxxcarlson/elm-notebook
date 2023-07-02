@@ -11,12 +11,14 @@ readData : Int -> String -> String -> String -> Types.FrontendModel -> Types.Fro
 readData index fileName variable dataString model =
     let
         message =
-            [ (String.length dataString |> String.fromInt)
+            [ "Read from file `"
+                ++ fileName
+                ++ "`: "
+                ++ (String.length dataString |> String.fromInt)
                 ++ " characters, "
                 ++ (dataString |> String.lines |> List.length |> String.fromInt)
-                ++ " lines \\"
-            , "read from file `" ++ fileName ++ "` \\"
-            , "and stored in variable `" ++ variable ++ "`"
+                ++ " lines. \\"
+            , "Data stored in variable `" ++ variable ++ "`"
             , ""
             , ""
             ]
