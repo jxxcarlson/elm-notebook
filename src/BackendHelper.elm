@@ -3,6 +3,7 @@ module BackendHelper exposing (..)
 -- HELPERS
 
 import LiveBook.Book
+import LiveBook.Types exposing (Book)
 import NotebookDict
 import Random
 import Types exposing (..)

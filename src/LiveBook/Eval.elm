@@ -11,7 +11,7 @@ module LiveBook.Eval exposing
 import Dict exposing (Dict)
 import Eval
 import List.Extra
-import Types exposing (Cell, CellState(..), CellValue(..))
+import LiveBook.Types exposing (Cell, CellState(..), CellValue(..))
 import Value exposing (Value)
 
 

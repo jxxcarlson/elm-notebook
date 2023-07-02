@@ -17,8 +17,8 @@ import List.Extra
 import LiveBook.Action
 import LiveBook.Book
 import LiveBook.DataSet
+import LiveBook.Types exposing (Book)
 import LiveBook.Update
-import LiveBook.View
 import Loading
 import Predicate
 import Random

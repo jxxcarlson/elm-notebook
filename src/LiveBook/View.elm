@@ -10,8 +10,9 @@ import List.Extra
 import LiveBook.Chart
 import LiveBook.Eval
 import LiveBook.PreProcess
+import LiveBook.Types exposing (Cell, CellState(..), CellValue(..), VisualType(..))
 import LiveBook.Utility
-import Types exposing (Cell, CellState(..), CellValue(..), FrontendModel, FrontendMsg(..), VisualType(..))
+import Types exposing (FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
 import View.CellThemed as MarkdownThemed

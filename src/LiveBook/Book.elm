@@ -1,7 +1,7 @@
 module LiveBook.Book exposing (initializeCellState, new, scratchPad)
 
+import LiveBook.Types exposing (Book, Cell, CellState(..), CellValue(..))
 import Time
-import Types exposing (Book, Cell, CellState(..), CellValue(..))
 
 
 scratchPad : String -> Book

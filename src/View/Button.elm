@@ -29,11 +29,11 @@ import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Font as Font
 import Element.Input as Input
+import LiveBook.Types exposing (Book)
 import Types exposing (..)
 import UILibrary.Button as Button
 import UILibrary.Color as Color
 import View.Style
-import View.Utility
 
 
 
@@ -154,7 +154,7 @@ public book =
         Button.smallPrimary { msg = TogglePublic, status = Button.Active, label = Button.Text "Private", tooltipText = Nothing }
 
 
-viewNotebookEntry : Types.Book -> Types.Book -> Element FrontendMsg
+viewNotebookEntry : Book -> Book -> Element FrontendMsg
 viewNotebookEntry currentBook book =
     if currentBook.id == book.id then
         Button.smallPrimary { msg = NoOpFrontendMsg, status = Button.Active, label = Button.Text book.title, tooltipText = Nothing }

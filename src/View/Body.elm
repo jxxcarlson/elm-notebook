@@ -4,13 +4,13 @@ import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Border
 import Element.Font as Font
+import LiveBook.Types exposing (Book)
 import LiveBook.View
 import Types exposing (FrontendModel, FrontendMsg)
 import UILibrary.Color as Color
 import User
 import Util
 import View.Button
-import View.Color
 import View.Geometry
 import View.Style
 
@@ -57,7 +57,7 @@ viewMyNotebookList model user =
         :: List.map (viewNotebookEntry model.currentBook) (List.sortBy (\b -> b.title) model.books)
 
 
-viewNotebookEntry : Types.Book -> Types.Book -> Element FrontendMsg
+viewNotebookEntry : Book -> Book -> Element FrontendMsg
 viewNotebookEntry currentBook book =
     E.row []
         [ View.Button.viewNotebookEntry currentBook book
@@ -82,7 +82,7 @@ viewPublicNotebookList model user =
         :: List.map (viewPublicNotebookEntry model.currentBook) (List.sortBy (\b -> b.author ++ b.title) model.books)
 
 
-viewPublicNotebookEntry : Types.Book -> Types.Book -> Element FrontendMsg
+viewPublicNotebookEntry : Book -> Book -> Element FrontendMsg
 viewPublicNotebookEntry currentBook book =
     E.row []
         [ E.el [ Font.color Color.lightGray, E.paddingXY 0 8, E.width (E.px 80) ] (E.text book.author)

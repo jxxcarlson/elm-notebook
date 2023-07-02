@@ -9,7 +9,8 @@ module NotebookDict exposing
 
 import Dict
 import List.Extra
-import Types exposing (Book)
+import LiveBook.Types exposing (Book)
+import Types
 
 
 type NotebookDataError

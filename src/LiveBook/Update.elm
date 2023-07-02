@@ -13,14 +13,22 @@ import File.Select
 import Lamdera
 import List.Extra
 import LiveBook.Eval
-import Types exposing (Cell, CellState(..), CellValue(..), FrontendModel, FrontendMsg(..), VisualType(..))
+import LiveBook.Types
+    exposing
+        ( Book
+        , Cell
+        , CellState(..)
+        , CellValue(..)
+        , VisualType(..)
+        )
+import Types exposing (FrontendModel, FrontendMsg(..))
 
 
 commands =
     [ "chartfrom", "readinto", "image", "import" ]
 
 
-clearNotebookValues : Types.Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
+clearNotebookValues : Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 clearNotebookValues book model =
     let
         newBook =
