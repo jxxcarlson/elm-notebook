@@ -53,7 +53,6 @@ executeCell_ index model =
                         |> String.replace ">" ""
                         |> String.trim
                         |> String.words
-                        |> Debug.log "@@COMMANDWORDS"
 
                 updatedCell =
                     case List.head commandWords of
@@ -289,7 +288,6 @@ evalCell index model =
                         |> String.words
                         |> List.map String.trim
                         |> List.head
-                        |> Debug.log "@@COMMAND@@"
             in
             if List.member command (List.map Just commands) then
                 executeCell_ index model
