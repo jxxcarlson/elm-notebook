@@ -1,6 +1,7 @@
 module LiveBook.Action exposing (importData, readData)
 
 import Dict
+import Lamdera
 import LiveBook.DataSet
 import LiveBook.Types exposing (CellValue(..))
 import LiveBook.Update
@@ -44,6 +45,11 @@ importData index variable dataset model =
     in
     { model | kvDict = Dict.insert variable (quote dataset.data) model.kvDict, pressedKeys = [] }
         |> (\model_ -> LiveBook.Update.setCellValue model_ index (CVString message))
+
+
+downloadDataSet : String -> Types.FrontendModel -> ( Types.FrontendModel, Cmd Types.ToBackend )
+downloadDataSet identifier model =
+    ( model, Lamdera.sendToBackend (Types.GetDataSetForDownload identifier) )
 
 
 quote str =

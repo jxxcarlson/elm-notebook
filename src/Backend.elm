@@ -153,6 +153,14 @@ updateFromFrontend sessionId clientId msg model =
                 Just dataSet ->
                     ( model, sendToFrontend clientId (GotData index variable dataSet) )
 
+        GetDataSetForDownload identifier ->
+            case Dict.get identifier model.dataSetLibrary of
+                Nothing ->
+                    ( model, sendToFrontend clientId (SendMessage <| "Sorry, no data for " ++ identifier) )
+
+                Just dataSet ->
+                    ( model, sendToFrontend clientId (GotDataForDownload dataSet) )
+
         CreateDataSet dataSet_ ->
             let
                 identifier =

@@ -7,6 +7,7 @@ import Browser.Events
 import Browser.Navigation as Nav
 import Dict
 import File
+import File.Download
 import File.Select
 import Frontend.Authentication
 import Frontend.Message
@@ -560,7 +561,12 @@ updateFromBackend msg model =
 
         -- DATA
         GotData index variable dataSet ->
-            ( LiveBook.Action.importData index variable dataSet model, Cmd.none )
+            ( LiveBook.Action.importData index variable dataSet model
+            , Cmd.none
+            )
+
+        GotDataForDownload dataSet ->
+            ( model, File.Download.string (String.replace "." "-" dataSet.identifier ++ ".csv") "text/csv" dataSet.data )
 
         -- NOTEBOOKS
         GotNotebook book_ ->

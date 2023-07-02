@@ -194,6 +194,7 @@ type ToBackend
     | CreateDataSet LiveBook.DataSet.DataSet
     | GetData Int String String -- Int is the index of the requesting cell,
       -- String1 is the DataSet identifier, String2 is the variable in which to store it.
+    | GetDataSetForDownload String -- Int is the index of the requesting cell,
       -- NOTEBOOK
     | CreateNotebook String String -- authorname title
     | SaveNotebook Book
@@ -223,6 +224,7 @@ type ToFrontend
     | GotUsers (List User)
       -- DATA
     | GotData Int String LiveBook.DataSet.DataSet
+    | GotDataForDownload LiveBook.DataSet.DataSet
       -- NOTEBOOK
     | GotNotebook Book
     | GotNotebooks (List Book)
