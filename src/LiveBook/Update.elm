@@ -159,10 +159,10 @@ updateBook cell book =
     else
         let
             prefix =
-                List.filter (\currentCell -> currentCell.index < currentCell.index) book.cells
+                List.filter (\currentCell -> currentCell.index < cell.index) book.cells
 
             suffix =
-                List.filter (\currentCell -> currentCell.index > currentCell.index) book.cells
+                List.filter (\currentCell -> currentCell.index > cell.index) book.cells
         in
         { book | cells = prefix ++ (cell :: suffix), dirty = True }
 
@@ -184,7 +184,11 @@ updateCellText model index str =
             model
 
         Just cell_ ->
-            { model | cellContent = str, currentBook = updateBook { cell_ | text = str |> String.split "\n" } model.currentBook }
+            let
+                updatedCell =
+                    { cell_ | text = str |> String.split "\n" }
+            in
+            { model | cellContent = str, currentBook = updateBook updatedCell model.currentBook }
 
 
 deleteCell : Int -> FrontendModel -> FrontendModel
