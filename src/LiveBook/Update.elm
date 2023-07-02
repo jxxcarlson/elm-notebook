@@ -270,10 +270,6 @@ clearCell model index =
 
 evalCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 evalCell index model =
-    let
-        _ =
-            Debug.log "@@evalCell" index
-    in
     case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
             ( model, Cmd.none )
@@ -287,7 +283,6 @@ evalCell index model =
                         |> String.words
                         |> List.map String.trim
                         |> List.head
-                        |> Debug.log "@@COMMAND"
             in
             if List.member command (List.map Just commands) then
                 executeCell_ index model
@@ -300,7 +295,6 @@ evaluateWithCumulativeBindings model index cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings model.kvDict model.currentBook.cells cell_
-                |> Debug.log "@@UPDATED CELL"
 
         prefix =
             List.filter (\cell -> cell.index < index) model.currentBook.cells

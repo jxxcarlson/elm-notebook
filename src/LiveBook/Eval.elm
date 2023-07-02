@@ -68,7 +68,6 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
             cell.text
                 |> List.filter (\s -> String.left 1 s /= "#")
                 |> List.filter (\s -> String.trim s /= "")
-                |> Debug.log "@@CELL SOURCE LINES@@"
     in
     if (List.head cellSourceLines |> Maybe.map String.trim) == Just "let" then
         let
@@ -77,14 +76,14 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
         in
         { cell
             | value =
-                evaluateString transformedSource |> Debug.log "@@EVALUATE WITH CUMULATIVE BINDINGS@@" |> CVString
+                evaluateString transformedSource |> CVString
             , cellState = CSView
         }
 
     else
         let
             bindings =
-                getPriorBindings cell.index cells |> Debug.log "@@PRIOR BINDINGS@@"
+                getPriorBindings cell.index cells
 
             lines =
                 cell.text
@@ -96,46 +95,43 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
 
             expression : List String
             expression =
-                List.drop (n - 1) lines |> Debug.log "@@EXPRESSION@@"
+                List.drop (n - 1) lines
 
             isBinding : List String -> Bool
             isBinding list =
-                (case list |> List.head |> Maybe.map (String.contains "=") of
+                case list |> List.head |> Maybe.map (String.contains "=") of
                     Just True ->
                         True
 
                     _ ->
                         False
-                )
-                    |> Debug.log "@@IS BINDING@@"
 
             value =
                 if bindings == [] then
                     if expression == [] then
-                        "()" |> evaluateString |> Debug.log "@@EVAL 1"
+                        "()" |> evaluateString
 
                     else
-                        expression |> String.join "\n" |> transformWordsWithKVDict kvDict |> evaluateString |> Debug.log "@@EVAL 2"
+                        expression
+                            |> List.map (transformWordsWithKVDict kvDict)
+                            |> String.join "\n"
+                            |> evaluateString
 
                 else if isBinding expression then
-                    "()" |> evaluateString |> Debug.log "@@EVAL 3"
+                    "()" |> evaluateString
 
                 else if Maybe.map (String.contains "let") (List.Extra.getAt 1 lines) == Just True then
-                    "()" |> evaluateString |> Debug.log "@@EVAL 4"
+                    "()" |> evaluateString
 
                 else if expression == [] then
-                    "()" |> evaluateString |> Debug.log "@@EVAL 5"
+                    "()" |> evaluateString
 
                 else
                     "let"
                         :: (bindings ++ [ "in" ] ++ expression)
-                        |> Debug.log "@@EVAL 6:(a)"
+                        |> List.map (transformWordsWithKVDict kvDict)
                         |> String.join "\n"
-                        |> Debug.log "@@EVAL 6:(b)"
-                        |> transformWordsWithKVDict kvDict
-                        |> Debug.log "@@EVAL 6:(c)"
                         |> evaluateString
-                        |> Debug.log "@@EVAL 6"
         in
         { cell | value = CVString value, cellState = CSView }
 
