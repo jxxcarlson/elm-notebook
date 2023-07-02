@@ -71,6 +71,13 @@ executeCell_ index model =
                         Just "import" ->
                             { cell_ | cellState = CSView, value = CVString "*......*" }
 
+                        Just "export" ->
+                            let
+                                file =
+                                    (List.Extra.getAt 1 commandWords |> Maybe.withDefault "???" |> String.replace "." "-") ++ ".csv"
+                            in
+                            { cell_ | cellState = CSView, value = CVString ("Exported data to file " ++ file) }
+
                         _ ->
                             { cell_ | cellState = CSView }
 
@@ -110,9 +117,9 @@ executeCell_ index model =
                                 _ ->
                                     Cmd.none
 
-                        Just "download" ->
+                        Just "export" ->
                             case commandWords of
-                                "download" :: identifier :: _ ->
+                                "export" :: identifier :: _ ->
                                     Lamdera.sendToBackend (Types.GetDataSetForDownload identifier)
 
                                 _ ->
