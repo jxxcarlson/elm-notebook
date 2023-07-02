@@ -26,7 +26,7 @@ import Types exposing (FrontendModel, FrontendMsg(..))
 
 
 commands =
-    [ "chartfrom", "readinto", "image", "import" ]
+    [ "chart", "readinto", "image", "import" ]
 
 
 clearNotebookValues : Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
@@ -62,7 +62,7 @@ executeCell_ index model =
                         Just "image" ->
                             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
 
-                        Just "chartfrom" ->
+                        Just "chart" ->
                             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
 
                         Just "readinto" ->
