@@ -4,7 +4,7 @@ import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Border
 import Element.Font as Font
-import LiveBook.Cell
+import LiveBook.View
 import Types exposing (FrontendModel, FrontendMsg)
 import UILibrary.Color as Color
 import User
@@ -115,7 +115,7 @@ viewNotebook model user =
             , E.paddingEach { top = 19, bottom = 48, left = 0, right = 0 }
             ]
             (List.map
-                (LiveBook.Cell.view model.kvDict (View.Geometry.notebookWidth model) model.cellContent)
+                (LiveBook.View.view model.kvDict (View.Geometry.notebookWidth model) model.cellContent)
                 model.currentBook.cells
             )
         ]

@@ -1,4 +1,4 @@
-module LiveBook.Cell exposing (view)
+module LiveBook.View exposing (view)
 
 import Dict exposing (Dict)
 import Element as E exposing (Element)

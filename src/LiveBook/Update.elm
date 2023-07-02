@@ -285,7 +285,7 @@ evaluateWithCumulativeBindings model index cell_ =
         newBook =
             { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
 
-        --|> List.map LiveBook.Cell.evaluate
+        --|> List.map LiveBook.View.evaluate
     in
     { model | currentBook = newBook }
 
