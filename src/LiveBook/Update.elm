@@ -26,7 +26,7 @@ import Types exposing (FrontendModel, FrontendMsg(..))
 
 
 commands =
-    [ "chart", "readinto", "image", "import", "download" ]
+    [ "chart", "readinto", "image", "import", "export" ]
 
 
 clearNotebookValues : Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
