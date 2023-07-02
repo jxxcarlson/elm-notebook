@@ -316,7 +316,7 @@ rawLineChart2D options data =
     in
     Chart.chart
         [ CA.height 200
-        , CA.width 400
+        , CA.width (toFloat options.width)
         , case options.lowest of
             Nothing ->
                 CA.domain []

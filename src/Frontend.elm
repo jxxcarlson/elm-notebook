@@ -387,11 +387,26 @@ update msg model =
 
                 Just user_ ->
                     let
+                        previousBook =
+                            model.currentBook
+
+                        currentBook =
+                            LiveBook.Book.initializeCellState book |> (\b -> { b | dirty = False })
+
+                        books =
+                            model.books
+                                |> List.Extra.setIf (\b -> b.id == currentBook.id) currentBook
+                                |> List.Extra.setIf (\b -> b.id == previousBook.id) previousBook
+
                         user =
                             { user_ | currentNotebookId = Just book.id }
                     in
-                    ( { model | currentUser = Just user, currentBook = LiveBook.Book.initializeCellState book }
-                    , Cmd.batch [ sendToBackend (UpdateUserWith user), sendToBackend (SaveNotebook model.currentBook) ]
+                    ( { model
+                        | currentUser = Just user
+                        , currentBook = currentBook
+                        , books = books
+                      }
+                    , Cmd.batch [ sendToBackend (UpdateUserWith user), sendToBackend (SaveNotebook previousBook) ]
                     )
 
         TogglePublic ->
