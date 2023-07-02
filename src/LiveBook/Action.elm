@@ -34,7 +34,7 @@ importData index variable dataset model =
         updatedCellText =
             [ "import " ++ dataset.identifier ++ " as " ++ variable
             , "#"
-            , "# "
+                ++ "-- imported"
                 ++ (String.length dataset.data |> String.fromInt)
                 ++ " characters, "
                 ++ (dataset.data |> String.lines |> List.length |> String.fromInt)
