@@ -30,7 +30,6 @@ view model =
                 ]
                 (E.text "New Data Set")
             , View.Input.name model
-            , View.Input.author model
             , View.Input.description model
             , View.Input.comments model
             , View.Input.data model

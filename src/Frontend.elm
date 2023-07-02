@@ -311,7 +311,12 @@ update msg model =
 
         -- DATA
         AskToCreateDataSet ->
-            ( model, sendToBackend (CreateDataSet (LiveBook.DataSet.makeDataSet model)) )
+            case model.currentUser of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just user ->
+                    ( model, sendToBackend (CreateDataSet (LiveBook.DataSet.makeDataSet model user)) )
 
         -- CELLS, NOTEBOOKS
         StringDataRequested index variable ->

@@ -2,6 +2,7 @@ module LiveBook.DataSet exposing (DataSet, makeDataSet)
 
 import LiveBook.Utility
 import Time
+import User exposing (User)
 
 
 type alias DataSet =
@@ -19,15 +20,16 @@ type alias DataSet =
 
 makeDataSet :
     { a
-        | inputAuthor : String
-        , inputName : String
+        | inputName : String
+        , inputAuthor : String
         , inputDescription : String
         , inputComments : String
         , inputData : String
     }
+    -> User
     -> DataSet
-makeDataSet model =
-    { author = model.inputAuthor
+makeDataSet model user =
+    { author = user.username
     , name = model.inputName
     , identifier = LiveBook.Utility.slugify model.inputAuthor ++ "." ++ LiveBook.Utility.slugify model.inputName
     , public = False
