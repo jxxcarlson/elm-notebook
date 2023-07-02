@@ -145,6 +145,14 @@ updateFromFrontend sessionId clientId msg model =
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, password and username don't match (2)") )
 
         -- DATA
+        GetData index identifier variable ->
+            case Dict.get identifier model.dataSetLibrary of
+                Nothing ->
+                    ( model, sendToFrontend clientId (SendMessage <| "Sorry, no data for " ++ identifier) )
+
+                Just dataSet ->
+                    ( model, sendToFrontend clientId (GotData index variable dataSet) )
+
         CreateDataSet dataSet_ ->
             let
                 identifier =

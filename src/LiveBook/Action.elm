@@ -1,6 +1,7 @@
-module LiveBook.Action exposing (readData)
+module LiveBook.Action exposing (importData, readData)
 
 import Dict
+import LiveBook.DataSet
 import LiveBook.Update
 import Types
 
@@ -8,9 +9,6 @@ import Types
 readData : Int -> String -> String -> String -> Types.FrontendModel -> Types.FrontendModel
 readData index fileName variable dataString model =
     let
-        quote str =
-            "\"" ++ str ++ "\""
-
         updatedCellText =
             [ "readinto " ++ variable
             , "#"
@@ -28,3 +26,27 @@ readData index fileName variable dataString model =
     in
     { model | kvDict = Dict.insert variable (quote dataString) model.kvDict, pressedKeys = [] }
         |> (\model_ -> LiveBook.Update.updateCellText model_ index updatedCellText)
+
+
+importData : Int -> String -> LiveBook.DataSet.DataSet -> Types.FrontendModel -> Types.FrontendModel
+importData index variable dataset model =
+    let
+        updatedCellText =
+            [ "import " ++ dataset.identifier ++ " as " ++ variable
+            , "#"
+            , "# "
+                ++ (String.length dataset.data |> String.fromInt)
+                ++ " characters, "
+                ++ (dataset.data |> String.lines |> List.length |> String.fromInt)
+                ++ " lines"
+            , "#"
+            , "#"
+            ]
+                |> String.join "\n"
+    in
+    { model | kvDict = Dict.insert variable (quote dataset.data) model.kvDict, pressedKeys = [] }
+        |> (\model_ -> LiveBook.Update.updateCellText model_ index updatedCellText)
+
+
+quote str =
+    "\"" ++ str ++ "\""

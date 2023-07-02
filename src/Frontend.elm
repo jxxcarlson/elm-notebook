@@ -14,6 +14,7 @@ import Html exposing (Html)
 import Keyboard
 import Lamdera exposing (sendToBackend)
 import List.Extra
+import LiveBook.Action
 import LiveBook.Book
 import LiveBook.Cell
 import LiveBook.DataSet
@@ -324,29 +325,7 @@ update msg model =
             )
 
         StringDataLoaded fileName index variable dataString ->
-            let
-                quote str =
-                    "\"" ++ str ++ "\""
-
-                updatedCellText =
-                    [ "readinto " ++ variable
-                    , "#"
-                    , "# "
-                        ++ (String.length dataString |> String.fromInt)
-                        ++ " characters, "
-                        ++ (dataString |> String.lines |> List.length |> String.fromInt)
-                        ++ " lines"
-                    , "# read from file `" ++ fileName ++ "`"
-                    , "#  and stored in variable `" ++ variable ++ "`"
-                    , "#"
-                    , "#"
-                    ]
-                        |> String.join "\n"
-            in
-            ( { model | kvDict = Dict.insert variable (quote dataString) model.kvDict, pressedKeys = [] }
-                |> (\model_ -> LiveBook.Update.updateCellText model_ index updatedCellText)
-            , Cmd.none
-            )
+            ( LiveBook.Action.readData index fileName variable dataString model, Cmd.none )
 
         SetShowNotebooksState state ->
             let
@@ -560,6 +539,9 @@ updateFromBackend msg model =
                 ( { model | currentUser = Just user, message = "" }, Cmd.none )
 
         -- DATA
+        GotData index variable dataSet ->
+            ( LiveBook.Action.importData index variable dataSet model, Cmd.none )
+
         -- NOTEBOOKS
         GotNotebook book_ ->
             let

@@ -56,9 +56,6 @@ executeCell_ index model =
                         Just "chartfrom" ->
                             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
 
-                        Just "import" ->
-                            { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
-
                         _ ->
                             { cell_ | cellState = CSView }
 
@@ -89,6 +86,14 @@ executeCell_ index model =
 
                                 Just variable ->
                                     File.Select.file [ "text/csv" ] (StringDataSelected index variable)
+
+                        Just "import" ->
+                            case commandWords of
+                                "import" :: identifier :: "as" :: variable :: _ ->
+                                    Lamdera.sendToBackend (Types.GetData cell_.index identifier variable)
+
+                                _ ->
+                                    Cmd.none
 
                         _ ->
                             Cmd.none
