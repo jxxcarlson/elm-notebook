@@ -152,14 +152,19 @@ makeNewCell model index =
 
 updateBook : Cell -> Book -> Book
 updateBook cell book =
-    let
-        prefix =
-            List.filter (\cell_ -> cell_.index < cell_.index) book.cells
+    if cell.index < 0 || cell.index >= List.length book.cells then
+        -- cell is out of bounds, do not update
+        book
 
-        suffix =
-            List.filter (\cell_ -> cell_.index > cell_.index) book.cells
-    in
-    { book | cells = prefix ++ (cell :: suffix), dirty = True }
+    else
+        let
+            prefix =
+                List.filter (\currentCell -> currentCell.index < currentCell.index) book.cells
+
+            suffix =
+                List.filter (\currentCell -> currentCell.index > currentCell.index) book.cells
+        in
+        { book | cells = prefix ++ (cell :: suffix), dirty = True }
 
 
 setCellValue : FrontendModel -> Int -> CellValue -> FrontendModel
