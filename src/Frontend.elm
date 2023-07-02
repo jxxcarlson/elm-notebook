@@ -49,7 +49,7 @@ app =
 subscriptions model =
     Sub.batch
         [ Browser.Events.onResize GotNewWindowDimensions
-        , Time.every 5000 FETick
+        , Time.every 50000 FETick
         , Sub.map KeyboardMsg Keyboard.subscriptions
         ]
 
@@ -496,7 +496,7 @@ update msg model =
                 ( model, Cmd.none )
 
             else
-                ( LiveBook.Update.deleteCell_ index model, Cmd.none )
+                ( LiveBook.Update.deleteCell index model, Cmd.none )
 
         EditCell index ->
             LiveBook.Update.editCell model index

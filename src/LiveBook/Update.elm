@@ -1,7 +1,7 @@
 module LiveBook.Update exposing
     ( clearCell
     , clearNotebookValues
-    , deleteCell_
+    , deleteCell
     , editCell
     , evalCell
     , executeCell_
@@ -187,8 +187,8 @@ updateCellText model index str =
             { model | cellContent = str, currentBook = updateBook { cell_ | text = str |> String.split "\n" } model.currentBook }
 
 
-deleteCell_ : Int -> FrontendModel -> FrontendModel
-deleteCell_ index model =
+deleteCell : Int -> FrontendModel -> FrontendModel
+deleteCell index model =
     case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
             model
@@ -209,7 +209,7 @@ deleteCell_ index model =
                 newBook =
                     { oldBook | cells = prefix ++ suffix, dirty = True }
             in
-            { model | currentCellIndex = cell_.index, cellContent = cell_.text |> String.join "\n", currentBook = newBook }
+            { model | currentCellIndex = 0, currentBook = newBook }
 
 
 editCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
@@ -270,6 +270,10 @@ clearCell model index =
 
 evalCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 evalCell index model =
+    let
+        _ =
+            Debug.log "@@evalCell" index
+    in
     case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
             ( model, Cmd.none )
@@ -283,6 +287,7 @@ evalCell index model =
                         |> String.words
                         |> List.map String.trim
                         |> List.head
+                        |> Debug.log "@@COMMAND"
             in
             if List.member command (List.map Just commands) then
                 executeCell_ index model
@@ -295,6 +300,7 @@ evaluateWithCumulativeBindings model index cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings model.kvDict model.currentBook.cells cell_
+                |> Debug.log "@@UPDATED CELL"
 
         prefix =
             List.filter (\cell -> cell.index < index) model.currentBook.cells
@@ -311,7 +317,7 @@ evaluateWithCumulativeBindings model index cell_ =
 
         --|> List.map LiveBook.View.evaluate
     in
-    { model | currentBook = newBook }
+    { model | currentBook = updateBook updatedCell model.currentBook }
 
 
 
