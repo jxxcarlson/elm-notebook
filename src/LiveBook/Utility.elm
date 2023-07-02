@@ -1,8 +1,62 @@
 module LiveBook.Utility exposing (..)
 
 import Dict exposing (Dict)
+import List.Extra
 import Maybe.Extra
 import Regex exposing (Regex)
+
+
+{-| Copilot almost wrote this
+-}
+getChunks : List String -> List (List String)
+getChunks lines =
+    (getChunks_ { input = lines, output = [] }).output |> List.filter (\chnk -> chnk /= [])
+
+
+{-|
+
+    > lines1
+    ["> a = 1","> b = 1","> f n = ","  if n == 0 then 1 else n * f (n - 1)"]
+        : List String
+    > getChunks lines1
+    [["> a = 1"],["> b = 1"],["> f n = ","  if n == 0 then 1 else n * f (n - 1)"]]
+
+
+    > lines2
+    ["> a = 1","> b = 1","","> f n = ","  if n == 0 then 1 else n * f (n - 1)"]
+        : List String
+    > getChunks lines2
+    [["> a = 1"],["> b = 1",""],["> f n = ","  if n == 0 then 1 else n * f (n - 1)"]]
+
+-}
+getChunks_ : { input : List String, output : List (List String) } -> { input : List String, output : List (List String) }
+getChunks_ { input, output } =
+    if input == [] then
+        { input = [], output = output }
+
+    else
+        let
+            chunk_ =
+                chunk input
+
+            rest =
+                List.drop (List.length chunk_) input
+        in
+        getChunks_ { input = rest, output = output ++ [ chunk_ ] }
+
+
+chunk : List String -> List String
+chunk lines_ =
+    case List.Extra.uncons lines_ of
+        Nothing ->
+            []
+
+        Just ( line, rest ) ->
+            if String.left 1 line == ">" then
+                String.trim (String.replace ">" "" line) :: List.Extra.takeWhile (\l -> String.left 1 l /= ">") rest
+
+            else
+                []
 
 
 keyValueDict : List String -> Dict String String

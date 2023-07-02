@@ -1,6 +1,58 @@
-module Util exposing (firstPart, insertInList, secondPart)
+module Util exposing
+    ( firstPart
+    , getChunks
+    , insertInList
+    , secondPart
+    )
 
 import List.Extra
+
+
+{-| Copilot almost wrote this
+-}
+getChunks : List String -> List (List String)
+getChunks lines =
+    (getChunks_ { input = lines, output = [] }).output |> List.filter (\chnk -> chnk /= [])
+
+
+{-| Copilot wrote this with one correction by a human
+
+    > xxx = ["a","b","","c","d","e","","f"]
+    > getChunks xxx
+    REST: ["c","d","e","","f"]
+    REST: ["f"]
+    REST: []
+    [["a","b"],["c","d","e"],["f"]]
+        : List (List String)
+
+    > yyy = ["a","b","","", "c","d","e","","f"]
+    > getChunks yyy
+    REST: ["","c","d","e","","f"]
+    REST: ["c","d","e","","f"]
+    REST: ["f"]
+    REST: []
+    [["a","b"],["c","d","e"],["f"]]
+
+-}
+getChunks_ : { input : List String, output : List (List String) } -> { input : List String, output : List (List String) }
+getChunks_ { input, output } =
+    if input == [] then
+        { input = [], output = output }
+
+    else
+        let
+            chunk_ =
+                chunk input
+
+            rest =
+                List.drop (List.length chunk_ + 1) input |> Debug.log "REST"
+        in
+        getChunks_ { input = rest, output = output ++ [ chunk_ ] }
+
+
+chunk : List String -> List String
+chunk lines_ =
+    List.Extra.takeWhile (\line_ -> String.trim line_ /= "") lines_
 
 
 insertInList : a -> List a -> List a

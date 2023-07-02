@@ -284,6 +284,7 @@ evalCell index model =
                     cell_.text
                         |> List.head
                         |> Maybe.withDefault ""
+                        |> String.replace ">" ""
                         |> String.words
                         |> List.map String.trim
                         |> List.head
