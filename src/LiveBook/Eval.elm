@@ -97,7 +97,7 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
                 |> Debug.log "@@BINDING STRING"
 
         -- expressionString : String
-        expressionString =
+        expressionString_ =
             exprRecords
                 |> List.drop (nRecords - 1)
                 |> List.map .expression
@@ -106,6 +106,13 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
                 |> List.map (transformWordsWithKVDict kvDict)
                 |> String.join " "
                 |> Debug.log "@@EXPRESSION STRING"
+
+        expressionString =
+            if expressionString_ == "" then
+                "()"
+
+            else
+                expressionString_
 
         stringToEvaluate =
             if bindingString == "" then
