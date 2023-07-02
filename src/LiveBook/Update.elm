@@ -26,7 +26,7 @@ import Types exposing (FrontendModel, FrontendMsg(..))
 
 
 commands =
-    [ "chart", "readinto", "image", "import" ]
+    [ "chart", "readinto", "image", "import", "download" ]
 
 
 clearNotebookValues : Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
@@ -106,6 +106,14 @@ executeCell_ index model =
                             case commandWords of
                                 "import" :: identifier :: "as" :: variable :: _ ->
                                     Lamdera.sendToBackend (Types.GetData cell_.index identifier variable)
+
+                                _ ->
+                                    Cmd.none
+
+                        Just "download" ->
+                            case commandWords of
+                                "download" :: identifier :: _ ->
+                                    Lamdera.sendToBackend (Types.GetDataSetForDownload identifier)
 
                                 _ ->
                                     Cmd.none
