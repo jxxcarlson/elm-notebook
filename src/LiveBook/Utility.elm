@@ -52,11 +52,20 @@ chunk lines_ =
             []
 
         Just ( line, rest ) ->
-            if String.left 1 line == ">" then
-                String.trim (String.replace ">" "" line) :: List.Extra.takeWhile (\l -> String.left 1 l /= ">") rest
+            if String.left 2 line == "> " then
+                String.trim (String.dropLeft 2 line) :: List.Extra.takeWhile (\l -> String.left 2 l /= "> ") rest
 
             else
                 []
+
+
+removeLeadingCaret : String -> String
+removeLeadingCaret string =
+    if String.left 2 string == "> " then
+        String.dropLeft 2 string
+
+    else
+        string
 
 
 keyValueDict : List String -> Dict String String
