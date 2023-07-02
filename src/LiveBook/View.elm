@@ -84,7 +84,11 @@ viewValue kvDict width cell =
                 E.text "-- unevaluated --"
 
             CVString str ->
-                E.text str
+                let
+                    cellHeight_ =
+                        List.length (String.lines str) |> (\x -> scale 14.5 x + 35)
+                in
+                MarkdownThemed.renderFull (scale 1.0 width) cellHeight_ str
 
             CVVisual vt args ->
                 renderVT width kvDict vt args
@@ -148,6 +152,7 @@ viewIndex cell =
 
 viewSource_ width cell =
     let
+        processedLines : List String
         processedLines =
             LiveBook.PreProcess.cellContents cell
 

@@ -6,6 +6,7 @@ module LiveBook.Update exposing
     , evalCell
     , executeCell_
     , makeNewCell
+    , setCellValue
     , updateCellText
     )
 
@@ -63,6 +64,12 @@ executeCell_ index model =
 
                         Just "chartfrom" ->
                             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
+
+                        Just "readinto" ->
+                            { cell_ | cellState = CSView, value = CVString "*......*" }
+
+                        Just "import" ->
+                            { cell_ | cellState = CSView, value = CVString "*......*" }
 
                         _ ->
                             { cell_ | cellState = CSView }
@@ -143,6 +150,28 @@ makeNewCell model index =
     )
 
 
+updateBook : Cell -> Book -> Book
+updateBook cell book =
+    let
+        prefix =
+            List.filter (\cell_ -> cell_.index < cell_.index) book.cells
+
+        suffix =
+            List.filter (\cell_ -> cell_.index > cell_.index) book.cells
+    in
+    { book | cells = prefix ++ (cell :: suffix), dirty = True }
+
+
+setCellValue : FrontendModel -> Int -> CellValue -> FrontendModel
+setCellValue model index cellValue =
+    case List.Extra.getAt index model.currentBook.cells of
+        Nothing ->
+            model
+
+        Just cell_ ->
+            { model | currentBook = updateBook { cell_ | value = cellValue } model.currentBook }
+
+
 updateCellText : FrontendModel -> Int -> String -> FrontendModel
 updateCellText model index str =
     case List.Extra.getAt index model.currentBook.cells of
@@ -150,25 +179,7 @@ updateCellText model index str =
             model
 
         Just cell_ ->
-            let
-                updatedCell =
-                    { cell_ | text = str |> String.split "\n" }
-
-                prefix =
-                    List.filter (\cell -> cell.index < index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                suffix =
-                    List.filter (\cell -> cell.index > index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                oldBook =
-                    model.currentBook
-
-                newBook =
-                    { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
-            in
-            { model | cellContent = str, currentBook = newBook }
+            { model | cellContent = str, currentBook = updateBook { cell_ | text = str |> String.split "\n" } model.currentBook }
 
 
 deleteCell_ : Int -> FrontendModel -> FrontendModel
