@@ -45,7 +45,7 @@ getChunks_ { input, output } =
                 chunk input
 
             rest =
-                List.drop (List.length chunk_ + 1) input |> Debug.log "REST"
+                List.drop (List.length chunk_ + 1) input
         in
         getChunks_ { input = rest, output = output ++ [ chunk_ ] }
 
