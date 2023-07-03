@@ -317,7 +317,7 @@ update msg model =
                     ( model, Cmd.none )
 
                 Just user ->
-                    ( model, sendToBackend (CreateDataSet (LiveBook.DataSet.makeDataSet model user)) )
+                    ( { model | popupState = NoPopup }, sendToBackend (CreateDataSet (LiveBook.DataSet.makeDataSet model user)) )
 
         -- CELLS, NOTEBOOKS
         ToggleCellLock cell ->
