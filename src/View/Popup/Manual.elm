@@ -107,16 +107,29 @@ However this operation will overwrite any changes you have made to the clone.
 
 ## Working with data
 
-We are building various facilities for working with data.  Data can
-be imported from a `.csv` file using a command like `readinto foo`.
-When you execute this command, you will be prompted to select a file;
-its contents will be stored in the variable `foo`
-To visualize data, use the `chart` command.  See the public notebook
+Data can
+be imported from a `.csv` file and stored in a varialbe using the command `readinto`.
+The command `readinto foo` will store the file contents in the variable `foo`.
+To visualize imported data, use the `chart` command, e.g.,
+`chart timeseries columns:1 foo` to display a time series of the data in column 1
+of `foo`, or `chart scatterplot columns:[3, 5] foo` for a scatter plot of the
+data in columns 3 and 5..  See the public notebook
 **Data, Charts, and Images** for examples.
 
+
+## The Data Set Library
+
 Elm notebooks has a library of sample data sets. One of these
- is `jxxcarlson.stocks`.  You can export it
-to a file on your computer with the command `export jxxcarlson.stocks`.
-To import it directly into a notebook, just say `import jxxcarlson.stocks`.
+is `jxxcarlson.stocks`.
+To import it,  say `import jxxcarlson.stocks`.  The contents of
+this dataset will be stored in the variable `jxxcarlson.stocks`
+of the current notebook.  To store it in the variable `foo`, say
+`import jxxcarlson.stocks as foo` instead. Again, see
+the public notebook **Data, Charts, and Images** for examples.
+
+To create a data set from a file on your computer, click
+on the button 'New Data Set' in the footer.
+In the reverse direction, you can export a data set to a file  with the
+ command `export jxxcarlson.stocks`.
 
 """

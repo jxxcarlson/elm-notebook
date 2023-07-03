@@ -31,7 +31,7 @@ makeDataSet :
 makeDataSet model user =
     { author = user.username
     , name = model.inputName
-    , identifier = LiveBook.Utility.slugify model.inputAuthor ++ "." ++ LiveBook.Utility.slugify model.inputName
+    , identifier = LiveBook.Utility.slugify user.username ++ "." ++ LiveBook.Utility.slugify model.inputName
     , public = False
     , createdAt = Time.millisToPosix 0
     , modifiedAt = Time.millisToPosix 0
