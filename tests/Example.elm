@@ -28,9 +28,7 @@ makeCells testDatum =
 
 
 makeTest : List (List String) -> Expectation
-
-
-magkeTest testDatum =
+makeTest testDatum =
     let
         cells =
             makeCells testDatum
@@ -65,5 +63,71 @@ suite =
                       , "in"
                       , "list |> List.drop (n - 1) |> List.head"
                       ]
+                    ]
+        , test "succeeds with # *A sequence of definitions*; > a = 2; b = 5?" <|
+            \_ ->
+                makeTest
+                    [ [ "# *A sequence of definitions*"
+                      , "> a = 2"
+                      , "> b = 5"
+                      ]
+                    ]
+        , test "succeeds text of previous test plus '> a * b'" <|
+            \_ ->
+                makeTest
+                    [ [ "# *A sequence of definitions*"
+                      , "> a = 2"
+                      , "> b = 5"
+                      ]
+                    , [ "# *An expression may refer to prior definitions:*"
+                      , "> a * b"
+                      ]
+                    ]
+        , test "succeeds with '> x = 3.2;> y = 2.9; > x + 7" <|
+            \_ ->
+                makeTest
+                    [ [ "# *A sequence of definitions followed by an expression:*"
+                      , "> x = 3.2"
+                      , "> y = 2.9"
+                      , "> x + y"
+                      ]
+                    ]
+        , test "succeeds with '> List.map (\n -> n * n) [1, 2, 3, 4, 5, 6]'" <|
+            \_ ->
+                makeTest
+                    [ [ "# *A higher order function and a list of squares:*"
+                      , "> List.map (\n -> n * n) [1, 2, 3, 4, 5, 6]"
+                      ]
+                    ]
+        , test "succeeds with a pipeline of computations" <|
+            \_ ->
+                makeTest
+                    [ [ "# *A pipeline of computations:*"
+                      , "> \"a, b, c\" |> String.split \",\" |> List.map String.trim |> List.reverse |> String.join \"\""
+                      ]
+                    ]
+        , test "succeeds with definition of factorial function" <|
+            \_ ->
+                makeTest
+                    [ [ "# *Recursion:*"
+                      , "> factorial n = if n == 0 then 1 else n * factorial (n - 1)"
+                      ]
+                    ]
+        , test "succeeds with definition and application of the factorial function" <|
+            \_ ->
+                makeTest
+                    [ [ "# *Recursion:*"
+                      , "> factorial n = if n == 0 then 1 else n * factorial (n - 1)"
+                      ]
+                    , [ "> factorial 5" ]
+                    ]
+        , test "succeeds with definition and application of the factorial function + List.map ..." <|
+            \_ ->
+                makeTest
+                    [ [ "# *Recursion:*"
+                      , "> factorial n = if n == 0 then 1 else n * factorial (n - 1)"
+                      ]
+                    , [ "> factorial 5" ]
+                    , [ "> List.map factorial [ 1, 2, 3, 4, 5, 6, 7, 8 ]" ]
                     ]
         ]
