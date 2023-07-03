@@ -4,6 +4,7 @@ module LiveBook.Eval exposing
     , evaluateSource
     , evaluateString
     , evaluateWithCumulativeBindings
+    , evaluateWithCumulativeBindingsToResult
     , evaluateWithCumulativeBindings_
     , getBlocks
     , getCellExprRecord
@@ -42,8 +43,8 @@ factoriaTC n =
 --{ index : Int, text : List String, value : Maybe String, cellState : CellState }
 
 
-testCell =
-    { index = 0, text = String.lines cText, value = Nothing, cellState = CSView }
+testCell index text =
+    { index = index, text = String.lines text, value = Nothing, cellState = CSView }
 
 
 evaluate : Cell -> Cell
@@ -117,6 +118,57 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
     { cell | value = CVString (evaluateString stringToEvaluate), cellState = CSView }
 
 
+
+-- evaluateWithCumulativeBindingsR : Dict String String -> List Cell -> Cell -> Cell
+
+
+evaluateWithCumulativeBindingsToResult : Dict String String -> List Cell -> { a | index : Int } -> Result Eval.Types.Error Value
+evaluateWithCumulativeBindingsToResult kvDict cells cell =
+    let
+        exprRecords =
+            cells
+                |> List.take (cell.index + 1)
+                |> List.map getCellExprRecord
+
+        nRecords =
+            List.length exprRecords
+
+        bindingString : String
+        bindingString =
+            exprRecords
+                |> List.map .bindings
+                |> List.concat
+                |> String.join "\n"
+
+        expressionString_ =
+            exprRecords
+                |> List.drop (nRecords - 1)
+                |> List.map .expression
+                |> String.join "\n"
+                |> String.words
+                |> List.map (transformWordsWithKVDict kvDict)
+                |> String.join " "
+
+        expressionString =
+            if expressionString_ == "" then
+                "()"
+
+            else
+                expressionString_
+
+        stringToEvaluate =
+            if bindingString == "" then
+                expressionString
+
+            else
+                "let\n"
+                    ++ bindingString
+                    ++ "\nin\n"
+                    ++ expressionString
+    in
+    Eval.eval stringToEvaluate
+
+
 transformWordsWithKVDict : Dict String String -> String -> String
 transformWordsWithKVDict dict str =
     str |> String.words |> List.map (transformWordWithKVDict dict) |> String.join " "
@@ -179,10 +231,10 @@ getCellExprRecord cell =
 
         bindings_ : List (List String)
         bindings_ =
-            List.filter (\chunk_ -> isBinding_ chunk_) blocks
+            List.filter (\chunk_ -> isBinding_ chunk_) blocks |> Debug.log "@@BINDINGS"
 
         expression =
-            List.drop (List.length bindings_) blocks |> List.concat |> String.join "\n"
+            List.drop (List.length bindings_) blocks |> List.concat |> String.join "\n" |> Debug.log "@@EXPRESSION"
     in
     { bindings = List.concat bindings_, expression = expression }
 
@@ -203,6 +255,7 @@ getPriorBindings k cells =
         |> List.take (k + 1)
         |> List.map (getCellExprRecord >> .bindings)
         |> List.concat
+        |> Debug.log "@@PRIOR BINDINGS"
 
 
 toLetInExpression : List String -> List String
@@ -237,6 +290,10 @@ sourceText_ cell =
 
 evaluateString : String -> String
 evaluateString input =
+    let
+        _ =
+            Debug.log "@@INPUT (evaluateString)" input
+    in
     case Eval.eval input |> Result.map Value.toString of
         Ok output ->
             output

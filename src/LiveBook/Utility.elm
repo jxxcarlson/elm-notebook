@@ -47,7 +47,7 @@ getChunks_ { input, output } =
 
 chunk : List String -> List String
 chunk lines_ =
-    case List.Extra.uncons lines_ of
+    (case List.Extra.uncons lines_ of
         Nothing ->
             []
 
@@ -58,6 +58,8 @@ chunk lines_ =
             else
                 -- Use an error recovery hack (TODO: very bad!!)
                 chunk (("> " ++ line) :: rest)
+    )
+        |> Debug.log "@@CHUNK@@"
 
 
 removeLeadingCaret : String -> String
