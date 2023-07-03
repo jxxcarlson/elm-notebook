@@ -56,7 +56,8 @@ chunk lines_ =
                 String.trim (String.dropLeft 2 line) :: List.Extra.takeWhile (\l -> String.left 2 l /= "> ") rest
 
             else
-                []
+                -- Use an error recovery hack (TODO: very bad!!)
+                chunk (("> " ++ line) :: rest)
 
 
 removeLeadingCaret : String -> String
