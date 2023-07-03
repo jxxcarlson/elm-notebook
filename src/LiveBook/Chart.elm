@@ -15,6 +15,10 @@ red =
     Element.rgb255 255 0 0
 
 
+deltaWidth =
+    100
+
+
 type alias Options =
     { timeseries : Maybe String
     , reverse : Maybe String
@@ -64,8 +68,8 @@ chart args properties data_ =
         data =
             csvToChartData options (data_ |> String.trim |> String.split "\n")
     in
-    Element.column [ Element.width (Element.px options.width), Element.paddingEach { left = 48, right = 0, top = 36, bottom = 72 }, Element.spacing 24 ]
-        [ Element.el [ Element.width (Element.px options.width) ]
+    Element.column [ Element.width (Element.px (options.width - deltaWidth)), Element.paddingEach { left = 48, right = 0, top = 36, bottom = 72 }, Element.spacing 24 ]
+        [ Element.el [ Element.width (Element.px (options.width - deltaWidth)) ]
             (rawLineChart options data)
         , case ( options.label, options.caption ) of
             ( Nothing, Nothing ) ->
