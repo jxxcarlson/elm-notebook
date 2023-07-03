@@ -58,6 +58,20 @@ Click on the **Manual** button to show or hide the manual.
 
 ## Cells
 
+Here is a typical cell:
+
+```
+  # A cell consists of text and Elm code
+
+  > a = 2   # definition
+  > b = 5   # definition
+  > a * b   # expression
+```
+Text is prefixed by `#` and code is prefixed by `>`.  Code consists of (i) a sequence of
+definitions followed by (ii) an expression.  Either of these elements may be omitted.
+
+The result of evaluating the code is shown below the code.
+
 Click in a cell to edit it, then type ctrl-Enter to evaluate it.
 
 For examples and a discussion of cell format, take a look at
@@ -91,6 +105,18 @@ You can also update a notebook that has been cloned: click on the **Update** but
 Updating a notebook brings in new material from the original source.
 However this operation will overwrite any changes you have made to the clone.
 
+## Working with data
 
+We are building various facilities for working with data.  Data can
+be imported from a `.csv` file using a command like `readinto foo`.
+When you execute this command, you will be prompted to select a file;
+its contents will be stored in the variable `foo`
+To visualize data, use the `chart` command.  See the public notebook
+**Data, Charts, and Images** for examples.
+
+Elm notebooks has a library of sample data sets. One of these
+ is `jxxcarlson.stocks`.  You can export it
+to a file on your computer with the command `export jxxcarlson.stocks`.
+To import it directly into a notebook, just say `import jxxcarlson.stocks`.
 
 """

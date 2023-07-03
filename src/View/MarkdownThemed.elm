@@ -18,6 +18,7 @@ type alias Theme =
     , mutedText : Element.Color
     , grey : Element.Color
     , lightGrey : Element.Color
+    , codeBackground : Element.Color
     , link : Element.Color
     , elmText : Element.Color
     , background : Element.Color
@@ -30,6 +31,7 @@ lightTheme =
     , mutedText = Element.rgb255 74 94 122
     , link = Element.rgb255 12 82 109
     , lightGrey = Element.rgb255 220 240 255
+    , codeBackground = Element.rgb255 190 190 255
     , grey = Element.rgb255 200 220 240
     , elmText = Element.rgb255 30 46 50
     , background = Element.rgb255 220 220 255
@@ -204,17 +206,20 @@ renderer theme =
                 )
     , codeBlock =
         \{ body } ->
-            Element.column
-                [ Element.Font.family [ Element.Font.monospace ]
-                , Element.Background.color theme.lightGrey
-                , Element.Border.rounded 5
-                , Element.padding 10
-                , Element.width Element.fill
-                , Element.htmlAttribute (Html.Attributes.class "preserve-white-space")
-                , Element.scrollbarX
-                ]
-                [ Element.html (Html.text body)
-                ]
+            Element.el [ Element.paddingEach { left = 0, right = 0, top = 0, bottom = 24 } ]
+                (Element.column
+                    [ Element.Font.family [ Element.Font.monospace ]
+                    , Element.Background.color theme.codeBackground
+                    , Element.Border.rounded 5
+                    , Element.padding 10
+                    , Element.height (Element.px (textHeight 14.0 10 body))
+                    , Element.width (Element.px 400)
+                    , Element.htmlAttribute (Html.Attributes.class "preserve-white-space")
+                    , Element.scrollbarX
+                    ]
+                    [ Element.html (Html.text body)
+                    ]
+                )
     , thematicBreak = Element.none
     , table = \children -> Element.column [ Element.width Element.fill ] children
     , tableHeader = \children -> Element.column [] children
@@ -224,6 +229,15 @@ renderer theme =
     , tableHeaderCell = \_ children -> Element.column [ Element.width Element.fill ] children
     , strikethrough = \children -> Element.paragraph [ Element.Font.strike ] children
     }
+
+
+textHeight scale_ shiftUp str =
+    (str |> String.lines |> List.length |> scale scale_) + shiftUp
+
+
+scale : Float -> Int -> Int
+scale factor x =
+    round <| factor * toFloat x
 
 
 heading1 : List (Element.Attr () msg)
