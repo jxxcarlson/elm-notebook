@@ -9,6 +9,7 @@ module View.Button exposing
     , dismissPopup
     , dismissPopupSmall
     , editTitle
+    , lockCell
     , manual
     , manualLarge
     , myNotebooks
@@ -186,6 +187,16 @@ manualLarge =
 dataSet : Element FrontendMsg
 dataSet =
     Button.smallPrimary { msg = ChangePopup DataSetPopup, status = Button.Active, label = Button.Text "New Data Set", tooltipText = Nothing }
+
+
+lockCell : LiveBook.Types.Cell -> Element FrontendMsg
+lockCell cell =
+    case cell.locked of
+        True ->
+            Button.smallPrimary { msg = ToggleCellLock cell, status = Button.Active, label = Button.Text "Locked", tooltipText = Nothing }
+
+        False ->
+            Button.smallPrimary { msg = ToggleCellLock cell, status = Button.Active, label = Button.Text "Open", tooltipText = Nothing }
 
 
 createDataSet : Element FrontendMsg

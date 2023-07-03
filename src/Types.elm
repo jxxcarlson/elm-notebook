@@ -123,6 +123,7 @@ type FrontendMsg
       -- DATA
     | AskToCreateDataSet
       -- CELL
+    | ToggleCellLock Cell
     | NewCell Int
     | DeleteCell Int
     | EditCell Int

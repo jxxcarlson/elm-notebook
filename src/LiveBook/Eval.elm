@@ -141,7 +141,7 @@ evaluateSource cell =
 
 basicCell : List String -> Cell
 basicCell lines =
-    { index = 0, text = lines, value = CVNone, cellState = CSView }
+    { index = 0, text = lines, value = CVNone, cellState = CSView, locked = False }
 
 
 {-|

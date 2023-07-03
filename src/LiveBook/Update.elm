@@ -7,6 +7,7 @@ module LiveBook.Update exposing
     , executeCell_
     , makeNewCell
     , setCellValue
+    , toggleCellLock
     , updateCellText
     )
 
@@ -139,6 +140,7 @@ makeNewCell model index =
             , text = [ "# New cell (" ++ String.fromInt (index + 2) ++ ") ", "-- code --" ]
             , value = CVNone
             , cellState = CSEdit
+            , locked = False
             }
 
         prefix =
@@ -180,6 +182,18 @@ updateBook cell book =
                 List.filter (\currentCell -> currentCell.index > cell.index) book.cells
         in
         { book | cells = prefix ++ (cell :: suffix), dirty = True }
+
+
+toggleCellLock : Cell -> FrontendModel -> FrontendModel
+toggleCellLock cell model =
+    let
+        updatedCell =
+            { cell | locked = not cell.locked }
+
+        updatedBook =
+            updateBook updatedCell model.currentBook
+    in
+    { model | currentBook = updatedBook }
 
 
 setCellValue : FrontendModel -> Int -> CellValue -> FrontendModel

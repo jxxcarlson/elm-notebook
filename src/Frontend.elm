@@ -320,6 +320,9 @@ update msg model =
                     ( model, sendToBackend (CreateDataSet (LiveBook.DataSet.makeDataSet model user)) )
 
         -- CELLS, NOTEBOOKS
+        ToggleCellLock cell ->
+            ( LiveBook.Update.toggleCellLock cell model, Cmd.none )
+
         StringDataRequested index variable ->
             ( model
             , File.Select.file [ "text/csv" ] (StringDataSelected index variable)

@@ -15,6 +15,7 @@ import LiveBook.Utility
 import Types exposing (FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
+import View.Button
 import View.CellThemed as MarkdownThemed
 
 
@@ -54,6 +55,7 @@ controls cell =
         , newCellAt cell.cellState cell.index
         , deleteCellAt cell.cellState cell.index
         , clearCellAt cell.cellState cell.index
+        , View.Button.lockCell cell
         ]
 
 
@@ -181,7 +183,11 @@ viewSource_ width cell =
     in
     E.column
         [ E.spacing 8
-        , Element.Events.onMouseDown (EditCell cell.index)
+        , if not cell.locked then
+            Element.Events.onMouseDown (EditCell cell.index)
+
+          else
+            Element.Events.onMouseDown (EditCell -1)
         , E.paddingEach { top = 8, right = 0, bottom = 8, left = 0 }
         , E.width (E.px width)
         , Font.size 14
