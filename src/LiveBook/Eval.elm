@@ -17,6 +17,7 @@ module LiveBook.Eval exposing
 
 import Dict exposing (Dict)
 import Eval
+import Eval.Types
 import List.Extra
 import LiveBook.Types exposing (Cell, CellState(..), CellValue(..))
 import LiveBook.Utility
@@ -241,4 +242,9 @@ evaluateString input =
             output
 
         Err err ->
-            "Error"
+            case err of
+                Eval.Types.ParsingError deadEnds ->
+                    "Parse error"
+
+                Eval.Types.EvalError evalError ->
+                    "Evaluation error. You likely forgot a \">\" or a \"#\" at the very beginning of this cell."
