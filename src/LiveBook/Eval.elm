@@ -1,17 +1,18 @@
-module LiveBook.Eval exposing
-    ( basicCell
-    , evaluate
-    , evaluateSource
-    , evaluateString
-    , evaluateWithCumulativeBindings
-    , evaluateWithCumulativeBindings_
-    , getBlocks
-    , getCellExprRecord
-    , getPriorBindings
-    , isBinding_
-    , testCell
-    , transformWordsWithKVDict
-    )
+module LiveBook.Eval exposing (evaluate, evaluateWithCumulativeBindings, transformWordsWithKVDict)
+
+--( basicCell
+--, evaluate
+--, evaluateSource
+--, evaluateString
+--, evaluateWithCumulativeBindings
+--, evaluateWithCumulativeBindings_
+--, getBlocks
+--, getCellExprRecord
+--, getPriorBindings
+--, isBinding_
+--, testCell
+--, transformWordsWithKVDict
+--)
 
 import Dict exposing (Dict)
 import Eval
@@ -65,6 +66,10 @@ evaluateWithCumulativeBindings kvDict cells cell =
 
         _ ->
             evaluateWithCumulativeBindings_ kvDict cells cell
+
+
+
+-- |> Debug.log "@@EVAL CUMULATIVE@@"
 
 
 evaluateWithCumulativeBindings_ : Dict String String -> List Cell -> Cell -> Cell
