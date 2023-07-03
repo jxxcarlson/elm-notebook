@@ -231,10 +231,10 @@ getCellExprRecord cell =
 
         bindings_ : List (List String)
         bindings_ =
-            List.filter (\chunk_ -> isBinding_ chunk_) blocks |> Debug.log "@@BINDINGS"
+            List.filter (\chunk_ -> isBinding_ chunk_) blocks
 
         expression =
-            List.drop (List.length bindings_) blocks |> List.concat |> String.join "\n" |> Debug.log "@@EXPRESSION"
+            List.drop (List.length bindings_) blocks |> List.concat |> String.join "\n"
     in
     { bindings = List.concat bindings_, expression = expression }
 
@@ -255,7 +255,6 @@ getPriorBindings k cells =
         |> List.take (k + 1)
         |> List.map (getCellExprRecord >> .bindings)
         |> List.concat
-        |> Debug.log "@@PRIOR BINDINGS"
 
 
 toLetInExpression : List String -> List String
@@ -290,10 +289,6 @@ sourceText_ cell =
 
 evaluateString : String -> String
 evaluateString input =
-    let
-        _ =
-            Debug.log "@@INPUT (evaluateString)" input
-    in
     case Eval.eval input |> Result.map Value.toString of
         Ok output ->
             output

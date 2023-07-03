@@ -8,6 +8,7 @@ import Element exposing (Element)
 import Element.Font as Font
 import List.Extra
 import Maybe.Extra
+import Stat
 
 
 red =
@@ -21,6 +22,7 @@ type alias Options =
     , lowest : Maybe Float
     , caption : Maybe String
     , label : Maybe String
+    , regression : Maybe String
     , kind : Maybe String -- e.g, kind:line or --kind:scatter
     , domain : Maybe Range
     , range : Maybe Range
@@ -51,6 +53,7 @@ chart args properties data_ =
             , lowest = Dict.get "lowest" properties |> Maybe.andThen String.toFloat
             , caption = Dict.get "caption" properties
             , label = Dict.get "figure" properties
+            , regression = Dict.get "regression" properties
             , kind = Dict.get "kind" properties
             , domain = Dict.get "domain" properties |> Maybe.andThen getRange
             , range = Dict.get "range" properties |> Maybe.andThen getRange
@@ -295,6 +298,21 @@ foo =
     ]
 
 
+regressionLine : List { x : Float, y : Float } -> Maybe (Float -> Float)
+regressionLine points =
+    let
+        data =
+            List.map (\{ x, y } -> ( x, y ))
+                points
+    in
+    case Stat.linearRegression data of
+        Nothing ->
+            Nothing
+
+        Just ( alpha, beta ) ->
+            Just (\x -> alpha + beta * x)
+
+
 rawLineChart2D : Options -> List { x : Float, y : Float } -> Element msg
 rawLineChart2D options data =
     let
@@ -329,6 +347,26 @@ rawLineChart2D options data =
         ]
         [ Chart.xLabels [ CA.fontSize 10 ]
         , Chart.yLabels [ CA.withGrid, CA.fontSize 10 ]
+        , case options.regression of
+            Nothing ->
+                Chart.none
+
+            Just _ ->
+                let
+                    f_ : Maybe (Float -> Float)
+                    f_ =
+                        regressionLine data
+                in
+                case f_ of
+                    Nothing ->
+                        Chart.none
+
+                    Just f ->
+                        let
+                            regressionData =
+                                List.map (\{ x, y } -> { x = x, y = f x }) data
+                        in
+                        Chart.series .x [ Chart.interpolated .y [ CA.color CA.blue ] [] ] regressionData
         , case options.kind of
             Just "line" ->
                 Chart.series .x [ Chart.interpolated .y [ CA.color CA.red ] [] ] data

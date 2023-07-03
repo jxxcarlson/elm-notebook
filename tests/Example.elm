@@ -130,4 +130,11 @@ suite =
                     , [ "> factorial 5" ]
                     , [ "> List.map factorial [ 1, 2, 3, 4, 5, 6, 7, 8 ]" ]
                     ]
+        , test "succeeds with computation of number of sunspot observations." <|
+            \_ ->
+                makeTest
+                    [ [ "# Something not working here:"
+                      , "> n = sunspots |> String.lines |> List.length"
+                      ]
+                    ]
         ]
