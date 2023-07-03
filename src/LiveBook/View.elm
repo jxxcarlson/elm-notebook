@@ -48,7 +48,7 @@ controls cell =
         , E.width (E.px controlWidth)
         , E.alignTop
         , E.height E.fill
-        , E.paddingEach { top = 0, bottom = 8, left = 4, right = 0 }
+        , E.paddingEach { top = 0, bottom = 8, left = 12, right = 0 }
         , Background.color Color.darkSteelGray
         ]
         [ viewIndex cell
@@ -60,7 +60,7 @@ controls cell =
 
 
 controlWidth =
-    60
+    76
 
 
 viewSource : Int -> Cell -> String -> Element FrontendMsg
