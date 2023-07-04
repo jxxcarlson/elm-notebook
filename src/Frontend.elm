@@ -76,6 +76,9 @@ init url key =
       , inputComments = ""
       , inputData = ""
 
+      -- DATASETS
+      , dataSetMetaDataList = []
+
       -- NOTEBOOKS
       , kvDict = Dict.empty
       , books = []
@@ -204,6 +207,13 @@ update msg model =
                     else
                         ( { model | popupState = ManualPopup }, Cmd.none )
 
+                ViewDataSetsPopup ->
+                    if model.popupState == ViewDataSetsPopup then
+                        ( { model | popupState = NoPopup }, Cmd.none )
+
+                    else
+                        ( { model | popupState = ViewDataSetsPopup }, Cmd.none )
+
                 DataSetPopup ->
                     if model.popupState == DataSetPopup then
                         ( { model | popupState = NoPopup }, Cmd.none )
@@ -311,6 +321,9 @@ update msg model =
             ( { model | inputData = str }, Cmd.none )
 
         -- DATA
+        AskToListDataSets description ->
+            ( model, Lamdera.sendToBackend (GetListOfDataSets description) )
+
         AskToCreateDataSet ->
             case model.currentUser of
                 Nothing ->
@@ -563,6 +576,9 @@ updateFromBackend msg model =
                 ( { model | currentUser = Just user, message = "" }, Cmd.none )
 
         -- DATA
+        GotListOfDataSets dataSetMetaDataList ->
+            ( { model | dataSetMetaDataList = dataSetMetaDataList }, Cmd.none )
+
         GotData index variable dataSet ->
             ( LiveBook.Action.importData index variable dataSet model
             , Cmd.none

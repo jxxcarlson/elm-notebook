@@ -39,6 +39,9 @@ type alias FrontendModel =
     , inputComments : String
     , inputData : String
 
+    -- DATA
+    , dataSetMetaDataList : List LiveBook.DataSet.DataSetMetaData
+
     -- NOTEBOOKS
     , kvDict : Dict String String
     , books : List Book
@@ -121,6 +124,7 @@ type FrontendMsg
     | InputData String
     | InputAuthor String
       -- DATA
+    | AskToListDataSets DataSetDescription
     | AskToCreateDataSet
       -- CELL
     | ToggleCellLock Cell
@@ -166,6 +170,11 @@ type alias Message =
     { txt : String, status : MessageStatus }
 
 
+type DataSetDescription
+    = PublicDatasets
+    | UserDatasets String
+
+
 type MessageStatus
     = MSWhite
     | MSYellow
@@ -180,6 +189,7 @@ type PopupState
     | DataSetPopup
     | SignUpPopup
     | NewNotebookPopup
+    | ViewDataSetsPopup
 
 
 type SearchTerm
@@ -192,6 +202,7 @@ type ToBackend
     | RunTask
     | SendUsers
       -- DATA
+    | GetListOfDataSets DataSetDescription
     | CreateDataSet LiveBook.DataSet.DataSet
     | GetData Int String String -- Int is the index of the requesting cell,
       -- String1 is the DataSet identifier, String2 is the variable in which to store it.
@@ -224,6 +235,7 @@ type ToFrontend
       -- ADMIN
     | GotUsers (List User)
       -- DATA
+    | GotListOfDataSets (List LiveBook.DataSet.DataSetMetaData)
     | GotData Int String LiveBook.DataSet.DataSet
     | GotDataForDownload LiveBook.DataSet.DataSet
       -- NOTEBOOK

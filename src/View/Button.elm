@@ -22,6 +22,7 @@ module View.Button exposing
     , signIn
     , signOut
     , signUp
+    , toggleViewDataSets
     , viewNotebookEntry
     )
 
@@ -202,6 +203,11 @@ lockCell cell =
 createDataSet : Element FrontendMsg
 createDataSet =
     Button.largePrimary { msg = AskToCreateDataSet, status = Button.Active, label = Button.Text "Create", tooltipText = Nothing }
+
+
+toggleViewDataSets : Element FrontendMsg
+toggleViewDataSets =
+    Button.largePrimary { msg = ChangePopup ViewDataSetsPopup, status = Button.Active, label = Button.Text "View Data Sets", tooltipText = Nothing }
 
 
 

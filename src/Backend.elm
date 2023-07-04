@@ -8,6 +8,7 @@ import Env exposing (Mode(..))
 import Hex
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
 import LiveBook.Book
+import LiveBook.DataSet
 import NotebookDict
 import Random
 import Time
@@ -134,6 +135,7 @@ updateFromFrontend sessionId clientId msg model =
                         , Cmd.batch
                             [ sendToFrontend clientId (SendUser userData.user)
                             , curentBookCmd
+                            , getListOfDataSets clientId model PublicDatasets
                             , sendToFrontend clientId (GotNotebooks (NotebookDict.allForUser username model.userToNoteBookDict))
                             ]
                         )
@@ -145,6 +147,28 @@ updateFromFrontend sessionId clientId msg model =
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, password and username don't match (2)") )
 
         -- DATA
+        GetListOfDataSets description ->
+            --- getListOfDataSets clientId model description
+            case description of
+                PublicDatasets ->
+                    let
+                        publicDataSets : List LiveBook.DataSet.DataSetMetaData
+                        publicDataSets =
+                            List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
+                                |> Debug.log "@@DATASETS 1"
+                                |> List.map LiveBook.DataSet.extractMetaData
+                                |> Debug.log "@@DATASETS 2"
+                    in
+                    ( model, sendToFrontend clientId (GotListOfDataSets publicDataSets) )
+
+                UserDatasets username ->
+                    let
+                        userDatasets =
+                            List.filter (\dataSet -> dataSet.author == username) (Dict.values model.dataSetLibrary)
+                                |> List.map LiveBook.DataSet.extractMetaData
+                    in
+                    ( model, sendToFrontend clientId (GotListOfDataSets userDatasets) )
+
         GetData index identifier variable ->
             case Dict.get identifier model.dataSetLibrary of
                 Nothing ->
@@ -353,3 +377,26 @@ getUniqueIdentifier_ counter id dict =
 
         Just _ ->
             getUniqueIdentifier_ (counter + 1) id dict
+
+
+getListOfDataSets : ClientId -> BackendModel -> DataSetDescription -> Cmd backendMsg
+getListOfDataSets clientId model description =
+    case description of
+        PublicDatasets ->
+            let
+                publicDataSets : List LiveBook.DataSet.DataSetMetaData
+                publicDataSets =
+                    --List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
+                    Dict.values model.dataSetLibrary
+                        |> List.map LiveBook.DataSet.extractMetaData
+                        |> Debug.log "@@DATASETS 2"
+            in
+            sendToFrontend clientId (GotListOfDataSets publicDataSets)
+
+        UserDatasets username ->
+            let
+                userDatasets =
+                    List.filter (\dataSet -> dataSet.author == username) (Dict.values model.dataSetLibrary)
+                        |> List.map LiveBook.DataSet.extractMetaData
+            in
+            sendToFrontend clientId (GotListOfDataSets userDatasets)

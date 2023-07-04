@@ -1,4 +1,9 @@
-module LiveBook.DataSet exposing (DataSet, makeDataSet)
+module LiveBook.DataSet exposing
+    ( DataSet
+    , DataSetMetaData
+    , extractMetaData
+    , makeDataSet
+    )
 
 import LiveBook.Utility
 import Time
@@ -15,6 +20,31 @@ type alias DataSet =
     , description : String
     , comments : String
     , data : String
+    }
+
+
+type alias DataSetMetaData =
+    { author : String
+    , name : String
+    , identifier : String
+    , public : Bool
+    , createdAt : Time.Posix
+    , modifiedAt : Time.Posix
+    , description : String
+    , comments : String
+    }
+
+
+extractMetaData : DataSet -> DataSetMetaData
+extractMetaData dataSet =
+    { author = dataSet.author
+    , name = dataSet.name
+    , identifier = dataSet.identifier
+    , public = dataSet.public
+    , createdAt = dataSet.createdAt
+    , modifiedAt = dataSet.modifiedAt
+    , description = dataSet.description
+    , comments = dataSet.comments
     }
 
 
