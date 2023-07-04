@@ -360,7 +360,10 @@ update msg model =
             ( { model
                 | popupState = NoPopup
                 , publicDataSetMetaDataList =
-                    if metaData.public then
+                    if metaData.public && not (List.member metaData model.publicDataSetMetaDataList) then
+                        metaData :: model.publicDataSetMetaDataList
+
+                    else if metaData.public then
                         List.Extra.setIf (\d -> d.identifier == metaData.identifier) metaData model.publicDataSetMetaDataList
 
                     else
