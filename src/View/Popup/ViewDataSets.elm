@@ -32,7 +32,7 @@ viewDataSetMeta data =
     E.column []
         [ E.row [ Font.color UILibrary.Color.lightGray, E.spacing 12 ]
             [ E.el [ E.width (E.px 150) ] (E.text data.name)
-            , E.el [ E.width (E.px 200) ] (E.text data.description)
+            , E.el [ E.width (E.px 200), E.clipX ] (E.text data.description)
             , E.el [ E.width (E.px 100) ] (E.text data.author)
             , viewPublicSatus data.public
             ]
