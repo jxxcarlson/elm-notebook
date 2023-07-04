@@ -155,9 +155,7 @@ updateFromFrontend sessionId clientId msg model =
                         publicDataSets : List LiveBook.DataSet.DataSetMetaData
                         publicDataSets =
                             List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
-                                |> Debug.log "@@DATASETS 1"
                                 |> List.map LiveBook.DataSet.extractMetaData
-                                |> Debug.log "@@DATASETS 2"
                     in
                     ( model, sendToFrontend clientId (GotListOfDataSets publicDataSets) )
 
@@ -389,7 +387,6 @@ getListOfDataSets clientId model description =
                     --List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
                     Dict.values model.dataSetLibrary
                         |> List.map LiveBook.DataSet.extractMetaData
-                        |> Debug.log "@@DATASETS 2"
             in
             sendToFrontend clientId (GotListOfDataSets publicDataSets)
 
