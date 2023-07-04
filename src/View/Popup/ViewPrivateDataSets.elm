@@ -1,4 +1,4 @@
-module View.Popup.ViewDataSets exposing (..)
+module View.Popup.ViewPrivateDataSets exposing (..)
 
 import Element as E exposing (Element)
 import Element.Background as Background
@@ -15,7 +15,7 @@ import View.Utility
 
 view : Types.FrontendModel -> Element Types.FrontendMsg
 view model =
-    View.Utility.showIf (model.popupState == Types.ViewDataSetsPopup) <|
+    View.Utility.showIf (model.popupState == Types.ViewPrivateDataSetsPopup) <|
         E.column
             [ E.height (E.px 700)
             , E.width (E.px 720)
@@ -25,7 +25,9 @@ view model =
             , E.padding 40
             , E.spacing 12
             ]
-            (List.map viewDataSetMeta model.dataSetMetaDataList)
+            (E.el [ Font.color (E.rgb 0.8 0.8 1.0) ] (E.text "Private data")
+                :: List.map viewDataSetMeta model.privateDataSetMetaDataList
+            )
 
 
 viewDataSetMeta : LiveBook.DataSet.DataSetMetaData -> Element Types.FrontendMsg
@@ -35,7 +37,6 @@ viewDataSetMeta data =
             [ E.el [ E.width (E.px 150) ] (E.text data.name)
             , E.el [ E.width (E.px 270), E.clipX ]
                 (E.text (String.Extra.softEllipsis 45 data.description))
-            , E.el [ E.width (E.px 100) ] (E.text data.author)
             , viewPublicSatus data.public
             , View.Button.editDataSet data
             ]

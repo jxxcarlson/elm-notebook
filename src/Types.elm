@@ -40,7 +40,8 @@ type alias FrontendModel =
     , inputData : String
 
     -- DATA
-    , dataSetMetaDataList : List LiveBook.DataSet.DataSetMetaData
+    , publicDataSetMetaDataList : List LiveBook.DataSet.DataSetMetaData
+    , privateDataSetMetaDataList : List LiveBook.DataSet.DataSetMetaData
 
     -- NOTEBOOKS
     , kvDict : Dict String String
@@ -192,7 +193,8 @@ type PopupState
     | EditDataSetPopup LiveBook.DataSet.DataSetMetaData
     | SignUpPopup
     | NewNotebookPopup
-    | ViewDataSetsPopup
+    | ViewPublicDataSetsPopup
+    | ViewPrivateDataSetsPopup
 
 
 type SearchTerm
@@ -240,7 +242,8 @@ type ToFrontend
       -- ADMIN
     | GotUsers (List User)
       -- DATA
-    | GotListOfDataSets (List LiveBook.DataSet.DataSetMetaData)
+    | GotListOfPublicDataSets (List LiveBook.DataSet.DataSetMetaData)
+    | GotListOfPrivateDataSets (List LiveBook.DataSet.DataSetMetaData)
     | GotData Int String LiveBook.DataSet.DataSet
     | GotDataForDownload LiveBook.DataSet.DataSet
       -- NOTEBOOK

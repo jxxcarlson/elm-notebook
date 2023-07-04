@@ -77,7 +77,8 @@ init url key =
       , inputData = ""
 
       -- DATASETS
-      , dataSetMetaDataList = []
+      , publicDataSetMetaDataList = []
+      , privateDataSetMetaDataList = []
 
       -- NOTEBOOKS
       , kvDict = Dict.empty
@@ -217,12 +218,19 @@ update msg model =
                     else
                         ( { model | popupState = ManualPopup }, Cmd.none )
 
-                ViewDataSetsPopup ->
-                    if model.popupState == ViewDataSetsPopup then
+                ViewPublicDataSetsPopup ->
+                    if model.popupState == ViewPublicDataSetsPopup then
                         ( { model | popupState = NoPopup }, Cmd.none )
 
                     else
-                        ( { model | popupState = ViewDataSetsPopup }, Cmd.none )
+                        ( { model | popupState = ViewPublicDataSetsPopup }, Cmd.none )
+
+                ViewPrivateDataSetsPopup ->
+                    if model.popupState == ViewPrivateDataSetsPopup then
+                        ( { model | popupState = NoPopup }, Cmd.none )
+
+                    else
+                        ( { model | popupState = ViewPrivateDataSetsPopup }, Cmd.none )
 
                 NewDataSetPopup ->
                     if model.popupState == NewDataSetPopup then
@@ -334,11 +342,11 @@ update msg model =
         AskToDeleteDataSet dataSetMetaData ->
             let
                 dataSetMetaDataList =
-                    List.filter (\d -> d.identifier /= dataSetMetaData.identifier) model.dataSetMetaDataList
+                    List.filter (\d -> d.identifier /= dataSetMetaData.identifier) model.publicDataSetMetaDataList
             in
             ( { model
                 | popupState = NoPopup
-                , dataSetMetaDataList = dataSetMetaDataList
+                , publicDataSetMetaDataList = dataSetMetaDataList
               }
             , sendToBackend (DeleteDataSet dataSetMetaData)
             )
@@ -350,9 +358,9 @@ update msg model =
                     { dataSetMetaData | name = model.inputName, description = model.inputDescription, comments = model.inputComments }
 
                 dataSetMetaDataList =
-                    List.Extra.updateIf (\d -> d.identifier == metaData.identifier) (\_ -> metaData) model.dataSetMetaDataList
+                    List.Extra.updateIf (\d -> d.identifier == metaData.identifier) (\_ -> metaData) model.publicDataSetMetaDataList
             in
-            ( { model | popupState = NoPopup, dataSetMetaDataList = dataSetMetaDataList }, sendToBackend (SaveDataSet metaData) )
+            ( { model | popupState = NoPopup, publicDataSetMetaDataList = dataSetMetaDataList }, sendToBackend (SaveDataSet metaData) )
 
         AskToListDataSets description ->
             ( model, Lamdera.sendToBackend (GetListOfDataSets description) )
@@ -609,8 +617,11 @@ updateFromBackend msg model =
                 ( { model | currentUser = Just user, message = "" }, Cmd.none )
 
         -- DATA
-        GotListOfDataSets dataSetMetaDataList ->
-            ( { model | dataSetMetaDataList = dataSetMetaDataList }, Cmd.none )
+        GotListOfPublicDataSets dataSetMetaDataList ->
+            ( { model | publicDataSetMetaDataList = dataSetMetaDataList }, Cmd.none )
+
+        GotListOfPrivateDataSets dataSetMetaDataList ->
+            ( { model | privateDataSetMetaDataList = dataSetMetaDataList }, Cmd.none )
 
         GotData index variable dataSet ->
             ( LiveBook.Action.importData index variable dataSet model

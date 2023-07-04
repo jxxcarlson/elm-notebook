@@ -136,6 +136,7 @@ updateFromFrontend sessionId clientId msg model =
                             [ sendToFrontend clientId (SendUser userData.user)
                             , curentBookCmd
                             , getListOfDataSets clientId model PublicDatasets
+                            , getListOfDataSets clientId model (UserDatasets user.username)
                             , sendToFrontend clientId (GotNotebooks (NotebookDict.allForUser username model.userToNoteBookDict))
                             ]
                         )
@@ -186,7 +187,7 @@ updateFromFrontend sessionId clientId msg model =
                             List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
                                 |> List.map LiveBook.DataSet.extractMetaData
                     in
-                    ( model, sendToFrontend clientId (GotListOfDataSets publicDataSets) )
+                    ( model, sendToFrontend clientId (GotListOfPublicDataSets publicDataSets) )
 
                 UserDatasets username ->
                     let
@@ -194,7 +195,7 @@ updateFromFrontend sessionId clientId msg model =
                             List.filter (\dataSet -> dataSet.author == username) (Dict.values model.dataSetLibrary)
                                 |> List.map LiveBook.DataSet.extractMetaData
                     in
-                    ( model, sendToFrontend clientId (GotListOfDataSets userDatasets) )
+                    ( model, sendToFrontend clientId (GotListOfPrivateDataSets userDatasets) )
 
         GetData index identifier variable ->
             case Dict.get identifier model.dataSetLibrary of
@@ -413,11 +414,10 @@ getListOfDataSets clientId model description =
             let
                 publicDataSets : List LiveBook.DataSet.DataSetMetaData
                 publicDataSets =
-                    --List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
-                    Dict.values model.dataSetLibrary
+                    List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
                         |> List.map LiveBook.DataSet.extractMetaData
             in
-            sendToFrontend clientId (GotListOfDataSets publicDataSets)
+            sendToFrontend clientId (GotListOfPublicDataSets publicDataSets)
 
         UserDatasets username ->
             let
@@ -425,4 +425,25 @@ getListOfDataSets clientId model description =
                     List.filter (\dataSet -> dataSet.author == username) (Dict.values model.dataSetLibrary)
                         |> List.map LiveBook.DataSet.extractMetaData
             in
-            sendToFrontend clientId (GotListOfDataSets userDatasets)
+            sendToFrontend clientId (GotListOfPrivateDataSets userDatasets)
+
+
+
+--case description of
+--    PublicDatasets ->
+--        let
+--            publicDataSets : List LiveBook.DataSet.DataSetMetaData
+--            publicDataSets =
+--                --List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
+--                Dict.values model.dataSetLibrary
+--                    |> List.map LiveBook.DataSet.extractMetaData
+--        in
+--        sendToFrontend clientId (GotListOfPublicDataSets publicDataSets)
+--
+--    UserDatasets username ->
+--        let
+--            userDatasets =
+--                List.filter (\dataSet -> dataSet.author == username) (Dict.values model.dataSetLibrary)
+--                    |> List.map LiveBook.DataSet.extractMetaData
+--        in
+--        sendToFrontend clientId (GotListOfPublicDataSets userDatasets)

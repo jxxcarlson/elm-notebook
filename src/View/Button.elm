@@ -26,7 +26,8 @@ module View.Button exposing
     , signIn
     , signOut
     , signUp
-    , toggleViewDataSets
+    , toggleViewPrivateDataSets
+    , toggleViewPublicDataSets
     , viewNotebookEntry
     )
 
@@ -225,9 +226,14 @@ createDataSet =
     Button.largePrimary { msg = AskToCreateDataSet, status = Button.Active, label = Button.Text "Create", tooltipText = Nothing }
 
 
-toggleViewDataSets : Element FrontendMsg
-toggleViewDataSets =
-    Button.largePrimary { msg = ChangePopup ViewDataSetsPopup, status = Button.Active, label = Button.Text "View Data Sets", tooltipText = Nothing }
+toggleViewPublicDataSets : Element FrontendMsg
+toggleViewPublicDataSets =
+    Button.largePrimary { msg = ChangePopup ViewPublicDataSetsPopup, status = Button.Active, label = Button.Text "View Public Data Sets", tooltipText = Nothing }
+
+
+toggleViewPrivateDataSets : Element FrontendMsg
+toggleViewPrivateDataSets =
+    Button.largePrimary { msg = ChangePopup ViewPrivateDataSetsPopup, status = Button.Active, label = Button.Text "View Private Data Sets", tooltipText = Nothing }
 
 
 newNotebook : Element FrontendMsg
