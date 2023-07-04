@@ -97,11 +97,6 @@ editTitle mode =
         Button.smallPrimary { msg = ChangeAppMode Types.AMEditTitle, status = Button.Active, label = Button.Text "Edit Title", tooltipText = Nothing }
 
 
-newNotebook : Element FrontendMsg
-newNotebook =
-    Button.smallPrimary { msg = NewNotebook, status = Button.Active, label = Button.Text "New Notebook", tooltipText = Nothing }
-
-
 clearValues : Element FrontendMsg
 clearValues =
     Button.smallPrimary { msg = ClearNotebookValues, status = Button.Active, label = Button.Text "Clear Values", tooltipText = Nothing }
@@ -208,6 +203,11 @@ createDataSet =
 toggleViewDataSets : Element FrontendMsg
 toggleViewDataSets =
     Button.largePrimary { msg = ChangePopup ViewDataSetsPopup, status = Button.Active, label = Button.Text "View Data Sets", tooltipText = Nothing }
+
+
+newNotebook : Element FrontendMsg
+newNotebook =
+    Button.largePrimary { msg = NewNotebook, status = Button.Active, label = Button.Text "New Notebook", tooltipText = Nothing }
 
 
 
