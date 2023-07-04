@@ -341,12 +341,16 @@ update msg model =
         -- DATA
         AskToDeleteDataSet dataSetMetaData ->
             let
-                dataSetMetaDataList =
+                publicDataSetMetaDataList =
                     List.filter (\d -> d.identifier /= dataSetMetaData.identifier) model.publicDataSetMetaDataList
+
+                privateDataSetMetaDataList =
+                    List.filter (\d -> d.identifier /= dataSetMetaData.identifier) model.privateDataSetMetaDataList
             in
             ( { model
                 | popupState = NoPopup
-                , publicDataSetMetaDataList = dataSetMetaDataList
+                , publicDataSetMetaDataList = publicDataSetMetaDataList
+                , privateDataSetMetaDataList = privateDataSetMetaDataList
               }
             , sendToBackend (DeleteDataSet dataSetMetaData)
             )
