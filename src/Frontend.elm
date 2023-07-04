@@ -382,7 +382,22 @@ update msg model =
                     ( model, Cmd.none )
 
                 Just user ->
-                    ( { model | popupState = NoPopup }, sendToBackend (CreateDataSet (LiveBook.DataSet.makeDataSet model user)) )
+                    let
+                        newDataset =
+                            LiveBook.DataSet.makeDataSet model user
+
+                        myDataSetMeta =
+                            LiveBook.DataSet.extractMetaData newDataset
+
+                        privateDataSetMetaDataList =
+                            myDataSetMeta :: model.privateDataSetMetaDataList
+                    in
+                    ( { model
+                        | popupState = NoPopup
+                        , privateDataSetMetaDataList = privateDataSetMetaDataList
+                      }
+                    , sendToBackend (CreateDataSet newDataset)
+                    )
 
         -- CELLS, NOTEBOOKS
         ToggleCellLock cell ->
