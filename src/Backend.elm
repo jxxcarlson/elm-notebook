@@ -9,6 +9,7 @@ import Hex
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
 import LiveBook.Book
 import LiveBook.DataSet
+import LiveBook.Utility
 import NotebookDict
 import Random
 import Time
@@ -388,7 +389,11 @@ idMessage model =
 
 
 getUniqueIdentifier : String -> Dict String a -> String
-getUniqueIdentifier id dict =
+getUniqueIdentifier id_ dict =
+    let
+        id =
+            LiveBook.Utility.slugify id_
+    in
     case Dict.get id dict of
         Nothing ->
             id
