@@ -356,19 +356,16 @@ update msg model =
                 metaData : LiveBook.DataSet.DataSetMetaData
                 metaData =
                     { dataSetMetaData | name = model.inputName, description = model.inputDescription, comments = model.inputComments }
-
-                dataSetMetaDataList =
-                    List.Extra.updateIf (\d -> d.identifier == metaData.identifier) (\_ -> metaData) model.publicDataSetMetaDataList
             in
             ( { model
                 | popupState = NoPopup
                 , publicDataSetMetaDataList =
                     if metaData.public then
-                        dataSetMetaDataList
+                        List.Extra.updateIf (\d -> d.identifier == metaData.identifier) (\_ -> metaData) model.publicDataSetMetaDataList
 
                     else
                         model.publicDataSetMetaDataList
-                , privateDataSetMetaDataList = dataSetMetaDataList
+                , privateDataSetMetaDataList = List.Extra.updateIf (\d -> d.identifier == metaData.identifier) (\_ -> metaData) model.privateDataSetMetaDataList
               }
             , sendToBackend (SaveDataSet metaData)
             )
