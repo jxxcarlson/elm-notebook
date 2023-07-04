@@ -1,14 +1,6 @@
 module LiveBook.Function exposing
     ( correlation
-    , hu
-    , listListStringToListListFloat
     , roundTo
-    , select
-    , selectColumns
-    , toFloatList
-    , toFloatListList
-    , toStringListList
-    , twoListToPair
     , wrangleToListFloatPair
     )
 
