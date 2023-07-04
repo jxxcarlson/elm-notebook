@@ -361,11 +361,11 @@ update msg model =
                 | popupState = NoPopup
                 , publicDataSetMetaDataList =
                     if metaData.public then
-                        List.Extra.updateIf (\d -> d.identifier == metaData.identifier) (\_ -> metaData) model.publicDataSetMetaDataList
+                        List.Extra.setIf (\d -> d.identifier == metaData.identifier) metaData model.publicDataSetMetaDataList
 
                     else
-                        model.publicDataSetMetaDataList
-                , privateDataSetMetaDataList = List.Extra.updateIf (\d -> d.identifier == metaData.identifier) (\_ -> metaData) model.privateDataSetMetaDataList
+                        List.filter (\d -> d.identifier /= metaData.identifier) model.publicDataSetMetaDataList
+                , privateDataSetMetaDataList = List.Extra.setIf (\d -> d.identifier == metaData.identifier) metaData model.privateDataSetMetaDataList
               }
             , sendToBackend (SaveDataSet metaData)
             )
