@@ -43,7 +43,7 @@ importData index variable dataset model =
             ]
                 |> String.join "\n"
     in
-    { model | kvDict = Dict.insert variable (quote dataset.data) model.kvDict, pressedKeys = [] }
+    { model | kvDict = Dict.insert variable (quote (String.trim dataset.data)) model.kvDict, pressedKeys = [] }
         |> (\model_ -> LiveBook.Update.setCellValue model_ index (CVString message))
 
 
@@ -53,4 +53,5 @@ downloadDataSet identifier model =
 
 
 quote str =
-    "\"" ++ str ++ "\""
+    --"\" " ++ str ++ " \""
+    str

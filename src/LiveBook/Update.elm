@@ -11,10 +11,12 @@ module LiveBook.Update exposing
     , updateCellText
     )
 
+import Dict
 import File.Select
 import Lamdera
 import List.Extra
 import LiveBook.Eval
+import LiveBook.Function
 import LiveBook.Types
     exposing
         ( Book
@@ -23,11 +25,13 @@ import LiveBook.Types
         , CellValue(..)
         , VisualType(..)
         )
+import Maybe.Extra
+import Stat
 import Types exposing (FrontendModel, FrontendMsg(..))
 
 
 commands =
-    [ "chart", "readinto", "image", "import", "export" ]
+    [ "chart", "readinto", "image", "import", "export", "correlation" ]
 
 
 clearNotebookValues : Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
@@ -79,8 +83,41 @@ executeCell_ index model =
                             in
                             { cell_ | cellState = CSView, value = CVString ("Exported data to file " ++ file) }
 
+                        Just "correlation" ->
+                            -- correlation column1 column2 identifier
+                            case commandWords of
+                                "correlation" :: column1 :: column2 :: identifier :: _ ->
+                                    case
+                                        ( String.toInt column1
+                                        , String.toInt column2
+                                        , Dict.get identifier model.kvDict
+                                        )
+                                    of
+                                        ( Just column1_, Just column2_, Just data ) ->
+                                            let
+                                                maybeValue : Maybe Float
+                                                maybeValue =
+                                                    LiveBook.Function.wrangleToListFloatPair (Just [ column1_, column2_ ]) data
+                                                        |> Maybe.andThen Stat.correlation
+                                            in
+                                            case maybeValue of
+                                                Just corr ->
+                                                    { cell_
+                                                        | cellState = CSView
+                                                        , value = CVString (String.fromFloat (LiveBook.Function.roundTo 3 corr))
+                                                    }
+
+                                                _ ->
+                                                    { cell_ | cellState = CSView, value = CVString "Could not parse data (4)" }
+
+                                        _ ->
+                                            { cell_ | cellState = CSView, value = CVString "Could not parse data (3)" }
+
+                                _ ->
+                                    { cell_ | cellState = CSView, value = CVString "Could not parse data (2)" }
+
                         _ ->
-                            { cell_ | cellState = CSView }
+                            { cell_ | cellState = CSView, value = CVString "Could not parse data (1)" }
 
                 prefix =
                     List.filter (\cell -> cell.index < index) model.currentBook.cells
