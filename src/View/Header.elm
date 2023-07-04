@@ -66,8 +66,8 @@ signedInHeader model user =
         , Button.editTitle model.appMode
         , Button.newNotebook
         , Button.deleteNotebook model.deleteNotebookState
-        , Button.clearValues
         , Button.cancelDeleteNotebook model.deleteNotebookState
+        , Button.clearValues
         , Button.manual
 
         --, E.el [ E.width E.fill, E.paddingXY 12 0 ] (Message.viewSmall 400 model)
