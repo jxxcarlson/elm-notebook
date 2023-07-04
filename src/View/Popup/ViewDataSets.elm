@@ -4,6 +4,7 @@ import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Font as Font
 import LiveBook.DataSet
+import String.Extra
 import Types
 import UILibrary.Color
 import View.Button
@@ -17,7 +18,7 @@ view model =
     View.Utility.showIf (model.popupState == Types.ViewDataSetsPopup) <|
         E.column
             [ E.height (E.px 700)
-            , E.width (E.px 620)
+            , E.width (E.px 720)
             , E.moveUp (toFloat <| View.Geometry.bodyHeight model)
             , E.moveRight 400
             , Background.color UILibrary.Color.darkerSteelGray
@@ -32,7 +33,7 @@ viewDataSetMeta data =
     E.column []
         [ E.row [ Font.color UILibrary.Color.lightGray, E.spacing 12 ]
             [ E.el [ E.width (E.px 150) ] (E.text data.name)
-            , E.el [ E.width (E.px 200), E.clipX ] (E.text data.description)
+            , E.el [ E.width (E.px 270), E.clipX ] (E.text (String.Extra.softWrapWith 30 "..." data.description))
             , E.el [ E.width (E.px 100) ] (E.text data.author)
             , viewPublicSatus data.public
             ]
