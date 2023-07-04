@@ -228,12 +228,12 @@ createDataSet =
 
 toggleViewPublicDataSets : Element FrontendMsg
 toggleViewPublicDataSets =
-    Button.largePrimary { msg = ChangePopup ViewPublicDataSetsPopup, status = Button.Active, label = Button.Text "View Public Data Sets", tooltipText = Nothing }
+    Button.largePrimary { msg = ChangePopup ViewPublicDataSetsPopup, status = Button.Active, label = Button.Text "Public Datasets", tooltipText = Nothing }
 
 
 toggleViewPrivateDataSets : Element FrontendMsg
 toggleViewPrivateDataSets =
-    Button.largePrimary { msg = ChangePopup ViewPrivateDataSetsPopup, status = Button.Active, label = Button.Text "View Private Data Sets", tooltipText = Nothing }
+    Button.largePrimary { msg = ChangePopup ViewPrivateDataSetsPopup, status = Button.Active, label = Button.Text "My Datasets", tooltipText = Nothing }
 
 
 newNotebook : Element FrontendMsg

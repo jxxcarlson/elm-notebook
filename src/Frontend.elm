@@ -360,7 +360,18 @@ update msg model =
                 dataSetMetaDataList =
                     List.Extra.updateIf (\d -> d.identifier == metaData.identifier) (\_ -> metaData) model.publicDataSetMetaDataList
             in
-            ( { model | popupState = NoPopup, publicDataSetMetaDataList = dataSetMetaDataList }, sendToBackend (SaveDataSet metaData) )
+            ( { model
+                | popupState = NoPopup
+                , publicDataSetMetaDataList =
+                    if metaData.public then
+                        dataSetMetaDataList
+
+                    else
+                        model.publicDataSetMetaDataList
+                , privateDataSetMetaDataList = dataSetMetaDataList
+              }
+            , sendToBackend (SaveDataSet metaData)
+            )
 
         AskToListDataSets description ->
             ( model, Lamdera.sendToBackend (GetListOfDataSets description) )

@@ -25,7 +25,7 @@ view model =
             , E.padding 40
             , E.spacing 12
             ]
-            (E.el [ Font.color (E.rgb 1 0.9 0.9) ] (E.text "Public Data")
+            (E.el [ Font.color (E.rgb 1 0.9 0.9) ] (E.text "Public Datasets")
                 :: List.map viewDataSetMeta model.publicDataSetMetaDataList
             )
 

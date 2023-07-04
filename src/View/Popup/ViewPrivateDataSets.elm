@@ -25,7 +25,7 @@ view model =
             , E.padding 40
             , E.spacing 12
             ]
-            (E.el [ Font.color (E.rgb 0.8 0.8 1.0) ] (E.text "Private data")
+            (E.el [ Font.color (E.rgb 0.8 0.8 1.0) ] (E.text "My Datasets")
                 :: List.map viewDataSetMeta model.privateDataSetMetaDataList
             )
 
