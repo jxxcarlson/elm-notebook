@@ -160,7 +160,14 @@ public book =
 viewNotebookEntry : Book -> Book -> Element FrontendMsg
 viewNotebookEntry currentBook book =
     if currentBook.id == book.id then
-        Button.smallPrimary { msg = NoOpFrontendMsg, status = Button.Active, label = Button.Text book.title, tooltipText = Nothing }
+        if book.public then
+            Button.smallPrimary { msg = NoOpFrontendMsg, status = Button.HighlightedSpecial, label = Button.Text book.title, tooltipText = Nothing }
+
+        else
+            Button.smallPrimary { msg = NoOpFrontendMsg, status = Button.Highlighted, label = Button.Text book.title, tooltipText = Nothing }
+
+    else if book.public then
+        Button.smallPrimary { msg = SetCurrentNotebook book, status = Button.ActiveTransparentSpecial, label = Button.Text book.title, tooltipText = Nothing }
 
     else
         Button.smallPrimary { msg = SetCurrentNotebook book, status = Button.ActiveTransparent, label = Button.Text book.title, tooltipText = Nothing }

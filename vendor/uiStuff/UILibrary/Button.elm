@@ -56,9 +56,9 @@ type Status
     | Inactive
     | Waiting
     | Highlighted
-    | ActiveSpecialDark
+    | HighlightedSpecial
     | ActivePale
-    | ActiveSpecialLight
+    | ActiveTransparentSpecial
     | ActiveTransparent
 
 
@@ -151,9 +151,18 @@ smallPrimaryStyle status =
         , Element.paddingXY 8 5
         , Element.mouseDown [ Background.color (fgColor status) ]
         ]
+            ++ specialStyle status
     , iconSize = 19
     , labelAttributes = [ Font.color UILibrary.Color.lightGray, Element.centerX, Element.centerY, Font.size 12 ]
     }
+
+
+specialStyle status =
+    if status == ActiveTransparentSpecial || status == HighlightedSpecial then
+        [ Font.italic ]
+
+    else
+        []
 
 
 smallSecondaryStyle : Status -> Style msg
@@ -197,13 +206,13 @@ fgListColor status =
         Highlighted ->
             UILibrary.Color.darkRed
 
-        ActiveSpecialDark ->
-            UILibrary.Color.darkBlue
+        HighlightedSpecial ->
+            UILibrary.Color.darkRed
 
         ActivePale ->
             UILibrary.Color.paleBlue
 
-        ActiveSpecialLight ->
+        ActiveTransparentSpecial ->
             UILibrary.Color.specialBlue
 
         ActiveTransparent ->
@@ -225,14 +234,14 @@ bgColor status =
         Highlighted ->
             UILibrary.Color.darkRed
 
-        ActiveSpecialDark ->
-            UILibrary.Color.darkBlue
+        HighlightedSpecial ->
+            UILibrary.Color.darkRed
 
         ActivePale ->
             UILibrary.Color.paleBlue
 
-        ActiveSpecialLight ->
-            UILibrary.Color.specialBlue
+        ActiveTransparentSpecial ->
+            UILibrary.Color.transparent
 
         ActiveTransparent ->
             UILibrary.Color.transparent
@@ -253,13 +262,13 @@ bgSecondaryColor status =
         Highlighted ->
             UILibrary.Color.darkRed
 
-        ActiveSpecialDark ->
+        HighlightedSpecial ->
             UILibrary.Color.darkBlue
 
         ActivePale ->
             UILibrary.Color.paleBlue
 
-        ActiveSpecialLight ->
+        ActiveTransparentSpecial ->
             UILibrary.Color.specialBlue
 
         ActiveTransparent ->
@@ -281,13 +290,13 @@ fgColor status =
         Highlighted ->
             UILibrary.Color.white
 
-        ActiveSpecialDark ->
+        HighlightedSpecial ->
             UILibrary.Color.white
 
         ActivePale ->
             UILibrary.Color.black
 
-        ActiveSpecialLight ->
+        ActiveTransparentSpecial ->
             UILibrary.Color.white
 
         ActiveTransparent ->

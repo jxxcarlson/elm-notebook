@@ -119,7 +119,7 @@ redExample =
 
 darkRed : Element.Color
 darkRed =
-    Element.rgb255 140 0 0
+    Element.rgb255 110 0 0
 
 
 red : Element.Color
