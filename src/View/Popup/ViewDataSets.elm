@@ -37,6 +37,7 @@ viewDataSetMeta data =
                 (E.text (String.Extra.softEllipsis 45 data.description))
             , E.el [ E.width (E.px 100) ] (E.text data.author)
             , viewPublicSatus data.public
+            , View.Button.editDataSet data
             ]
         ]
 

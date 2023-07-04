@@ -4,20 +4,24 @@ module View.Button exposing
     , clearValues
     , cloneNotebook
     , createDataSet
-    , dataSet
+    , deleteDataSet
     , deleteNotebook
     , dismissPopup
     , dismissPopupSmall
+    , editDataSet
     , editTitle
     , lockCell
     , manual
     , manualLarge
     , myNotebooks
+    , newDataSet
     , newNotebook
     , public
     , publicNotebooks
     , pullNotebook
     , runTask
+    , saveDataSetAsPrivate
+    , saveDataSetAsPublic
     , setUpUser
     , signIn
     , signOut
@@ -31,6 +35,7 @@ import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Font as Font
 import Element.Input as Input
+import LiveBook.DataSet
 import LiveBook.Types exposing (Book)
 import Types exposing (..)
 import UILibrary.Button as Button
@@ -180,9 +185,14 @@ manualLarge =
     Button.largePrimary { msg = ChangePopup ManualPopup, status = Button.Active, label = Button.Text "Manual", tooltipText = Nothing }
 
 
-dataSet : Element FrontendMsg
-dataSet =
-    Button.smallPrimary { msg = ChangePopup DataSetPopup, status = Button.Active, label = Button.Text "New Data Set", tooltipText = Nothing }
+newDataSet : Element FrontendMsg
+newDataSet =
+    Button.largePrimary { msg = ChangePopup NewDataSetPopup, status = Button.Active, label = Button.Text "New Data Set", tooltipText = Nothing }
+
+
+editDataSet : LiveBook.DataSet.DataSetMetaData -> Element FrontendMsg
+editDataSet dataSetDescripion =
+    Button.smallPrimary { msg = ChangePopup (EditDataSetPopup dataSetDescripion), status = Button.Active, label = Button.Text "Edit", tooltipText = Nothing }
 
 
 lockCell : LiveBook.Types.Cell -> Element FrontendMsg
@@ -193,6 +203,21 @@ lockCell cell =
 
         False ->
             Button.smallPrimary { msg = ToggleCellLock cell, status = Button.Active, label = Button.Text "Open", tooltipText = Nothing }
+
+
+saveDataSetAsPublic : LiveBook.DataSet.DataSetMetaData -> Element FrontendMsg
+saveDataSetAsPublic dataSetMeta =
+    Button.largePrimary { msg = AskToSaveDataSet { dataSetMeta | public = True }, status = Button.Active, label = Button.Text "Save as public", tooltipText = Nothing }
+
+
+saveDataSetAsPrivate : LiveBook.DataSet.DataSetMetaData -> Element FrontendMsg
+saveDataSetAsPrivate dataSetMeta =
+    Button.largePrimary { msg = AskToSaveDataSet { dataSetMeta | public = False }, status = Button.Active, label = Button.Text "Save as private", tooltipText = Nothing }
+
+
+deleteDataSet : LiveBook.DataSet.DataSetMetaData -> Element FrontendMsg
+deleteDataSet dataSetMeta =
+    Button.largePrimary { msg = AskToDeleteDataSet dataSetMeta, status = Button.Active, label = Button.Text "Delete", tooltipText = Nothing }
 
 
 createDataSet : Element FrontendMsg
@@ -207,7 +232,7 @@ toggleViewDataSets =
 
 newNotebook : Element FrontendMsg
 newNotebook =
-    Button.largePrimary { msg = NewNotebook, status = Button.Active, label = Button.Text "New Notebook", tooltipText = Nothing }
+    Button.smallPrimary { msg = NewNotebook, status = Button.Active, label = Button.Text "New Notebook", tooltipText = Nothing }
 
 
 

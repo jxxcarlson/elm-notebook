@@ -1,4 +1,4 @@
-module View.Popup.DataSet exposing (..)
+module View.Popup.NewDataSet exposing (..)
 
 import Element as E exposing (Element)
 import Element.Background as Background
@@ -13,7 +13,7 @@ import View.Utility
 
 view : Types.FrontendModel -> Element Types.FrontendMsg
 view model =
-    View.Utility.showIf (model.popupState == Types.DataSetPopup) <|
+    View.Utility.showIf (model.popupState == Types.NewDataSetPopup) <|
         E.column
             [ E.height (E.px 700)
             , E.width (E.px 380)

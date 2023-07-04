@@ -147,6 +147,35 @@ updateFromFrontend sessionId clientId msg model =
                     ( model, sendToFrontend clientId (SendMessage <| "Sorry, password and username don't match (2)") )
 
         -- DATA
+        DeleteDataSet dataSetMetaData ->
+            let
+                dataSetLibrary =
+                    Dict.remove dataSetMetaData.identifier model.dataSetLibrary
+            in
+            ( { model | dataSetLibrary = dataSetLibrary }, Cmd.none )
+
+        SaveDataSet dataSetMetaData ->
+            case Dict.get dataSetMetaData.identifier model.dataSetLibrary of
+                Nothing ->
+                    ( model, sendToFrontend clientId (SendMessage <| "Could not save data set " ++ dataSetMetaData.name) )
+
+                Just dataSet ->
+                    let
+                        newDataSet =
+                            { dataSet
+                                | modifiedAt = model.currentTime
+                                , name = dataSetMetaData.name
+                                , description = dataSetMetaData.description
+                                , public = dataSetMetaData.public
+                            }
+
+                        dataSetLibrary =
+                            Dict.insert dataSetMetaData.identifier newDataSet model.dataSetLibrary
+                    in
+                    ( { model | dataSetLibrary = dataSetLibrary }
+                    , sendToFrontend clientId (SendMessage <| "Data set " ++ dataSet.name ++ " saved")
+                    )
+
         GetListOfDataSets description ->
             --- getListOfDataSets clientId model description
             case description of

@@ -125,7 +125,9 @@ type FrontendMsg
     | InputAuthor String
       -- DATA
     | AskToListDataSets DataSetDescription
+    | AskToSaveDataSet LiveBook.DataSet.DataSetMetaData
     | AskToCreateDataSet
+    | AskToDeleteDataSet LiveBook.DataSet.DataSetMetaData
       -- CELL
     | ToggleCellLock Cell
     | NewCell Int
@@ -186,7 +188,8 @@ type PopupState
     = NoPopup
     | AdminPopup
     | ManualPopup
-    | DataSetPopup
+    | NewDataSetPopup
+    | EditDataSetPopup LiveBook.DataSet.DataSetMetaData
     | SignUpPopup
     | NewNotebookPopup
     | ViewDataSetsPopup
@@ -202,6 +205,8 @@ type ToBackend
     | RunTask
     | SendUsers
       -- DATA
+    | DeleteDataSet LiveBook.DataSet.DataSetMetaData
+    | SaveDataSet LiveBook.DataSet.DataSetMetaData
     | GetListOfDataSets DataSetDescription
     | CreateDataSet LiveBook.DataSet.DataSet
     | GetData Int String String -- Int is the index of the requesting cell,

@@ -193,6 +193,16 @@ update msg model =
                 NoPopup ->
                     ( { model | popupState = NoPopup }, Cmd.none )
 
+                EditDataSetPopup metaData ->
+                    ( { model
+                        | popupState = EditDataSetPopup metaData
+                        , inputName = metaData.name
+                        , inputDescription = metaData.description
+                        , inputComments = metaData.comments
+                      }
+                    , Cmd.none
+                    )
+
                 NewNotebookPopup ->
                     if model.popupState == NewNotebookPopup then
                         ( { model | popupState = NoPopup }, Cmd.none )
@@ -214,12 +224,12 @@ update msg model =
                     else
                         ( { model | popupState = ViewDataSetsPopup }, Cmd.none )
 
-                DataSetPopup ->
-                    if model.popupState == DataSetPopup then
+                NewDataSetPopup ->
+                    if model.popupState == NewDataSetPopup then
                         ( { model | popupState = NoPopup }, Cmd.none )
 
                     else
-                        ( { model | popupState = DataSetPopup }, Cmd.none )
+                        ( { model | popupState = NewDataSetPopup }, Cmd.none )
 
                 SignUpPopup ->
                     if model.popupState == SignUpPopup then
@@ -321,6 +331,29 @@ update msg model =
             ( { model | inputData = str }, Cmd.none )
 
         -- DATA
+        AskToDeleteDataSet dataSetMetaData ->
+            let
+                dataSetMetaDataList =
+                    List.filter (\d -> d.identifier /= dataSetMetaData.identifier) model.dataSetMetaDataList
+            in
+            ( { model
+                | popupState = NoPopup
+                , dataSetMetaDataList = dataSetMetaDataList
+              }
+            , sendToBackend (DeleteDataSet dataSetMetaData)
+            )
+
+        AskToSaveDataSet dataSetMetaData ->
+            let
+                metaData : LiveBook.DataSet.DataSetMetaData
+                metaData =
+                    { dataSetMetaData | name = model.inputName, description = model.inputDescription, comments = model.inputComments }
+
+                dataSetMetaDataList =
+                    List.Extra.updateIf (\d -> d.identifier == metaData.identifier) (\_ -> metaData) model.dataSetMetaDataList
+            in
+            ( { model | popupState = NoPopup, dataSetMetaDataList = dataSetMetaDataList }, sendToBackend (SaveDataSet metaData) )
+
         AskToListDataSets description ->
             ( model, Lamdera.sendToBackend (GetListOfDataSets description) )
 
