@@ -49,7 +49,7 @@ import Types exposing (FrontendModel, FrontendMsg(..))
 
 
 commands =
-    [ "chart", "readinto", "image", "import", "export", "correlation", "info" ]
+    [ "chart", "readinto", "image", "import", "export", "correlation", "info", "head" ]
 
 
 clearNotebookValues : Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
@@ -70,148 +70,148 @@ executeCell_ index model =
         Just cell_ ->
             let
                 commandWords =
-                    cell_.text
-                        |> List.filter (\line -> not <| String.startsWith "#" line)
-                        |> String.join "\n"
-                        |> String.replace ">" ""
-                        |> String.trim
-                        |> String.words
+                    getCommandWords cell_
 
                 updatedCell =
-                    case List.head commandWords of
-                        Nothing ->
-                            { cell_ | cellState = CSView }
-
-                        Just "info" ->
-                            let
-                                identifier : String
-                                identifier =
-                                    List.Extra.getAt 1 commandWords |> Maybe.withDefault "---"
-
-                                maybeDataSetMetadata =
-                                    List.Extra.find (\dataSet -> String.contains identifier dataSet.identifier)
-                                        (model.publicDataSetMetaDataList ++ model.privateDataSetMetaDataList)
-                            in
-                            case maybeDataSetMetadata of
-                                Nothing ->
-                                    { cell_ | cellState = CSView, value = CVString "Nothing found" }
-
-                                Just dataSetMetadata ->
-                                    let
-                                        text =
-                                            dataSetMetadata.name
-                                                ++ "\n"
-                                                ++ dataSetMetadata.identifier
-                                                ++ "\n\n"
-                                                ++ dataSetMetadata.description
-                                                ++ "\n\n"
-                                                ++ dataSetMetadata.comments
-                                    in
-                                    { cell_ | cellState = CSView, value = CVString text }
-
-                        Just "image" ->
-                            { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
-
-                        Just "chart" ->
-                            { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
-
-                        Just "readinto" ->
-                            { cell_ | cellState = CSView, value = CVString "*......*" }
-
-                        Just "import" ->
-                            { cell_ | cellState = CSView, value = CVString "*......*" }
-
-                        Just "export" ->
-                            let
-                                file =
-                                    (List.Extra.getAt 1 commandWords |> Maybe.withDefault "???" |> String.replace "." "-") ++ ".csv"
-                            in
-                            { cell_ | cellState = CSView, value = CVString ("Exported data to file " ++ file) }
-
-                        Just "correlation" ->
-                            -- correlation column1 column2 identifier
-                            case commandWords of
-                                "correlation" :: column1 :: column2 :: identifier :: _ ->
-                                    case
-                                        ( String.toInt column1
-                                        , String.toInt column2
-                                        , Dict.get identifier model.kvDict
-                                        )
-                                    of
-                                        ( Just column1_, Just column2_, Just data ) ->
-                                            let
-                                                maybeValue : Maybe Float
-                                                maybeValue =
-                                                    LiveBook.Function.wrangleToListFloatPair (Just [ column1_, column2_ ]) data
-                                                        |> Maybe.andThen Stat.correlation
-                                            in
-                                            case maybeValue of
-                                                Just corr ->
-                                                    { cell_
-                                                        | cellState = CSView
-                                                        , value = CVString (String.fromFloat (LiveBook.Function.roundTo 3 corr))
-                                                    }
-
-                                                _ ->
-                                                    { cell_ | cellState = CSView, value = CVString "Could not parse data (4)" }
-
-                                        _ ->
-                                            { cell_ | cellState = CSView, value = CVString "Could not parse data (3)" }
-
-                                _ ->
-                                    { cell_ | cellState = CSView, value = CVString "Could not parse data (2)" }
-
-                        _ ->
-                            { cell_ | cellState = CSView, value = CVString "Could not parse data (1)" }
-
-                prefix =
-                    List.filter (\cell -> cell.index < index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                suffix =
-                    List.filter (\cell -> cell.index > index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | index = cell.index })
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                oldBook =
-                    model.currentBook
+                    updateCell model commandWords cell_
 
                 newBook =
-                    { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
+                    updateBook updatedCell model.currentBook
+            in
+            ( { model | currentBook = newBook }, getCommand index cell_ commandWords )
 
-                cmd =
-                    case List.head commandWords of
-                        Nothing ->
-                            Cmd.none
 
-                        Just "readinto" ->
-                            case List.Extra.getAt 1 commandWords of
-                                Nothing ->
-                                    Cmd.none
+getCommand : Int -> Cell -> List String -> Cmd FrontendMsg
+getCommand index cell_ commandWords =
+    case List.head commandWords of
+        Nothing ->
+            Cmd.none
 
-                                Just variable ->
-                                    File.Select.file [ "text/csv" ] (StringDataSelected index variable)
+        Just "readinto" ->
+            case List.Extra.getAt 1 commandWords of
+                Nothing ->
+                    Cmd.none
 
-                        Just "import" ->
-                            case commandWords of
-                                "import" :: identifier :: "as" :: variable :: _ ->
-                                    Lamdera.sendToBackend (Types.GetData cell_.index identifier variable)
+                Just variable ->
+                    File.Select.file [ "text/csv" ] (StringDataSelected index variable)
+
+        Just "import" ->
+            case commandWords of
+                "import" :: identifier :: "as" :: variable :: _ ->
+                    Lamdera.sendToBackend (Types.GetData cell_.index identifier variable)
+
+                _ ->
+                    Cmd.none
+
+        Just "export" ->
+            case commandWords of
+                "export" :: identifier :: _ ->
+                    Lamdera.sendToBackend (Types.GetDataSetForDownload identifier)
+
+                _ ->
+                    Cmd.none
+
+        _ ->
+            Cmd.none
+
+
+getCommandWords : Cell -> List String
+getCommandWords cell_ =
+    cell_.text
+        |> List.filter (\line -> not <| String.startsWith "#" line)
+        |> String.join "\n"
+        |> String.replace ">" ""
+        |> String.trim
+        |> String.words
+
+
+updateCell : FrontendModel -> List String -> Cell -> Cell
+updateCell model commandWords cell_ =
+    case List.head commandWords of
+        Nothing ->
+            { cell_ | cellState = CSView }
+
+        Just "info" ->
+            let
+                identifier : String
+                identifier =
+                    List.Extra.getAt 1 commandWords |> Maybe.withDefault "---"
+
+                maybeDataSetMetadata =
+                    List.Extra.find (\dataSet -> String.contains identifier dataSet.identifier)
+                        (model.publicDataSetMetaDataList ++ model.privateDataSetMetaDataList)
+            in
+            case maybeDataSetMetadata of
+                Nothing ->
+                    { cell_ | cellState = CSView, value = CVString "Nothing found" }
+
+                Just dataSetMetadata ->
+                    let
+                        text =
+                            dataSetMetadata.name
+                                ++ "\n"
+                                ++ dataSetMetadata.identifier
+                                ++ "\n\n"
+                                ++ dataSetMetadata.description
+                                ++ "\n\n"
+                                ++ dataSetMetadata.comments
+                    in
+                    { cell_ | cellState = CSView, value = CVString text }
+
+        Just "image" ->
+            { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
+
+        Just "chart" ->
+            { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
+
+        Just "readinto" ->
+            { cell_ | cellState = CSView, value = CVString "*......*" }
+
+        Just "import" ->
+            { cell_ | cellState = CSView, value = CVString "*......*" }
+
+        Just "export" ->
+            let
+                file =
+                    (List.Extra.getAt 1 commandWords |> Maybe.withDefault "???" |> String.replace "." "-") ++ ".csv"
+            in
+            { cell_ | cellState = CSView, value = CVString ("Exported data to file " ++ file) }
+
+        Just "correlation" ->
+            -- correlation column1 column2 identifier
+            case commandWords of
+                "correlation" :: column1 :: column2 :: identifier :: _ ->
+                    case
+                        ( String.toInt column1
+                        , String.toInt column2
+                        , Dict.get identifier model.kvDict
+                        )
+                    of
+                        ( Just column1_, Just column2_, Just data ) ->
+                            let
+                                maybeValue : Maybe Float
+                                maybeValue =
+                                    LiveBook.Function.wrangleToListFloatPair (Just [ column1_, column2_ ]) data
+                                        |> Maybe.andThen Stat.correlation
+                            in
+                            case maybeValue of
+                                Just corr ->
+                                    { cell_
+                                        | cellState = CSView
+                                        , value = CVString (String.fromFloat (LiveBook.Function.roundTo 3 corr))
+                                    }
 
                                 _ ->
-                                    Cmd.none
-
-                        Just "export" ->
-                            case commandWords of
-                                "export" :: identifier :: _ ->
-                                    Lamdera.sendToBackend (Types.GetDataSetForDownload identifier)
-
-                                _ ->
-                                    Cmd.none
+                                    { cell_ | cellState = CSView, value = CVString "Could not parse data (4)" }
 
                         _ ->
-                            Cmd.none
-            in
-            ( { model | currentBook = newBook }, cmd )
+                            { cell_ | cellState = CSView, value = CVString "Could not parse data (3)" }
+
+                _ ->
+                    { cell_ | cellState = CSView, value = CVString "Could not parse data (2)" }
+
+        _ ->
+            { cell_ | cellState = CSView, value = CVString "Could not parse data (1)" }
 
 
 makeNewCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
