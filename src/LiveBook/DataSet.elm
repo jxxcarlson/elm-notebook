@@ -55,13 +55,14 @@ makeDataSet :
         , inputDescription : String
         , inputComments : String
         , inputData : String
+        , inputIdentifier : String
     }
     -> User
     -> DataSet
 makeDataSet model user =
     { author = user.username
     , name = model.inputName
-    , identifier = LiveBook.Utility.slugify user.username ++ "." ++ LiveBook.Utility.slugify model.inputName
+    , identifier = LiveBook.Utility.slugify user.username ++ "." ++ LiveBook.Utility.slugify model.inputIdentifier
     , public = False
     , createdAt = Time.millisToPosix 0
     , modifiedAt = Time.millisToPosix 0

@@ -5,6 +5,7 @@ module View.Input exposing
     , data
     , description
     , email
+    , identifier
     , name
     , password
     , passwordAgain
@@ -46,20 +47,24 @@ name model =
     inputFieldTemplate (E.px 300) "Name" InputName model.inputName
 
 
+identifier model =
+    inputFieldTemplate (E.px 300) "Identifier" InputIdentifier model.inputIdentifier
+
+
 author model =
     inputFieldTemplate (E.px 300) "Author" InputAuthor model.inputAuthor
 
 
 description model =
-    multiLineTemplate 300 80 "Description" InputDescription model.inputDescription
+    multiLineTemplate 500 80 "Description" InputDescription model.inputDescription
 
 
 comments model =
-    multiLineTemplate 300 80 "Comments" InputComments model.inputComments
+    multiLineTemplate 500 80 "Comments" InputComments model.inputComments
 
 
 data model =
-    multiLineTemplate 300 200 "Data" InputData model.inputData
+    multiLineTemplate 500 200 "Data" InputData model.inputData
 
 
 

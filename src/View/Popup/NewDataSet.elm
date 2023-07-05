@@ -15,8 +15,8 @@ view : Types.FrontendModel -> Element Types.FrontendMsg
 view model =
     View.Utility.showIf (model.popupState == Types.NewDataSetPopup) <|
         E.column
-            [ E.height (E.px 700)
-            , E.width (E.px 380)
+            [ E.height (E.px 620)
+            , E.width (E.px 580)
             , E.moveUp (toFloat <| View.Geometry.bodyHeight model)
             , E.moveRight 400
             , Background.color UILibrary.Color.darkerSteelGray
@@ -30,6 +30,7 @@ view model =
                 ]
                 (E.text "New Data Set")
             , View.Input.name model
+            , View.Input.identifier model
             , View.Input.description model
             , View.Input.comments model
             , View.Input.data model

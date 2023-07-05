@@ -72,6 +72,7 @@ init url key =
       --
       , inputName = ""
       , inputAuthor = ""
+      , inputIdentifier = ""
       , inputDescription = ""
       , inputComments = ""
       , inputData = ""
@@ -279,6 +280,9 @@ update msg model =
 
         InputUsername str ->
             ( { model | inputUsername = str }, Cmd.none )
+
+        InputIdentifier str ->
+            ( { model | inputIdentifier = str }, Cmd.none )
 
         InputSignupUsername str ->
             ( { model | inputSignupUsername = str }, Cmd.none )
