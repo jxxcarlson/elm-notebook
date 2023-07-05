@@ -22,8 +22,10 @@ deltaWidth =
 type alias Options =
     { direction : Maybe String
     , header : Maybe Int
+    , reverse : Bool
     , filter : Maybe String
     , columns : Maybe (List Int)
+    , rows : Maybe ( Int, Int )
     , lowest : Maybe Float
     , caption : Maybe String
     , label : Maybe String
@@ -53,6 +55,8 @@ chart kind properties_ data_ =
         options =
             { direction = Dict.get "direction" properties
             , columns = Dict.get "columns" properties |> Maybe.map (String.split "," >> List.map String.trim >> List.map String.toInt >> Maybe.Extra.values)
+            , rows = Dict.get "rows" properties |> Maybe.map (String.split "," >> List.map String.trim >> twoListToIntPair)
+            , reverse = Dict.get "reverse" properties |> toBool
             , header = Dict.get "header" properties |> Maybe.andThen String.toInt
             , filter = Dict.get "filter" properties
             , lowest = Dict.get "lowest" properties |> Maybe.andThen String.toFloat
@@ -85,6 +89,19 @@ chart kind properties_ data_ =
             ( Just labelText, Just captionText ) ->
                 Element.el [ Element.centerX, Font.size 14, Font.color (Element.rgb 0.5 0.5 0.7), Element.paddingEach { left = 0, right = 0, top = 24, bottom = 0 } ] (Element.text <| "Figure " ++ labelText ++ ". " ++ captionText)
         ]
+
+
+toBool : Maybe String -> Bool
+toBool maybeString =
+    case maybeString of
+        Just "yes" ->
+            True
+
+        Just "no" ->
+            False
+
+        _ ->
+            False
 
 
 getArg : String -> List String -> Maybe String
@@ -155,7 +172,36 @@ csvToChartData options inputLines_ =
             inputLines_
                 |> List.filter (\line -> String.trim line /= "" && String.left 1 line /= "#")
                 |> stripHeader options.header
+                |> takeRows options.rows
                 |> filterLines options.filter
+
+        reverse : Options -> List String -> List String
+        reverse options_ lines =
+            if options_.reverse then
+                List.reverse lines
+
+            else
+                lines
+
+        takeRows : Maybe ( Int, Int ) -> List String -> List String
+        takeRows maybeRowPair lines =
+            case maybeRowPair of
+                Nothing ->
+                    lines
+
+                Just ( start, end ) ->
+                    case ( start, end ) of
+                        ( 0, 0 ) ->
+                            lines
+
+                        ( 0, _ ) ->
+                            List.take end lines
+
+                        ( _, 0 ) ->
+                            List.drop start lines
+
+                        ( _, _ ) ->
+                            List.drop start lines |> List.take end
 
         stripHeader dropLines lines =
             case dropLines of
@@ -179,6 +225,7 @@ csvToChartData options inputLines_ =
                 Just "timeseries" ->
                     List.map (String.split "," >> List.map String.trim) filteredInputLines
                         |> selectColumns options.columns
+                        |> Maybe.map (applyIf options.reverse List.reverse)
                         |> Maybe.map makeTimeseries
 
                 _ ->
@@ -435,6 +482,16 @@ applyFunctions fs a =
     List.foldl (\f acc -> f a :: acc) [] fs |> List.reverse
 
 
+liftToMaybe : (a -> b) -> Maybe a -> Maybe b
+liftToMaybe f maybe =
+    case maybe of
+        Just a ->
+            Just (f a)
+
+        Nothing ->
+            Nothing
+
+
 applyIf : Bool -> (a -> a) -> a -> a
 applyIf flag f x =
     if flag then
@@ -462,3 +519,13 @@ maybeChoose maybe f g x =
 
         Nothing ->
             g x
+
+
+twoListToIntPair : List String -> ( Int, Int )
+twoListToIntPair list =
+    case list of
+        [ x, y ] ->
+            ( String.toInt x |> Maybe.withDefault 0, String.toInt y |> Maybe.withDefault 0 )
+
+        _ ->
+            ( 0, 0 )
