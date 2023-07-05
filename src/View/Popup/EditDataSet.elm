@@ -16,8 +16,8 @@ view model =
     case model.popupState of
         Types.EditDataSetPopup dataSetMetaData ->
             E.column
-                [ E.height (E.px 700)
-                , E.width (E.px 380)
+                [ E.height (E.px 620)
+                , E.width (E.px 580)
                 , E.moveUp (toFloat <| View.Geometry.bodyHeight model)
                 , E.moveRight 400
                 , Background.color UILibrary.Color.darkerSteelGray
