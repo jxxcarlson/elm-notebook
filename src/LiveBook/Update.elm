@@ -48,6 +48,37 @@ import Stat
 import Types exposing (FrontendModel, FrontendMsg(..))
 
 
+executeCell_ : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
+executeCell_ index model =
+    case List.Extra.getAt index model.currentBook.cells of
+        Nothing ->
+            ( model, Cmd.none )
+
+        Just cell_ ->
+            let
+                updatedCell =
+                    -- Update the cell according to
+                    -- (a) the expression (if any) in the cell
+                    -- (b) the command (if any) in the cell
+                    --
+                    -- Regarding (b), it may happen that the command
+                    -- is executed as the result of
+                    -- (c) running an Elm command (see 'cmd' below)
+                    updateCell model commandWords cell_
+
+                cmd =
+                    getCommand index cell_ commandWords
+
+                commandWords =
+                    -- run a the command defined in the cell
+                    getCommandWords cell_
+
+                newBook =
+                    updateBook updatedCell model.currentBook
+            in
+            ( { model | currentBook = newBook }, cmd )
+
+
 commands =
     [ "chart", "readinto", "image", "import", "export", "correlation", "info", "head" ]
 
@@ -59,26 +90,6 @@ clearNotebookValues book model =
             { book | cells = List.map (\cell -> { cell | value = CVNone }) book.cells }
     in
     ( { model | currentBook = newBook }, Lamdera.sendToBackend (Types.SaveNotebook newBook) )
-
-
-executeCell_ : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
-executeCell_ index model =
-    case List.Extra.getAt index model.currentBook.cells of
-        Nothing ->
-            ( model, Cmd.none )
-
-        Just cell_ ->
-            let
-                commandWords =
-                    getCommandWords cell_
-
-                updatedCell =
-                    updateCell model commandWords cell_
-
-                newBook =
-                    updateBook updatedCell model.currentBook
-            in
-            ( { model | currentBook = newBook }, getCommand index cell_ commandWords )
 
 
 getCommand : Int -> Cell -> List String -> Cmd FrontendMsg
@@ -130,6 +141,33 @@ updateCell model commandWords cell_ =
     case List.head commandWords of
         Nothing ->
             { cell_ | cellState = CSView }
+
+        Just "head" ->
+            let
+                n : Maybe Int
+                n =
+                    List.Extra.getAt 1 commandWords |> Maybe.andThen String.toInt
+
+                identifier_ =
+                    case n of
+                        Nothing ->
+                            List.Extra.getAt 1 commandWords |> Maybe.withDefault "_nothing_"
+
+                        Just _ ->
+                            List.Extra.getAt 2 commandWords |> Maybe.withDefault "_nothing_"
+
+                message =
+                    case Dict.get identifier_ model.kvDict of
+                        Just data_ ->
+                            data_
+                                |> String.lines
+                                |> List.take (n |> Maybe.withDefault 1)
+                                |> String.join " \\\n"
+
+                        Nothing ->
+                            "Could not find data with identifier " ++ identifier_ ++ " in the notebook."
+            in
+            { cell_ | cellState = CSView, value = CVString message }
 
         Just "info" ->
             let
