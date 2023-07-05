@@ -20,8 +20,7 @@ deltaWidth =
 
 
 type alias Options =
-    { timeseries : Maybe String
-    , reverse : Maybe String
+    { direction : Maybe String
     , columns : Maybe (List Int)
     , lowest : Maybe Float
     , caption : Maybe String
@@ -42,17 +41,15 @@ fontWidth =
     10
 
 
-
--- chart ["timeseries", "reverse", "columns:1", "lowest:3700",  "label:S&P Index, 06/14/2021 to 06/10/2022"]
-
-
-chart : List String -> Dict.Dict String String -> String -> Element msg
-chart args properties data_ =
+chart : String -> Dict.Dict String String -> String -> Element msg
+chart kind properties_ data_ =
     let
+        properties =
+            Dict.insert "kind" kind properties_
+
         options : Options
         options =
-            { timeseries = getArg "timeseries" args
-            , reverse = getArg "reverse" args
+            { direction = Dict.get "direction" properties
             , columns = Dict.get "columns" properties |> Maybe.map (String.split "," >> List.map String.trim >> List.map String.toInt >> Maybe.Extra.values)
             , lowest = Dict.get "lowest" properties |> Maybe.andThen String.toFloat
             , caption = Dict.get "caption" properties
@@ -153,16 +150,15 @@ csvToChartData options inputLines_ =
             inputLines_
                 |> List.filter (\line -> String.trim line /= "" && String.left 1 line /= "#")
 
-        -- |> maybeApply options.reverse List.reverse
         data_ : Maybe (List (List String))
         data_ =
-            case options.timeseries of
-                Just _ ->
+            case options.kind of
+                Just "timeseries" ->
                     List.map (String.split "," >> List.map String.trim) filteredInputLines
                         |> selectColumns options.columns
                         |> Maybe.map makeTimeseries
 
-                Nothing ->
+                _ ->
                     List.map (String.split "," >> List.map String.trim) filteredInputLines
                         |> selectColumns options.columns
 

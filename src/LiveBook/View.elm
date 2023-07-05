@@ -159,8 +159,11 @@ renderVT width kvDict vt args =
 
                         innerArgs =
                             List.filter (\s -> not (String.contains s ":")) args_
+
+                        kind =
+                            List.head innerArgs |> Maybe.withDefault "line"
                     in
-                    LiveBook.Chart.chart innerArgs options (dataVariable |> LiveBook.Eval.transformWordsWithKVDict kvDict)
+                    LiveBook.Chart.chart kind options (dataVariable |> LiveBook.Eval.transformWordsWithKVDict kvDict)
 
 
 getArg : Int -> List String -> String
