@@ -10,11 +10,8 @@ module LiveBook.Eval exposing
     , getCellExprRecord
     , getPriorBindings
     , isBinding_
-    , testCell
     , transformWordsWithKVDict
     )
-
--- (evaluate, evaluateWithCumulativeBindings, transformWordsWithKVDict)
 
 import Dict exposing (Dict)
 import Eval
@@ -23,28 +20,6 @@ import List.Extra
 import LiveBook.Types exposing (Cell, CellState(..), CellValue(..))
 import LiveBook.Utility
 import Value exposing (Value)
-
-
-cText =
-    """
-factoriaTC n =
-    let
-        f x acc =
-            if x == 0 then
-                acc
-            else
-                f (x - 1) (x * acc)
-    in
-    f n 1
-"""
-
-
-
---{ index : Int, text : List String, value : Maybe String, cellState : CellState }
-
-
-testCell index text =
-    { index = index, text = String.lines text, value = Nothing, cellState = CSView }
 
 
 evaluate : Cell -> Cell
@@ -114,8 +89,15 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
                     ++ bindingString
                     ++ "\nin\n"
                     ++ expressionString
+
+        _ =
+            Debug.log "@@@ stringToEvaluate" stringToEvaluate
     in
-    { cell | value = CVString (evaluateString stringToEvaluate), cellState = CSView }
+    if stringToEvaluate == "()" then
+        { cell | value = CVNone, cellState = CSView }
+
+    else
+        { cell | value = CVString (evaluateString stringToEvaluate), cellState = CSView }
 
 
 

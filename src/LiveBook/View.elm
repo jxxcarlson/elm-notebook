@@ -73,7 +73,25 @@ viewSource width cell cellContent =
             editCell width cell cellContent
 
 
+viewValue : Dict String String -> Int -> { a | value : CellValue } -> Element FrontendMsg
 viewValue kvDict width cell =
+    case cell.value of
+        CVNone ->
+            E.none
+
+        CVString str ->
+            let
+                cellHeight_ =
+                    List.length (String.lines str) |> (\x -> scale 14.5 x + 35)
+            in
+            par width
+                [ MarkdownThemed.renderFull (scale 1.0 width) cellHeight_ str ]
+
+        CVVisual vt args ->
+            renderVT width kvDict vt args
+
+
+par width =
     E.paragraph
         [ E.spacing 8
         , Font.color Color.black
@@ -81,20 +99,23 @@ viewValue kvDict width cell =
         , E.width (E.px width)
         , Background.color (E.rgb 0.85 0.85 0.95)
         ]
-        [ case cell.value of
-            CVNone ->
-                E.text "-- unevaluated --"
 
-            CVString str ->
-                let
-                    cellHeight_ =
-                        List.length (String.lines str) |> (\x -> scale 14.5 x + 35)
-                in
-                MarkdownThemed.renderFull (scale 1.0 width) cellHeight_ str
 
-            CVVisual vt args ->
-                renderVT width kvDict vt args
-        ]
+
+--[ case cell.value of
+--    CVNone ->
+--        E.text ""
+--
+--    CVString str ->
+--        let
+--            cellHeight_ =
+--                List.length (String.lines str) |> (\x -> scale 14.5 x + 35)
+--        in
+--        MarkdownThemed.renderFull (scale 1.0 width) cellHeight_ str
+--
+--    CVVisual vt args ->
+--        renderVT width kvDict vt args
+--]
 
 
 renderVT : Int -> Dict String String -> VisualType -> List String -> Element FrontendMsg
