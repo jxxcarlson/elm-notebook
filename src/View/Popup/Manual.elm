@@ -112,7 +112,7 @@ be imported from a `.csv` file and stored in a varialbe using the command `readi
 The command `readinto foo` will store the file contents in the variable `foo`.
 To visualize imported data, use the `chart` command, e.g.,
 `chart timeseries columns:1 foo` to display a time series of the data in column 1
-of `foo`, or `chart scatterplot columns:3,5 foo` for a scatter plot of the
+of `foo`, or `chart scatter columns:3,5 foo` for a scatter plot of the
 data in columns 3 and 5..  See the public notebook
 **Data, Charts, and Images** for examples.
 

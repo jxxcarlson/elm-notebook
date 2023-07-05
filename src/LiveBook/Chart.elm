@@ -21,6 +21,8 @@ deltaWidth =
 
 type alias Options =
     { direction : Maybe String
+    , header : Maybe Int
+    , filter : Maybe String
     , columns : Maybe (List Int)
     , lowest : Maybe Float
     , caption : Maybe String
@@ -51,6 +53,8 @@ chart kind properties_ data_ =
         options =
             { direction = Dict.get "direction" properties
             , columns = Dict.get "columns" properties |> Maybe.map (String.split "," >> List.map String.trim >> List.map String.toInt >> Maybe.Extra.values)
+            , header = Dict.get "header" properties |> Maybe.andThen String.toInt
+            , filter = Dict.get "filter" properties
             , lowest = Dict.get "lowest" properties |> Maybe.andThen String.toFloat
             , caption = Dict.get "caption" properties
             , label = Dict.get "figure" properties
@@ -146,9 +150,28 @@ makeTimeseries data =
 csvToChartData : Options -> List String -> Maybe ChartData
 csvToChartData options inputLines_ =
     let
+        filteredInputLines : List String
         filteredInputLines =
             inputLines_
                 |> List.filter (\line -> String.trim line /= "" && String.left 1 line /= "#")
+                |> stripHeader options.header
+                |> filterLines options.filter
+
+        stripHeader dropLines lines =
+            case dropLines of
+                Nothing ->
+                    lines
+
+                Just n ->
+                    List.drop n lines
+
+        filterLines filter_ lines =
+            case filter_ of
+                Nothing ->
+                    lines
+
+                Just filter ->
+                    List.filter (\line -> String.contains filter line) lines
 
         data_ : Maybe (List (List String))
         data_ =
