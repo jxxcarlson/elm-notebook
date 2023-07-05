@@ -11,6 +11,24 @@ module LiveBook.Update exposing
     , updateCellText
     )
 
+{-|
+
+    In module LiveBook.Udate, we implement functions such as
+
+        - chart
+        - image
+        - readInto
+        - import
+        - export
+        - correlation
+
+New commans appear in two places:
+
+        - in the list of commands
+        - in the case statement in executeCell_
+
+-}
+
 import Dict
 import File.Select
 import Lamdera
@@ -31,7 +49,7 @@ import Types exposing (FrontendModel, FrontendMsg(..))
 
 
 commands =
-    [ "chart", "readinto", "image", "import", "export", "correlation" ]
+    [ "chart", "readinto", "image", "import", "export", "correlation", "info" ]
 
 
 clearNotebookValues : Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
@@ -63,6 +81,27 @@ executeCell_ index model =
                     case List.head commandWords of
                         Nothing ->
                             { cell_ | cellState = CSView }
+
+                        Just "info" ->
+                            let
+                                identifier : Maybe String
+                                identifier =
+                                    List.Extra.getAt 1 commandWords
+
+                                maybeDataSetMetadata =
+                                    List.Extra.find (\dataSet -> Just dataSet.identifier == identifier)
+                                        (model.publicDataSetMetaDataList ++ model.privateDataSetMetaDataList)
+                            in
+                            case maybeDataSetMetadata of
+                                Nothing ->
+                                    { cell_ | cellState = CSView, value = CVString "Nothing found" }
+
+                                Just dataSetMetadata ->
+                                    let
+                                        text =
+                                            "# Description: " ++ dataSetMetadata.description ++ "\n# Comments" ++ dataSetMetadata.comments
+                                    in
+                                    { cell_ | cellState = CSView, value = CVString text }
 
                         Just "image" ->
                             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
