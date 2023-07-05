@@ -84,12 +84,12 @@ executeCell_ index model =
 
                         Just "info" ->
                             let
-                                identifier : Maybe String
+                                identifier : String
                                 identifier =
-                                    List.Extra.getAt 1 commandWords
+                                    List.Extra.getAt 1 commandWords |> Maybe.withDefault "---"
 
                                 maybeDataSetMetadata =
-                                    List.Extra.find (\dataSet -> Just dataSet.identifier == identifier)
+                                    List.Extra.find (\dataSet -> String.contains identifier dataSet.identifier)
                                         (model.publicDataSetMetaDataList ++ model.privateDataSetMetaDataList)
                             in
                             case maybeDataSetMetadata of
@@ -99,7 +99,13 @@ executeCell_ index model =
                                 Just dataSetMetadata ->
                                     let
                                         text =
-                                            "**Description:** " ++ dataSetMetadata.description ++ "\n**Comments:**" ++ dataSetMetadata.comments
+                                            dataSetMetadata.name
+                                                ++ "\n"
+                                                ++ dataSetMetadata.identifier
+                                                ++ "\n\n"
+                                                ++ dataSetMetadata.description
+                                                ++ "\n\n"
+                                                ++ dataSetMetadata.comments
                                     in
                                     { cell_ | cellState = CSView, value = CVString text }
 
