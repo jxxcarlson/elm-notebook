@@ -89,19 +89,12 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
                     ++ bindingString
                     ++ "\nin\n"
                     ++ expressionString
-
-        _ =
-            Debug.log "@@@ stringToEvaluate" stringToEvaluate
     in
     if stringToEvaluate == "()" then
         { cell | value = CVNone, cellState = CSView }
 
     else
         { cell | value = CVString (evaluateString stringToEvaluate), cellState = CSView }
-
-
-
--- evaluateWithCumulativeBindingsR : Dict String String -> List Cell -> Cell -> Cell
 
 
 evaluateWithCumulativeBindingsToResult : Dict String String -> List Cell -> { a | index : Int } -> Result Eval.Types.Error Value
