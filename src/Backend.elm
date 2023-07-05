@@ -389,11 +389,7 @@ idMessage model =
 
 
 getUniqueIdentifier : String -> Dict String a -> String
-getUniqueIdentifier id_ dict =
-    let
-        id =
-            LiveBook.Utility.slugify id_
-    in
+getUniqueIdentifier id dict =
     case Dict.get id dict of
         Nothing ->
             id
