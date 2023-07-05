@@ -99,7 +99,7 @@ executeCell_ index model =
                                 Just dataSetMetadata ->
                                     let
                                         text =
-                                            "# Description: " ++ dataSetMetadata.description ++ "\n# Comments" ++ dataSetMetadata.comments
+                                            "**Description:** " ++ dataSetMetadata.description ++ "\n**Comments:**" ++ dataSetMetadata.comments
                                     in
                                     { cell_ | cellState = CSView, value = CVString text }
 
