@@ -19,7 +19,12 @@ type alias Book =
 
 
 type alias Cell =
-    { index : Int, text : List String, value : CellValue, cellState : CellState, locked : Bool }
+    { index : Int
+    , text : List String
+    , value : CellValue
+    , cellState : CellState
+    , locked : Bool
+    }
 
 
 type CellValue
