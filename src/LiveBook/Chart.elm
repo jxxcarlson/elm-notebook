@@ -222,8 +222,8 @@ csvToChartData options inputLines_ =
                 |> (\data -> takeRows (flipIf data options.reverse options.rows) data)
 
         flipIf : List String -> Bool -> Maybe ( Int, Int ) -> Maybe ( Int, Int )
-        flipIf data reverse rows =
-            if reverse then
+        flipIf data reverse_ rows =
+            if reverse_ then
                 case rows of
                     Nothing ->
                         Just ( 0, List.length data )
