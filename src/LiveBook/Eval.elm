@@ -112,13 +112,13 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
         nRecords =
             List.length exprRecords
 
-        bindingString : String
-        bindingString =
+        bindings : List String
+        bindings =
             exprRecords
                 |> List.map .bindings
                 |> List.concat
-                |> String.join "\n"
 
+        --|> String.join "\n"
         expressionString_ =
             exprRecords
                 |> List.drop (nRecords - 1)
@@ -135,6 +135,9 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
             else
                 expressionString_
 
+        bindingString =
+            String.join "\n" bindings
+
         stringToEvaluate =
             if bindingString == "" then
                 expressionString
@@ -149,7 +152,12 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
         { cell | value = CVNone, cellState = CSView }
 
     else
-        { cell | value = CVString (evaluateString stringToEvaluate), cellState = CSView }
+        { cell
+            | value = CVString (evaluateString stringToEvaluate)
+            , bindings = bindings
+            , expression = expressionString
+            , cellState = CSView
+        }
 
 
 evaluateBindingsToResult : String -> Result Eval.Types.Error Value

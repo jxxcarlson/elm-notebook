@@ -177,7 +177,7 @@ updateCell model commandWords cell_ =
             in
             { cell_
                 | cellState = CSView
-                , text = Dict.get identifier model.kvDict |> Maybe.withDefault "???" |> String.lines
+                , bindings = Dict.get identifier model.kvDict |> Maybe.withDefault "???" |> String.lines
                 , value = CVNone --CVString (Dict.get identifier model.kvDict |> Maybe.withDefault "---")
             }
 

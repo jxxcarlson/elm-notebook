@@ -11,7 +11,14 @@ import Test exposing (..)
 
 testCell : Int -> List String -> Cell
 testCell index strings =
-    { index = index, text = strings, value = CVNone, cellState = CSView, locked = False }
+    { index = index
+    , text = strings
+    , bindings = []
+    , expression = ""
+    , value = CVNone
+    , cellState = CSView
+    , locked = False
+    }
 
 
 type alias TestDatum =
