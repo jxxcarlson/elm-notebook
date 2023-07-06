@@ -152,6 +152,11 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
         { cell | value = CVString (evaluateString stringToEvaluate), cellState = CSView }
 
 
+evaluateBindingsToResult : String -> Result Eval.Types.Error Value
+evaluateBindingsToResult sourceText =
+    Eval.eval sourceText
+
+
 evaluateWithCumulativeBindingsToResult2 : Dict String String -> List Cell -> String -> Result Eval.Types.Error Value
 evaluateWithCumulativeBindingsToResult2 kvDict cells variable =
     let

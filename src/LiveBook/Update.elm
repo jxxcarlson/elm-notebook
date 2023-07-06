@@ -80,7 +80,7 @@ executeCell_ index model =
 
 
 commands =
-    [ "chart", "readinto", "image", "import", "export", "correlation", "info", "head", "plot2D" ]
+    [ "chart", "readinto", "image", "import", "export", "correlation", "info", "head", "plot2D", "eval" ]
 
 
 clearNotebookValues : Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
@@ -168,6 +168,18 @@ updateCell model commandWords cell_ =
                             "Could not find data with identifier " ++ identifier_ ++ " in the notebook."
             in
             { cell_ | cellState = CSView, value = CVString message }
+
+        Just "eval" ->
+            let
+                identifier : String
+                identifier =
+                    List.Extra.getAt 1 commandWords |> Maybe.withDefault "???"
+            in
+            { cell_
+                | cellState = CSView
+                , text = Dict.get identifier model.kvDict |> Maybe.withDefault "???" |> String.lines
+                , value = CVString (Dict.get identifier model.kvDict |> Maybe.withDefault "---")
+            }
 
         Just "info" ->
             let
