@@ -21,6 +21,8 @@ type alias Book =
 type alias Cell =
     { index : Int
     , text : List String
+    , bindings : List String
+    , expression : String
     , value : CellValue
     , cellState : CellState
     , locked : Bool

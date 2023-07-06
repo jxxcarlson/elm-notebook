@@ -15,7 +15,16 @@ scratchPad username =
     , updatedAt = Time.millisToPosix 0
     , public = False
     , title = "Scatchpad"
-    , cells = [ { index = 0, text = [ "# Example: ", "> 1 + 1 == 2" ], value = CVNone, cellState = CSView, locked = False } ]
+    , cells =
+        [ { index = 0
+          , text = [ "# Example: ", "> 1 + 1 == 2" ]
+          , bindings = []
+          , expression = ""
+          , value = CVNone
+          , cellState = CSView
+          , locked = False
+          }
+        ]
     , currentIndex = 0
     }
 
@@ -30,7 +39,16 @@ new author title =
     , updatedAt = Time.millisToPosix 0
     , public = False
     , title = title
-    , cells = [ { index = 0, text = [ "# Example: ", "> 1 + 1 == 2" ], value = CVString "True", cellState = CSView, locked = False } ]
+    , cells =
+        [ { index = 0
+          , text = [ "# Example: ", "> 1 + 1 == 2" ]
+          , bindings = []
+          , expression = ""
+          , value = CVString "True"
+          , cellState = CSView
+          , locked = False
+          }
+        ]
     , currentIndex = 0
     }
 
