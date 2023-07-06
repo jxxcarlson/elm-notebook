@@ -218,8 +218,21 @@ csvToChartData options inputLines_ =
             inputLines_
                 |> List.filter (\line -> String.trim line /= "" && String.left 1 line /= "#")
                 |> stripHeader options.header
-                |> takeRows options.rows
                 |> filterLines options.filter
+                |> (\data -> takeRows (flipIf data options.reverse options.rows) data)
+
+        flipIf : List String -> Bool -> Maybe ( Int, Int ) -> Maybe ( Int, Int )
+        flipIf data reverse rows =
+            if reverse then
+                case rows of
+                    Nothing ->
+                        Just ( 0, List.length data )
+
+                    Just ( start, end ) ->
+                        Just ( List.length data - end, List.length data - start )
+
+            else
+                rows
 
         reverse : Options -> List String -> List String
         reverse options_ lines =
