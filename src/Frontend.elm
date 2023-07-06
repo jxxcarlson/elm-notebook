@@ -51,6 +51,7 @@ subscriptions model =
     Sub.batch
         [ Browser.Events.onResize GotNewWindowDimensions
         , Time.every 3000 FETick
+        , Time.every 600 FastTick
         , Sub.map KeyboardMsg Keyboard.subscriptions
         ]
 
@@ -64,6 +65,7 @@ init url key =
       , appState = Loading
       , appMode = AMWorking
       , currentTime = Time.millisToPosix 0
+      , tickCount = 0
       , pressedKeys = []
 
       -- ADMIN
@@ -132,6 +134,9 @@ update msg model =
                         ( model, Cmd.none )
             in
             ( { newModel | pressedKeys = pressedKeys }, cmd )
+
+        FastTick _ ->
+            ( { model | tickCount = model.tickCount + 1 }, Cmd.none )
 
         FETick time ->
             if Predicate.canSave model && model.currentBook.dirty then

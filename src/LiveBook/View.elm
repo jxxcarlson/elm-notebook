@@ -103,23 +103,6 @@ par width =
         ]
 
 
-
---[ case cell.value of
---    CVNone ->
---        E.text ""
---
---    CVString str ->
---        let
---            cellHeight_ =
---                List.length (String.lines str) |> (\x -> scale 14.5 x + 35)
---        in
---        MarkdownThemed.renderFull (scale 1.0 width) cellHeight_ str
---
---    CVVisual vt args ->
---        renderVT width kvDict vt args
---]
-
-
 renderVT : List Cell -> Int -> Dict String String -> VisualType -> List String -> Element FrontendMsg
 renderVT cells width kvDict vt args =
     case vt of

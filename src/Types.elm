@@ -27,6 +27,7 @@ type alias FrontendModel =
     , appState : AppState
     , appMode : AppMode
     , currentTime : Time.Posix
+    , tickCount : Int
     , pressedKeys : List Keyboard.Key
 
     -- ADMIN
@@ -114,6 +115,7 @@ type FrontendMsg
     | UrlChanged Url
     | NoOpFrontendMsg
     | FETick Time.Posix
+    | FastTick Time.Posix
     | KeyboardMsg Keyboard.Msg
       -- FILE
     | StringDataRequested Int String -- int is the cell index, string is the variable name
