@@ -11,6 +11,7 @@ import List.Extra
 import LiveBook.Chart
 import LiveBook.Eval
 import LiveBook.PreProcess
+import LiveBook.SVG
 import LiveBook.Types exposing (Cell, CellState(..), CellValue(..), VisualType(..))
 import LiveBook.Utility
 import Types exposing (FrontendModel, FrontendMsg(..))
@@ -145,6 +146,9 @@ renderVT cells width kvDict vt args =
                     E.image
                         [ E.width (E.px width_) ]
                         { src = url, description = "image" }
+
+        VTSVG ->
+            LiveBook.SVG.render [ "circle 100 100 30 blue", "circle 200 200 20 red" ]
 
         VTChart ->
             case List.Extra.unconsLast args of

@@ -38,6 +38,7 @@ type CellValue
 type VisualType
     = VTChart
     | VTPlot2D
+    | VTSVG
     | VTImage
 
 

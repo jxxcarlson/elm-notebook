@@ -124,7 +124,18 @@ executeCell index model =
 
 
 commands =
-    [ "chart", "readinto", "image", "import", "export", "correlation", "info", "head", "plot2D", "eval" ]
+    [ "chart"
+    , "readinto"
+    , "image"
+    , "import"
+    , "export"
+    , "correlation"
+    , "info"
+    , "head"
+    , "plot2D"
+    , "eval"
+    , "svg"
+    ]
 
 
 clearNotebookValues : Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
@@ -210,6 +221,9 @@ updateCell model commandWords cell_ =
 
         Just "image" ->
             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
+
+        Just "svg" ->
+            { cell_ | cellState = CSView, value = CVVisual VTSVG (List.drop 1 commandWords) }
 
         Just "chart" ->
             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
