@@ -223,7 +223,18 @@ updateCell model commandWords cell_ =
             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
 
         Just "svg" ->
-            { cell_ | cellState = CSView, value = CVVisual VTSVG (List.drop 1 commandWords) }
+            { cell_
+                | cellState = CSView
+                , value =
+                    CVVisual VTSvg
+                        (cell_.text
+                            |> List.map (String.split ",")
+                            |> List.head
+                            |> Maybe.withDefault []
+                            |> List.filter (\item -> item /= "#")
+                         --|> List.map (String.replace "> svg " ""
+                        )
+            }
 
         Just "chart" ->
             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }

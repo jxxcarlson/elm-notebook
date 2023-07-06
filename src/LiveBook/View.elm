@@ -75,7 +75,7 @@ viewSource width cell cellContent =
             editCell width cell cellContent
 
 
-viewValue : List Cell -> Dict String String -> Int -> { a | value : CellValue } -> Element FrontendMsg
+viewValue : List Cell -> Dict String String -> Int -> Cell -> Element FrontendMsg
 viewValue cells kvDict width cell =
     case cell.value of
         CVNone ->
@@ -147,8 +147,14 @@ renderVT cells width kvDict vt args =
                         [ E.width (E.px width_) ]
                         { src = url, description = "image" }
 
-        VTSVG ->
-            LiveBook.SVG.render [ "circle 100 100 30 blue", "circle 200 200 20 red" ]
+        VTSvg ->
+            let
+                cleanArgs =
+                    args
+                        |> List.filter (\s -> not (String.contains s "#"))
+                        |> List.map (String.replace "> svg " "")
+            in
+            LiveBook.SVG.render cleanArgs
 
         VTChart ->
             case List.Extra.unconsLast args of

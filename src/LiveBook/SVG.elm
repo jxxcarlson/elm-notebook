@@ -79,6 +79,9 @@ stringToSvg str =
 render : List String -> Element msg
 render svgList =
     let
+        _ =
+            svgList
+
         foo : List (Svg msg)
         foo =
             List.map stringToSvg svgList
