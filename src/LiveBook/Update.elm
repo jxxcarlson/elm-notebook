@@ -4,7 +4,7 @@ module LiveBook.Update exposing
     , deleteCell
     , editCell
     , evalCell
-    , executeCell_
+    , executeCell
     , makeNewCell
     , setCellValue
     , toggleCellLock
@@ -13,19 +13,17 @@ module LiveBook.Update exposing
 
 {-|
 
-    In module LiveBook.Udate, we implement functions such as
+    This module implements functions called by Frontend.update
+    (see the list of functions exposed).
 
-        - chart
-        - image
-        - readInto
-        - import
-        - export
-        - correlation
+    All return either (a) (FrontendModel, Cmd FrontendMsg) or
+    (b) Cmd FrontendMsg
 
-New commans appear in two places:
+    See the value 'commands' for the complete list of commands.
 
-        - in the list of commands
-        - in the case statement in executeCell_
+   New commands are implemented in the case statement
+   of function 'executeCell'.  A command will be
+   executed only if it also appears in the list 'commands'.
 
 -}
 
@@ -43,13 +41,59 @@ import LiveBook.Types
         , CellValue(..)
         , VisualType(..)
         )
-import Maybe.Extra
 import Stat
 import Types exposing (FrontendModel, FrontendMsg(..))
 
 
-executeCell_ : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
-executeCell_ index model =
+
+-- EVALCELL
+
+
+{-|
+
+    evalCell is called when (a) the user presses enter in a cell and
+    also (b) when the message EvalCell is received.
+    At the moment (b) never happens.  TODO: do we really need (b)?
+
+    NOTE: evalCell makes one of two possible calls:
+    (a) to evaluateWithCumulativeBindings or
+    (b) to executeCell.  Branch (b) is taken when the cell contains a command.
+
+-}
+evalCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
+evalCell index model =
+    case List.Extra.getAt index model.currentBook.cells of
+        Nothing ->
+            ( model, Cmd.none )
+
+        Just cell_ ->
+            let
+                command =
+                    cell_.text
+                        |> List.head
+                        |> Maybe.withDefault ""
+                        |> String.replace ">" ""
+                        |> String.words
+                        |> List.map String.trim
+                        |> List.head
+            in
+            if List.member command (List.map Just commands) then
+                executeCell index model
+
+            else
+                ( evaluateWithCumulativeBindings model index cell_, Cmd.none )
+
+
+evaluateWithCumulativeBindings model index cell_ =
+    let
+        updatedCell =
+            LiveBook.Eval.evaluateWithCumulativeBindings model.kvDict model.currentBook.cells cell_
+    in
+    { model | currentBook = updateBook updatedCell model.currentBook }
+
+
+executeCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
+executeCell index model =
     case List.Extra.getAt index model.currentBook.cells of
         Nothing ->
             ( model, Cmd.none )
@@ -90,50 +134,6 @@ clearNotebookValues book model =
             { book | cells = List.map (\cell -> { cell | value = CVNone }) book.cells }
     in
     ( { model | currentBook = newBook }, Lamdera.sendToBackend (Types.SaveNotebook newBook) )
-
-
-getCommand : Int -> Cell -> List String -> Cmd FrontendMsg
-getCommand index cell_ commandWords =
-    case List.head commandWords of
-        Nothing ->
-            Cmd.none
-
-        Just "readinto" ->
-            case List.Extra.getAt 1 commandWords of
-                Nothing ->
-                    Cmd.none
-
-                Just variable ->
-                    File.Select.file [ "text/csv" ] (StringDataSelected index variable)
-
-        Just "import" ->
-            case commandWords of
-                "import" :: identifier :: "as" :: variable :: _ ->
-                    Lamdera.sendToBackend (Types.GetData cell_.index identifier variable)
-
-                _ ->
-                    Cmd.none
-
-        Just "export" ->
-            case commandWords of
-                "export" :: identifier :: _ ->
-                    Lamdera.sendToBackend (Types.GetDataSetForDownload identifier)
-
-                _ ->
-                    Cmd.none
-
-        _ ->
-            Cmd.none
-
-
-getCommandWords : Cell -> List String
-getCommandWords cell_ =
-    cell_.text
-        |> List.filter (\line -> not <| String.startsWith "#" line)
-        |> String.join "\n"
-        |> String.replace ">" ""
-        |> String.trim
-        |> String.words
 
 
 updateCell : FrontendModel -> List String -> Cell -> Cell
@@ -267,6 +267,71 @@ updateCell model commandWords cell_ =
             { cell_ | cellState = CSView, value = CVString "Could not parse data (1)" }
 
 
+
+-- OTHER TOP LEVEL FUNCTIONS
+
+
+deleteCell : Int -> FrontendModel -> FrontendModel
+deleteCell index model =
+    case List.Extra.getAt index model.currentBook.cells of
+        Nothing ->
+            model
+
+        Just _ ->
+            let
+                prefix =
+                    List.filter (\cell -> cell.index < index) model.currentBook.cells
+                        |> List.map (\cell -> { cell | cellState = CSView })
+
+                suffix =
+                    List.filter (\cell -> cell.index > index) model.currentBook.cells
+                        |> List.map (\cell -> { cell | cellState = CSView, index = cell.index - 1 })
+
+                oldBook =
+                    model.currentBook
+
+                newBook =
+                    { oldBook | cells = prefix ++ suffix, dirty = True }
+            in
+            { model | currentCellIndex = 0, currentBook = newBook }
+
+
+editCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
+editCell model index =
+    case List.Extra.getAt index model.currentBook.cells of
+        Nothing ->
+            ( model, Cmd.none )
+
+        Just cell_ ->
+            let
+                updatedCell =
+                    { cell_ | cellState = CSEdit }
+
+                newBook =
+                    updateBook updatedCell model.currentBook
+            in
+            ( { model | currentCellIndex = cell_.index, cellContent = cell_.text |> String.join "\n", currentBook = newBook }, Cmd.none )
+
+
+clearCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
+clearCell model index =
+    case List.Extra.getAt index model.currentBook.cells of
+        Nothing ->
+            ( model, Cmd.none )
+
+        Just cell_ ->
+            let
+                updatedCell =
+                    { cell_ | text = [ "" ], cellState = CSView }
+
+                newBook =
+                    updateBook updatedCell model.currentBook
+            in
+            ( { model | cellContent = "", currentBook = newBook }, Cmd.none )
+
+
+s
+
 makeNewCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
 makeNewCell model index =
     let
@@ -280,20 +345,8 @@ makeNewCell model index =
             , locked = False
             }
 
-        prefix =
-            List.filter (\cell -> cell.index <= index) model.currentBook.cells
-                |> List.map (\cell -> { cell | cellState = CSView })
-
-        suffix =
-            List.filter (\cell -> cell.index > index) model.currentBook.cells
-                |> List.map (\cell -> { cell | index = cell.index + 1 })
-                |> List.map (\cell -> { cell | cellState = CSView })
-
-        oldBook =
-            model.currentBook
-
         newBook =
-            { oldBook | cells = prefix ++ (newCell :: suffix), dirty = True }
+            updateBook newCell model.currentBook
     in
     ( { model
         | cellContent = ""
@@ -302,6 +355,33 @@ makeNewCell model index =
       }
     , Cmd.none
     )
+
+
+setCellValue : FrontendModel -> Int -> CellValue -> FrontendModel
+setCellValue model index cellValue =
+    case List.Extra.getAt index model.currentBook.cells of
+        Nothing ->
+            model
+
+        Just cell_ ->
+            { model | currentBook = updateBook { cell_ | value = cellValue } model.currentBook }
+
+
+updateCellText : FrontendModel -> Int -> String -> FrontendModel
+updateCellText model index str =
+    case List.Extra.getAt index model.currentBook.cells of
+        Nothing ->
+            model
+
+        Just cell_ ->
+            let
+                updatedCell =
+                    { cell_ | text = str |> String.split "\n" }
+            in
+            { model | cellContent = str, currentBook = updateBook updatedCell model.currentBook }
+
+
+-- HELPERS
 
 
 updateBook : Cell -> Book -> Book
@@ -333,159 +413,45 @@ toggleCellLock cell model =
     { model | currentBook = updatedBook }
 
 
-setCellValue : FrontendModel -> Int -> CellValue -> FrontendModel
-setCellValue model index cellValue =
-    case List.Extra.getAt index model.currentBook.cells of
+getCommand : Int -> Cell -> List String -> Cmd FrontendMsg
+getCommand index cell_ commandWords =
+    case List.head commandWords of
         Nothing ->
-            model
+            Cmd.none
 
-        Just cell_ ->
-            { model | currentBook = updateBook { cell_ | value = cellValue } model.currentBook }
+        Just "readinto" ->
+            case List.Extra.getAt 1 commandWords of
+                Nothing ->
+                    Cmd.none
 
+                Just variable ->
+                    File.Select.file [ "text/csv" ] (StringDataSelected index variable)
 
-updateCellText : FrontendModel -> Int -> String -> FrontendModel
-updateCellText model index str =
-    case List.Extra.getAt index model.currentBook.cells of
-        Nothing ->
-            model
+        Just "import" ->
+            case commandWords of
+                "import" :: identifier :: "as" :: variable :: _ ->
+                    Lamdera.sendToBackend (Types.GetData cell_.index identifier variable)
 
-        Just cell_ ->
-            let
-                updatedCell =
-                    { cell_ | text = str |> String.split "\n" }
-            in
-            { model | cellContent = str, currentBook = updateBook updatedCell model.currentBook }
+                _ ->
+                    Cmd.none
 
+        Just "export" ->
+            case commandWords of
+                "export" :: identifier :: _ ->
+                    Lamdera.sendToBackend (Types.GetDataSetForDownload identifier)
 
-deleteCell : Int -> FrontendModel -> FrontendModel
-deleteCell index model =
-    case List.Extra.getAt index model.currentBook.cells of
-        Nothing ->
-            model
+                _ ->
+                    Cmd.none
 
-        Just cell_ ->
-            let
-                prefix =
-                    List.filter (\cell -> cell.index < index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                suffix =
-                    List.filter (\cell -> cell.index > index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | cellState = CSView, index = cell.index - 1 })
-
-                oldBook =
-                    model.currentBook
-
-                newBook =
-                    { oldBook | cells = prefix ++ suffix, dirty = True }
-            in
-            { model | currentCellIndex = 0, currentBook = newBook }
+        _ ->
+            Cmd.none
 
 
-editCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
-editCell model index =
-    case List.Extra.getAt index model.currentBook.cells of
-        Nothing ->
-            ( model, Cmd.none )
-
-        Just cell_ ->
-            let
-                updatedCell =
-                    { cell_ | cellState = CSEdit }
-
-                prefix =
-                    List.filter (\cell -> cell.index < index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                suffix =
-                    List.filter (\cell -> cell.index > index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                oldBook =
-                    model.currentBook
-
-                newBook =
-                    { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
-            in
-            ( { model | currentCellIndex = cell_.index, cellContent = cell_.text |> String.join "\n", currentBook = newBook }, Cmd.none )
-
-
-clearCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
-clearCell model index =
-    case List.Extra.getAt index model.currentBook.cells of
-        Nothing ->
-            ( model, Cmd.none )
-
-        Just cell_ ->
-            let
-                updatedCell =
-                    { cell_ | text = [ "" ], cellState = CSView }
-
-                prefix =
-                    List.filter (\cell -> cell.index < index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                suffix =
-                    List.filter (\cell -> cell.index > index) model.currentBook.cells
-                        |> List.map (\cell -> { cell | cellState = CSView })
-
-                oldBook =
-                    model.currentBook
-
-                newBook =
-                    { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
-            in
-            ( { model | cellContent = "", currentBook = newBook }, Cmd.none )
-
-
-evalCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
-evalCell index model =
-    case List.Extra.getAt index model.currentBook.cells of
-        Nothing ->
-            ( model, Cmd.none )
-
-        Just cell_ ->
-            let
-                command =
-                    cell_.text
-                        |> List.head
-                        |> Maybe.withDefault ""
-                        |> String.replace ">" ""
-                        |> String.words
-                        |> List.map String.trim
-                        |> List.head
-            in
-            if List.member command (List.map Just commands) then
-                executeCell_ index model
-
-            else
-                ( evaluateWithCumulativeBindings model index cell_, Cmd.none )
-
-
-evaluateWithCumulativeBindings model index cell_ =
-    let
-        updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings model.kvDict model.currentBook.cells cell_
-
-        prefix =
-            List.filter (\cell -> cell.index < index) model.currentBook.cells
-                |> List.map (\cell -> { cell | cellState = CSView })
-
-        suffix =
-            List.filter (\cell -> cell.index > index) model.currentBook.cells
-
-        oldBook =
-            model.currentBook
-
-        newBook =
-            { oldBook | cells = prefix ++ (updatedCell :: suffix), dirty = True }
-
-        --|> List.map LiveBook.View.evaluate
-    in
-    { model | currentBook = updateBook updatedCell model.currentBook }
-
-
-
---evalCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
---evalCell model index =
---    evalCell_ index model
+getCommandWords : Cell -> List String
+getCommandWords cell_ =
+    cell_.text
+        |> List.filter (\line -> not <| String.startsWith "#" line)
+        |> String.join "\n"
+        |> String.replace ">" ""
+        |> String.trim
+        |> String.words
