@@ -6,6 +6,7 @@ import Element.Background as Background
 import Element.Events
 import Element.Font as Font
 import Element.Input
+import Element.Lazy
 import List.Extra
 import LiveBook.Chart
 import LiveBook.Eval
@@ -88,7 +89,7 @@ viewValue cells kvDict width cell =
                 [ MarkdownThemed.renderFull (scale 1.0 width) cellHeight_ str ]
 
         CVVisual vt args ->
-            renderVT cells width kvDict vt args
+            Element.Lazy.lazy5 renderVT cells width kvDict vt args
 
 
 par width =
