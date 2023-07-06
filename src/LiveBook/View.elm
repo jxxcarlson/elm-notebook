@@ -19,8 +19,8 @@ import View.Button
 import View.CellThemed as MarkdownThemed
 
 
-view : Dict String String -> Int -> String -> Cell -> Element FrontendMsg
-view kvDict width cellContents cell =
+view : List Cell -> Dict String String -> Int -> String -> Cell -> Element FrontendMsg
+view cells kvDict width cellContents cell =
     E.column
         [ E.paddingEach { top = 0, right = 0, bottom = 0, left = 0 }
         , E.width (E.px width)
@@ -28,17 +28,17 @@ view kvDict width cellContents cell =
         ]
         [ E.row
             [ E.width (E.px width) ]
-            [ viewSourceAndValue kvDict width cellContents cell
+            [ viewSourceAndValue cells kvDict width cellContents cell
             , controls cell
             ]
         ]
 
 
-viewSourceAndValue : Dict String String -> Int -> String -> Cell -> Element FrontendMsg
-viewSourceAndValue kvDict width cellContents cell =
+viewSourceAndValue : List Cell -> Dict String String -> Int -> String -> Cell -> Element FrontendMsg
+viewSourceAndValue cells kvDict width cellContents cell =
     E.column [ E.alignBottom ]
         [ viewSource (width - controlWidth) cell cellContents
-        , viewValue kvDict (width - controlWidth) cell
+        , viewValue cells kvDict (width - controlWidth) cell
         ]
 
 
@@ -73,8 +73,8 @@ viewSource width cell cellContent =
             editCell width cell cellContent
 
 
-viewValue : Dict String String -> Int -> { a | value : CellValue } -> Element FrontendMsg
-viewValue kvDict width cell =
+viewValue : List Cell -> Dict String String -> Int -> { a | value : CellValue } -> Element FrontendMsg
+viewValue cells kvDict width cell =
     case cell.value of
         CVNone ->
             E.none
@@ -88,7 +88,7 @@ viewValue kvDict width cell =
                 [ MarkdownThemed.renderFull (scale 1.0 width) cellHeight_ str ]
 
         CVVisual vt args ->
-            renderVT width kvDict vt args
+            renderVT cells width kvDict vt args
 
 
 par width =
@@ -118,8 +118,8 @@ par width =
 --]
 
 
-renderVT : Int -> Dict String String -> VisualType -> List String -> Element FrontendMsg
-renderVT width kvDict vt args =
+renderVT : List Cell -> Int -> Dict String String -> VisualType -> List String -> Element FrontendMsg
+renderVT cells width kvDict vt args =
     case vt of
         VTImage ->
             case List.Extra.unconsLast args of
@@ -164,6 +164,35 @@ renderVT width kvDict vt args =
                             List.head innerArgs |> Maybe.withDefault "line"
                     in
                     LiveBook.Chart.chart kind options (dataVariable |> LiveBook.Eval.transformWordsWithKVDict kvDict)
+
+        VTPlot2D ->
+            case List.Extra.unconsLast args of
+                Nothing ->
+                    E.image
+                        [ E.width (E.px width) ]
+                        { src = getArg 0 args, description = "image" }
+
+                Just ( dataVariable, args_ ) ->
+                    let
+                        options =
+                            LiveBook.Utility.keyValueDict (("width:" ++ String.fromInt width) :: args_)
+
+                        innerArgs =
+                            List.filter (\s -> not (String.contains s ":")) args_
+
+                        kind =
+                            List.head innerArgs |> Maybe.withDefault "line"
+                    in
+                    case LiveBook.Eval.evaluateWithCumulativeBindingsToResult2 Dict.empty cells dataVariable of
+                        Err _ ->
+                            E.text "Error"
+
+                        Ok listPairs ->
+                            LiveBook.Chart.plot2D kind options (Maybe.andThen LiveBook.Eval.toListFloatPair (Just listPairs) |> Maybe.withDefault [])
+
+
+
+--LiveBook.Chart.plot2D kind options (dataVariable |> LiveBook.Eval.evaluateWithCumulativeBindingsToResult2 Dict.empty cells)
 
 
 getArg : Int -> List String -> String

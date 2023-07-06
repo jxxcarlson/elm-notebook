@@ -45,6 +45,52 @@ fontWidth =
     10
 
 
+plot2D : String -> Dict.Dict String String -> List ( Float, Float ) -> Element msg
+plot2D kind properties_ xyData =
+    let
+        properties =
+            Dict.insert "kind" kind properties_
+
+        options : Options
+        options =
+            { direction = Dict.get "direction" properties
+            , columns = Dict.get "columns" properties |> Maybe.map (String.split "," >> List.map String.trim >> List.map String.toInt >> Maybe.Extra.values)
+            , rows = Dict.get "rows" properties |> Maybe.map (String.split "," >> List.map String.trim >> twoListToIntPair)
+            , reverse = Dict.get "reverse" properties |> toBool
+            , header = Dict.get "header" properties |> Maybe.andThen String.toInt
+            , filter = Dict.get "filter" properties
+            , lowest = Dict.get "lowest" properties |> Maybe.andThen String.toFloat
+            , caption = Dict.get "caption" properties
+            , label = Dict.get "figure" properties
+            , regression = Dict.get "regression" properties
+            , kind = Dict.get "kind" properties
+            , domain = Dict.get "domain" properties |> Maybe.andThen getRange
+            , range = Dict.get "range" properties |> Maybe.andThen getRange
+            , width = Dict.get "width" properties |> Maybe.andThen String.toInt |> Maybe.withDefault 300
+            }
+
+        data : ChartData
+        data =
+            List.map (\( x, y ) -> { x = x, y = y }) xyData |> ChartData2D
+    in
+    Element.column [ Element.width (Element.px (options.width - deltaWidth)), Element.paddingEach { left = 48, right = 0, top = 36, bottom = 72 }, Element.spacing 24 ]
+        [ Element.el [ Element.width (Element.px (options.width - deltaWidth)) ]
+            (rawLineChart options (Just data))
+        , case ( options.label, options.caption ) of
+            ( Nothing, Nothing ) ->
+                Element.none
+
+            ( Just labelText, Nothing ) ->
+                Element.el [ Element.centerX, Font.size 14, Font.color (Element.rgb 0.5 0.5 0.7), Element.paddingEach { left = 0, right = 0, top = 24, bottom = 0 } ] (Element.text <| "Figure " ++ labelText)
+
+            ( Nothing, Just captionText ) ->
+                Element.el [ Element.centerX, Font.size 14, Font.color (Element.rgb 0.5 0.5 0.7), Element.paddingEach { left = 0, right = 0, top = 24, bottom = 0 } ] (Element.text <| captionText)
+
+            ( Just labelText, Just captionText ) ->
+                Element.el [ Element.centerX, Font.size 14, Font.color (Element.rgb 0.5 0.5 0.7), Element.paddingEach { left = 0, right = 0, top = 24, bottom = 0 } ] (Element.text <| "Figure " ++ labelText ++ ". " ++ captionText)
+        ]
+
+
 chart : String -> Dict.Dict String String -> String -> Element msg
 chart kind properties_ data_ =
     let

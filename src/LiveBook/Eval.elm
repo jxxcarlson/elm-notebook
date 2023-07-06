@@ -5,11 +5,13 @@ module LiveBook.Eval exposing
     , evaluateString
     , evaluateWithCumulativeBindings
     , evaluateWithCumulativeBindingsToResult
+    , evaluateWithCumulativeBindingsToResult2
     , evaluateWithCumulativeBindings_
     , getBlocks
     , getCellExprRecord
     , getPriorBindings
     , isBinding_
+    , toListFloatPair
     , transformWordsWithKVDict
     )
 
@@ -19,7 +21,60 @@ import Eval.Types
 import List.Extra
 import LiveBook.Types exposing (Cell, CellState(..), CellValue(..))
 import LiveBook.Utility
-import Value exposing (Value)
+import Maybe.Extra
+import Value exposing (Value(..))
+
+
+toListFloatPair : Value -> Maybe (List ( Float, Float ))
+toListFloatPair value =
+    case value of
+        List valueList ->
+            List.map toFloatPair valueList |> Maybe.Extra.combine
+
+        _ ->
+            Nothing
+
+
+toFloatPair : Value -> Maybe ( Float, Float )
+toFloatPair value =
+    case value of
+        Tuple a b ->
+            case ( toFloat_ a, toFloat_ b ) of
+                ( Just x, Just y ) ->
+                    Just ( x, y )
+
+                _ ->
+                    Nothing
+
+        _ ->
+            Nothing
+
+
+toFloat_ : Value -> Maybe Float
+toFloat_ value =
+    case value of
+        Float x ->
+            Just x
+
+        _ ->
+            Nothing
+
+
+
+--type Value
+--    = String String
+--    | Int Int
+--    | Float Float
+--    | Char Char
+--    | Bool Bool
+--    | Unit
+--    | Tuple Value Value
+--    | Triple Value Value Value
+--    | Record (Dict String Value)
+--    | Custom QualifiedNameRef (List Value)
+--    | PartiallyApplied Env (List Value) (List (Node Pattern)) (Maybe QualifiedNameRef) (Node Expression)
+--    | JsArray (Array Value)
+--    | List (List Value)
 
 
 evaluate : Cell -> Cell
@@ -95,6 +150,36 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
 
     else
         { cell | value = CVString (evaluateString stringToEvaluate), cellState = CSView }
+
+
+evaluateWithCumulativeBindingsToResult2 : Dict String String -> List Cell -> String -> Result Eval.Types.Error Value
+evaluateWithCumulativeBindingsToResult2 kvDict cells variable =
+    let
+        exprRecords =
+            cells
+                |> List.map getCellExprRecord
+
+        nRecords =
+            List.length exprRecords
+
+        bindingString : String
+        bindingString =
+            exprRecords
+                |> List.map .bindings
+                |> List.concat
+                |> String.join "\n"
+
+        stringToEvaluate =
+            if bindingString == "" then
+                variable
+
+            else
+                "let\n"
+                    ++ bindingString
+                    ++ "\nin\n"
+                    ++ variable
+    in
+    Eval.eval stringToEvaluate
 
 
 evaluateWithCumulativeBindingsToResult : Dict String String -> List Cell -> { a | index : Int } -> Result Eval.Types.Error Value
