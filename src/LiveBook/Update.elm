@@ -21,9 +21,9 @@ module LiveBook.Update exposing
 
     See the value 'commands' for the complete list of commands.
 
-   New commands are implemented in the case statement
-   of function 'executeCell'.  A command will be
-   executed only if it also appears in the list 'commands'.
+New commands are implemented in the case statement
+of function 'executeCell'. A command will be
+executed only if it also appears in the list 'commands'.
 
 -}
 
@@ -330,8 +330,6 @@ clearCell model index =
             ( { model | cellContent = "", currentBook = newBook }, Cmd.none )
 
 
-s
-
 makeNewCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
 makeNewCell model index =
     let
@@ -346,7 +344,10 @@ makeNewCell model index =
             }
 
         newBook =
-            updateBook newCell model.currentBook
+            addCellToBook newCell model.currentBook
+
+        _ =
+            List.length newBook.cells
     in
     ( { model
         | cellContent = ""
@@ -381,6 +382,7 @@ updateCellText model index str =
             { model | cellContent = str, currentBook = updateBook updatedCell model.currentBook }
 
 
+
 -- HELPERS
 
 
@@ -397,6 +399,27 @@ updateBook cell book =
 
             suffix =
                 List.filter (\currentCell -> currentCell.index > cell.index) book.cells
+        in
+        { book | cells = prefix ++ (cell :: suffix), dirty = True }
+
+
+addCellToBook : Cell -> Book -> Book
+addCellToBook cell book =
+    if cell.index < 0 || cell.index >= List.length book.cells + 1 then
+        -- cell is out of bounds, do not update
+        book
+
+    else
+        let
+            prefix =
+                List.filter (\currentCell -> currentCell.index < cell.index) book.cells
+
+            _ =
+                cell
+
+            suffix =
+                List.filter (\currentCell -> currentCell.index >= cell.index) book.cells
+                    |> List.map (\c -> { c | index = c.index + 1 })
         in
         { book | cells = prefix ++ (cell :: suffix), dirty = True }
 
