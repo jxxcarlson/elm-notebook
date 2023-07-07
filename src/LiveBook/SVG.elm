@@ -87,4 +87,4 @@ render svgList =
             List.map stringToSvg svgList
                 |> List.filterMap identity
     in
-    TypedSvg.svg [ viewBox 0 0 800 600 ] foo |> Element.html
+    TypedSvg.svg [ viewBox 0 0 800 500 ] foo |> Element.html

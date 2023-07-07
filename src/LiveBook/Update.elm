@@ -227,20 +227,40 @@ updateCell model commandWords cell_ =
                 updatedCell =
                     LiveBook.Eval.evaluateWithCumulativeBindings_ model.kvDict model.currentBook.cells cell_
 
-                value =
-                    LiveBook.Eval.evaluateString "2 + 2"
+                bindingString =
+                    updatedCell.bindings |> String.join "\n"
+
+                exprString =
+                    updatedCell.expression
+                        |> String.replace "svg " ""
+
+                stringToEvaluate =
+                    [ "let", bindingString, "in", exprString ] |> String.join "\n"
+
+                value_ =
+                    LiveBook.Eval.evaluateString stringToEvaluate
+                        |> String.dropLeft 1
+                        |> String.dropRight 1
+                        |> String.split ","
+                        |> List.map (String.trim >> unquote)
+
+                unquote str =
+                    str |> String.dropLeft 1 |> String.dropRight 1
+
+                simpleValue =
+                    List.head cell_.text
+                        |> Maybe.withDefault ""
+                        |> String.replace "> svg " ""
+                        |> String.split ","
             in
             { cell_
                 | cellState = CSView
                 , value =
-                    CVVisual VTSvg
-                        (cell_.text
-                            |> List.map (String.split ",")
-                            |> List.head
-                            |> Maybe.withDefault []
-                            |> List.filter (\item -> item /= "#")
-                         --|> List.map (String.replace "> svg " ""
-                        )
+                    if cell_.bindings == [] then
+                        CVVisual VTSvg simpleValue
+
+                    else
+                        CVVisual VTSvg value_
             }
 
         Just "chart" ->
@@ -510,3 +530,7 @@ getCommandWords cell_ =
         |> String.replace ">" ""
         |> String.trim
         |> String.words
+
+
+
+--foo = ["\"circle 400 300 10 blue\""," \"circle 216.09284709235476 245.59788891106302 10 blue\""," \"circle 340.8082061813392 391.2945250727628 10 blue\""," \"circle 315.4251449887584 201.1968375907138 10 blue\""," \"circle 233.3061938347738 374.5113160479349 10 blue\""," \"circle 396.49660284921134 273.76251462960715 10 blue\""," \"circle 204.75870195848438 269.51893788977833 10 blue\""," \"circle 363.33192030863 377.3890681557889 10 blue\""," \"circle 288.96127561609524 200.61113460766248 10 blue\""," \"circle 255.19263838708298 389.3996663600558 10 blue\""," \"circle 386.2318872287684 249.36343588902412 10 blue\""," \"circle 200.09791866853521 295.5757321914929 10 blue\""," \"circle 381.4180970526562 358.0611184212314 10 blue\""," \"circle 263.27086695453033 206.98940498132382 10 blue\""," \"circle 280.2186425995732 398.02396594403115 10 blue\""," \"circle 369.9250806478375 228.51235703708352 10 blue\""," \"circle 202.43706872047625 321.94252583790046 10 blue\""," \"circle 393.7994752119441 334.664945549703 10 blue\""," \"circle 240.1539930942142 219.88473642661694 10 blue\""," \"circle 306.6306858351711 399.77992786806004 10 blue\""," \"circle 348.7187675007006 212.67027027860053 10 blue\""," \"circle 211.6122526817628 346.7718518342759 10 blue\""]
