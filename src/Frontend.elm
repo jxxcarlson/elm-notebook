@@ -128,12 +128,12 @@ update msg model =
                 ( newModel, cmd ) =
                     -- TODO: cmd?
                     if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
-                        LiveBook.Update.evalCell model.currentCellIndex model
+                        LiveBook.Update.evalCell model.currentCellIndex { model | pressedKeys = pressedKeys }
 
                     else
-                        ( model, Cmd.none )
+                        ( { model | pressedKeys = pressedKeys }, Cmd.none )
             in
-            ( { newModel | pressedKeys = pressedKeys }, cmd )
+            ( newModel, cmd )
 
         FastTick _ ->
             ( { model | tickCount = model.tickCount + 1 }, Cmd.none )

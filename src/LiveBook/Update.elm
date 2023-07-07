@@ -223,6 +223,13 @@ updateCell model commandWords cell_ =
             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
 
         Just "svg" ->
+            let
+                updatedCell =
+                    LiveBook.Eval.evaluateWithCumulativeBindings_ model.kvDict model.currentBook.cells cell_
+
+                value =
+                    LiveBook.Eval.evaluateString "2 + 2"
+            in
             { cell_
                 | cellState = CSView
                 , value =
