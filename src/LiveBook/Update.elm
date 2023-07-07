@@ -252,7 +252,7 @@ updateCell model commandWords cell_ =
                         firstWord =
                             str |> String.replace "> svg" "" |> String.words |> List.head |> Maybe.withDefault "--xx--"
                     in
-                    List.member firstWord [ "circle" ]
+                    List.member firstWord [ "circle", "square", "rectangle" ]
 
                 simpleValue =
                     List.head cell_.text
