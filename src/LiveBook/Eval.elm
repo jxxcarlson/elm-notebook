@@ -25,58 +25,6 @@ import Maybe.Extra
 import Value exposing (Value(..))
 
 
-toListFloatPair : Value -> Maybe (List ( Float, Float ))
-toListFloatPair value =
-    case value of
-        List valueList ->
-            List.map toFloatPair valueList |> Maybe.Extra.combine
-
-        _ ->
-            Nothing
-
-
-toFloatPair : Value -> Maybe ( Float, Float )
-toFloatPair value =
-    case value of
-        Tuple a b ->
-            case ( toFloat_ a, toFloat_ b ) of
-                ( Just x, Just y ) ->
-                    Just ( x, y )
-
-                _ ->
-                    Nothing
-
-        _ ->
-            Nothing
-
-
-toFloat_ : Value -> Maybe Float
-toFloat_ value =
-    case value of
-        Float x ->
-            Just x
-
-        _ ->
-            Nothing
-
-
-
---type Value
---    = String String
---    | Int Int
---    | Float Float
---    | Char Char
---    | Bool Bool
---    | Unit
---    | Tuple Value Value
---    | Triple Value Value Value
---    | Record (Dict String Value)
---    | Custom QualifiedNameRef (List Value)
---    | PartiallyApplied Env (List Value) (List (Node Pattern)) (Maybe QualifiedNameRef) (Node Expression)
---    | JsArray (Array Value)
---    | List (List Value)
-
-
 evaluate : Cell -> Cell
 evaluate cell =
     { cell
@@ -380,3 +328,55 @@ evaluateString input =
 
                 Eval.Types.EvalError evalError ->
                     "Evaluation error. You likely forgot a \">\" or a \"#\" at the very beginning of this cell."
+
+
+toListFloatPair : Value -> Maybe (List ( Float, Float ))
+toListFloatPair value =
+    case value of
+        List valueList ->
+            List.map toFloatPair valueList |> Maybe.Extra.combine
+
+        _ ->
+            Nothing
+
+
+toFloatPair : Value -> Maybe ( Float, Float )
+toFloatPair value =
+    case value of
+        Tuple a b ->
+            case ( toFloat_ a, toFloat_ b ) of
+                ( Just x, Just y ) ->
+                    Just ( x, y )
+
+                _ ->
+                    Nothing
+
+        _ ->
+            Nothing
+
+
+toFloat_ : Value -> Maybe Float
+toFloat_ value =
+    case value of
+        Float x ->
+            Just x
+
+        _ ->
+            Nothing
+
+
+
+--type Value
+--    = String String
+--    | Int Int
+--    | Float Float
+--    | Char Char
+--    | Bool Bool
+--    | Unit
+--    | Tuple Value Value
+--    | Triple Value Value Value
+--    | Record (Dict String Value)
+--    | Custom QualifiedNameRef (List Value)
+--    | PartiallyApplied Env (List Value) (List (Node Pattern)) (Maybe QualifiedNameRef) (Node Expression)
+--    | JsArray (Array Value)
+--    | List (List Value)
