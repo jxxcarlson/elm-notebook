@@ -41,7 +41,7 @@ new author title =
     , title = title
     , cells =
         [ { index = 0
-          , text = [ "# Example: ", "> 1 + 1 == 2" ]
+          , text = [ "# Example: ", "> 1 + 1 == 42" ]
           , bindings = []
           , expression = ""
           , value = CVString "True"

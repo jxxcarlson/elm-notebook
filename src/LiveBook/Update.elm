@@ -247,6 +247,13 @@ updateCell model commandWords cell_ =
                 unquote str =
                     str |> String.dropLeft 1 |> String.dropRight 1
 
+                isSVG str =
+                    let
+                        firstWord =
+                            str |> String.replace "> svg" "" |> String.words |> List.head |> Maybe.withDefault "--xx--"
+                    in
+                    List.member firstWord [ "circle" ]
+
                 simpleValue =
                     List.head cell_.text
                         |> Maybe.withDefault ""
@@ -256,7 +263,7 @@ updateCell model commandWords cell_ =
             { cell_
                 | cellState = CSView
                 , value =
-                    if cell_.bindings == [] then
+                    if isSVG (cell_.text |> List.head |> Maybe.withDefault "--x--") then
                         CVVisual VTSvg simpleValue
 
                     else

@@ -25,10 +25,6 @@ type alias TestDatum =
     List (List String)
 
 
-datum1 =
-    [ [ "> 1 + 1 == 2" ] ]
-
-
 makeCells : List (List String) -> List Cell
 makeCells testDatum =
     List.indexedMap (\index strings -> testCell index strings) testDatum
