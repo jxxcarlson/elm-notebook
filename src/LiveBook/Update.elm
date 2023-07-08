@@ -25,13 +25,9 @@ executed only if it also appears in the list 'commands'.
 
 -}
 
-import Dict
-import File.Select
 import Lamdera
 import List.Extra
 import LiveBook.CellHelper
-import LiveBook.Eval
-import LiveBook.Function
 import LiveBook.Types
     exposing
         ( Book

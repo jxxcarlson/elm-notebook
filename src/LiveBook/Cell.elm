@@ -1,4 +1,4 @@
-module LiveBook.Cell exposing (..)
+module LiveBook.Cell exposing (evalCell)
 
 import Dict
 import File.Select

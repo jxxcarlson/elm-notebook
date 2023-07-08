@@ -29,6 +29,7 @@ scratchPad username =
     }
 
 
+new : String -> String -> Book
 new author title =
     { id = "??"
     , slug = "??"

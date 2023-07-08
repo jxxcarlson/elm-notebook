@@ -1,0 +1,13 @@
+site_name: Elm Notebook Docs
+docs_dir: 'docs'
+
+theme: readthedocs
+
+nav:
+  - Home: index.md
+  - SVG: svg.md
+  - Pipeline: pipeline.md
+  - Mkdocs : mkdocs.md
+
+
+
