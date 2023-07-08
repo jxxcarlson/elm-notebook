@@ -154,121 +154,19 @@ updateCell model commandWords cell_ =
             { cell_ | cellState = CSView }
 
         Just "head" ->
-            let
-                n : Maybe Int
-                n =
-                    List.Extra.getAt 1 commandWords |> Maybe.andThen String.toInt
-
-                identifier_ =
-                    case n of
-                        Nothing ->
-                            List.Extra.getAt 1 commandWords |> Maybe.withDefault "_nothing_"
-
-                        Just _ ->
-                            List.Extra.getAt 2 commandWords |> Maybe.withDefault "_nothing_"
-
-                message =
-                    case Dict.get identifier_ model.kvDict of
-                        Just data_ ->
-                            data_
-                                |> String.lines
-                                |> List.take (n |> Maybe.withDefault 1)
-                                |> String.join " \\\n"
-
-                        Nothing ->
-                            "Could not find data with identifier " ++ identifier_ ++ " in the notebook."
-            in
-            { cell_ | cellState = CSView, value = CVString message }
+            updateHead model commandWords cell_
 
         Just "eval" ->
-            let
-                identifier : String
-                identifier =
-                    List.Extra.getAt 1 commandWords |> Maybe.withDefault "???"
-            in
-            { cell_
-                | cellState = CSView
-                , bindings = Dict.get identifier model.kvDict |> Maybe.withDefault "???" |> String.lines
-                , value = CVNone --CVString (Dict.get identifier model.kvDict |> Maybe.withDefault "---")
-            }
+            updateEval model commandWords cell_
 
         Just "info" ->
-            let
-                identifier : String
-                identifier =
-                    List.Extra.getAt 1 commandWords |> Maybe.withDefault "---"
-
-                maybeDataSetMetadata =
-                    List.Extra.find (\dataSet -> String.contains identifier dataSet.identifier)
-                        (model.publicDataSetMetaDataList ++ model.privateDataSetMetaDataList)
-            in
-            case maybeDataSetMetadata of
-                Nothing ->
-                    { cell_ | cellState = CSView, value = CVString "Nothing found" }
-
-                Just dataSetMetadata ->
-                    let
-                        text =
-                            dataSetMetadata.name
-                                ++ "\n"
-                                ++ dataSetMetadata.identifier
-                                ++ "\n\n"
-                                ++ dataSetMetadata.description
-                                ++ "\n\n"
-                                ++ dataSetMetadata.comments
-                    in
-                    { cell_ | cellState = CSView, value = CVString text }
+            updateInfo model commandWords cell_
 
         Just "image" ->
             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
 
         Just "svg" ->
-            let
-                updatedCell =
-                    LiveBook.Eval.evaluateWithCumulativeBindings_ model.kvDict model.currentBook.cells cell_
-
-                bindingString =
-                    updatedCell.bindings |> String.join "\n"
-
-                exprString =
-                    updatedCell.expression
-                        |> String.replace "svg " ""
-
-                stringToEvaluate =
-                    [ "let", bindingString, "in", exprString ] |> String.join "\n"
-
-                value_ =
-                    LiveBook.Eval.evaluateString stringToEvaluate
-                        |> String.dropLeft 1
-                        |> String.dropRight 1
-                        |> String.split ","
-                        |> List.map (String.trim >> unquote)
-
-                unquote str =
-                    str |> String.dropLeft 1 |> String.dropRight 1
-
-                isSVG str =
-                    let
-                        firstWord =
-                            str |> String.replace "> svg" "" |> String.words |> List.head |> Maybe.withDefault "--xx--"
-                    in
-                    List.member firstWord [ "circle", "square", "rectangle" ]
-
-                simpleValue =
-                    List.head cell_.text
-                        |> Maybe.withDefault ""
-                        |> String.replace "> svg " ""
-                        |> String.split ","
-            in
-            { cell_
-                | cellState = CSView
-                , value =
-                    if isSVG (cell_.text |> List.head |> Maybe.withDefault "--x--") then
-                        CVVisual VTSvg simpleValue
-
-                    else
-                        CVVisual VTSvg value_
-            }
+            updateSVG model cell_
 
         Just "chart" ->
             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
@@ -283,47 +181,183 @@ updateCell model commandWords cell_ =
             { cell_ | cellState = CSView, value = CVString "*......*" }
 
         Just "export" ->
-            let
-                file =
-                    (List.Extra.getAt 1 commandWords |> Maybe.withDefault "???" |> String.replace "." "-") ++ ".csv"
-            in
-            { cell_ | cellState = CSView, value = CVString ("Exported data to file " ++ file) }
+            updateExport commandWords cell_
 
         Just "correlation" ->
-            -- correlation column1 column2 identifier
-            case commandWords of
-                "correlation" :: column1 :: column2 :: identifier :: _ ->
-                    case
-                        ( String.toInt column1
-                        , String.toInt column2
-                        , Dict.get identifier model.kvDict
-                        )
-                    of
-                        ( Just column1_, Just column2_, Just data ) ->
-                            let
-                                maybeValue : Maybe Float
-                                maybeValue =
-                                    LiveBook.Function.wrangleToListFloatPair (Just [ column1_, column2_ ]) data
-                                        |> Maybe.andThen Stat.correlation
-                            in
-                            case maybeValue of
-                                Just corr ->
-                                    { cell_
-                                        | cellState = CSView
-                                        , value = CVString (String.fromFloat (LiveBook.Function.roundTo 3 corr))
-                                    }
-
-                                _ ->
-                                    { cell_ | cellState = CSView, value = CVString "Could not parse data (4)" }
-
-                        _ ->
-                            { cell_ | cellState = CSView, value = CVString "Could not parse data (3)" }
-
-                _ ->
-                    { cell_ | cellState = CSView, value = CVString "Could not parse data (2)" }
+            updateCorrelation model commandWords cell_
 
         _ ->
             { cell_ | cellState = CSView, value = CVString "Could not parse data (1)" }
+
+
+
+-- UPDATE HELPES
+
+
+updateEval : FrontendModel -> List String -> Cell -> Cell
+updateEval model commandWords cell_ =
+    let
+        identifier : String
+        identifier =
+            List.Extra.getAt 1 commandWords |> Maybe.withDefault "???"
+    in
+    { cell_
+        | cellState = CSView
+        , bindings = Dict.get identifier model.kvDict |> Maybe.withDefault "???" |> String.lines
+        , value = CVNone --CVString (Dict.get identifier model.kvDict |> Maybe.withDefault "---")
+    }
+
+
+updateHead : FrontendModel -> List String -> Cell -> Cell
+updateHead model commandWords cell_ =
+    let
+        n : Maybe Int
+        n =
+            List.Extra.getAt 1 commandWords |> Maybe.andThen String.toInt
+
+        identifier_ =
+            case n of
+                Nothing ->
+                    List.Extra.getAt 1 commandWords |> Maybe.withDefault "_nothing_"
+
+                Just _ ->
+                    List.Extra.getAt 2 commandWords |> Maybe.withDefault "_nothing_"
+
+        message =
+            case Dict.get identifier_ model.kvDict of
+                Just data_ ->
+                    data_
+                        |> String.lines
+                        |> List.take (n |> Maybe.withDefault 1)
+                        |> String.join " \\\n"
+
+                Nothing ->
+                    "Could not find data with identifier " ++ identifier_ ++ " in the notebook."
+    in
+    { cell_ | cellState = CSView, value = CVString message }
+
+
+updateInfo : FrontendModel -> List String -> Cell -> Cell
+updateInfo model commandWords cell_ =
+    let
+        identifier : String
+        identifier =
+            List.Extra.getAt 1 commandWords |> Maybe.withDefault "---"
+
+        maybeDataSetMetadata =
+            List.Extra.find (\dataSet -> String.contains identifier dataSet.identifier)
+                (model.publicDataSetMetaDataList ++ model.privateDataSetMetaDataList)
+    in
+    case maybeDataSetMetadata of
+        Nothing ->
+            { cell_ | cellState = CSView, value = CVString "Nothing found" }
+
+        Just dataSetMetadata ->
+            let
+                text =
+                    dataSetMetadata.name
+                        ++ "\n"
+                        ++ dataSetMetadata.identifier
+                        ++ "\n\n"
+                        ++ dataSetMetadata.description
+                        ++ "\n\n"
+                        ++ dataSetMetadata.comments
+            in
+            { cell_ | cellState = CSView, value = CVString text }
+
+
+updateSVG : FrontendModel -> Cell -> Cell
+updateSVG model cell_ =
+    let
+        updatedCell =
+            LiveBook.Eval.evaluateWithCumulativeBindings_ model.kvDict model.currentBook.cells cell_
+
+        bindingString =
+            updatedCell.bindings |> String.join "\n"
+
+        exprString =
+            updatedCell.expression
+                |> String.replace "svg " ""
+
+        stringToEvaluate =
+            [ "let", bindingString, "in", exprString ] |> String.join "\n"
+
+        value_ =
+            LiveBook.Eval.evaluateString stringToEvaluate
+                |> String.dropLeft 1
+                |> String.dropRight 1
+                |> String.split ","
+                |> List.map (String.trim >> unquote)
+
+        unquote str =
+            str |> String.dropLeft 1 |> String.dropRight 1
+
+        isSVG str =
+            let
+                firstWord =
+                    str |> String.replace "> svg" "" |> String.words |> List.head |> Maybe.withDefault "--xx--"
+            in
+            List.member firstWord [ "circle", "square", "rectangle" ]
+
+        simpleValue =
+            List.head cell_.text
+                |> Maybe.withDefault ""
+                |> String.replace "> svg " ""
+                |> String.split ","
+    in
+    { cell_
+        | cellState = CSView
+        , value =
+            if isSVG (cell_.text |> List.head |> Maybe.withDefault "--x--") then
+                CVVisual VTSvg simpleValue
+
+            else
+                CVVisual VTSvg value_
+    }
+
+
+updateExport : List String -> Cell -> Cell
+updateExport commandWords cell_ =
+    let
+        file =
+            (List.Extra.getAt 1 commandWords |> Maybe.withDefault "???" |> String.replace "." "-") ++ ".csv"
+    in
+    { cell_ | cellState = CSView, value = CVString ("Exported data to file " ++ file) }
+
+
+updateCorrelation : FrontendModel -> List String -> Cell -> Cell
+updateCorrelation model commandWords cell_ =
+    -- correlation column1 column2 identifier
+    case commandWords of
+        "correlation" :: column1 :: column2 :: identifier :: _ ->
+            case
+                ( String.toInt column1
+                , String.toInt column2
+                , Dict.get identifier model.kvDict
+                )
+            of
+                ( Just column1_, Just column2_, Just data ) ->
+                    let
+                        maybeValue : Maybe Float
+                        maybeValue =
+                            LiveBook.Function.wrangleToListFloatPair (Just [ column1_, column2_ ]) data
+                                |> Maybe.andThen Stat.correlation
+                    in
+                    case maybeValue of
+                        Just corr ->
+                            { cell_
+                                | cellState = CSView
+                                , value = CVString (String.fromFloat (LiveBook.Function.roundTo 3 corr))
+                            }
+
+                        _ ->
+                            { cell_ | cellState = CSView, value = CVString "Could not parse data (4)" }
+
+                _ ->
+                    { cell_ | cellState = CSView, value = CVString "Could not parse data (3)" }
+
+        _ ->
+            { cell_ | cellState = CSView, value = CVString "Could not parse data (2)" }
 
 
 
