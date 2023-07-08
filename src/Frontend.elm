@@ -17,6 +17,7 @@ import Lamdera exposing (sendToBackend)
 import List.Extra
 import LiveBook.Action
 import LiveBook.Book
+import LiveBook.Cell
 import LiveBook.DataSet
 import LiveBook.Types exposing (Book)
 import LiveBook.Update
@@ -128,7 +129,7 @@ update msg model =
                 ( newModel, cmd ) =
                     -- TODO: cmd?
                     if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
-                        LiveBook.Update.evalCell model.currentCellIndex { model | pressedKeys = pressedKeys }
+                        LiveBook.Cell.evalCell model.currentCellIndex { model | pressedKeys = pressedKeys }
 
                     else
                         ( { model | pressedKeys = pressedKeys }, Cmd.none )
@@ -617,7 +618,7 @@ update msg model =
             LiveBook.Update.clearCell model index
 
         EvalCell index ->
-            LiveBook.Update.evalCell index model
+            LiveBook.Cell.evalCell index model
 
         -- NOTEBOOKS
         -- ADMIN
