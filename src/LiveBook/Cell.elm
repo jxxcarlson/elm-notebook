@@ -110,6 +110,7 @@ commands =
     , "plot2D"
     , "eval"
     , "svg"
+    , "evalSvg"
     ]
 
 
@@ -177,6 +178,9 @@ updateCell model commandWords cell_ =
 
         Just "svg" ->
             updateSVG model cell_
+
+        Just "evalSvg" ->
+            evalSvg model cell_
 
         Just "chart" ->
             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
@@ -323,6 +327,46 @@ updateSVG model cell_ =
 
             else
                 CVVisual VTSvg value_
+    }
+
+
+evalSvg : FrontendModel -> Cell -> Cell
+evalSvg model cell_ =
+    let
+        updatedCell =
+            LiveBook.Eval.evaluateWithCumulativeBindings_ model.kvDict model.currentBook.cells cell_
+
+        bindingString =
+            updatedCell.bindings |> String.join "\n"
+
+        exprString =
+            updatedCell.expression
+                |> String.replace "evalSvg " ""
+
+        stringToEvaluate =
+            [ "let", bindingString, "in", exprString ] |> String.join "\n"
+
+        value_ =
+            LiveBook.Eval.evaluateString stringToEvaluate
+                |> String.dropLeft 1
+                |> String.dropRight 1
+                |> String.split ","
+                |> List.map
+                    (\s ->
+                        if String.contains "\"" s then
+                            (String.trim >> unquote) s
+
+                        else
+                            s
+                    )
+
+        unquote str =
+            str |> String.dropLeft 1 |> String.dropRight 1
+    in
+    { cell_
+        | cellState = CSView
+        , value =
+            CVVisual VTSvg value_
     }
 
 
