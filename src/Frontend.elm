@@ -67,7 +67,7 @@ init url key =
       , appMode = AMWorking
       , currentTime = Time.millisToPosix 0
       , tickCount = 0
-      , clockState = ClockRunning
+      , clockState = ClockStopped
       , pressedKeys = []
 
       -- ADMIN
