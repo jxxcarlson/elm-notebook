@@ -100,6 +100,13 @@ controls showNotebooks =
 
 viewNotebook : FrontendModel -> User.User -> Element FrontendMsg
 viewNotebook model user =
+    let
+        viewData =
+            { book = model.currentBook
+            , kvDict = model.kvDict
+            , width = View.Geometry.notebookWidth model
+            }
+    in
     E.column
         [ E.paddingEach { left = 24, right = 24, top = 20, bottom = 0 }
         , E.spacing 18
@@ -115,7 +122,7 @@ viewNotebook model user =
             , E.paddingEach { top = 19, bottom = 48, left = 0, right = 0 }
             ]
             (List.map
-                (LiveBook.View.view model.currentBook.cells model.kvDict (View.Geometry.notebookWidth model) model.cellContent)
+                (LiveBook.View.view viewData model.cellContent)
                 model.currentBook.cells
             )
         ]

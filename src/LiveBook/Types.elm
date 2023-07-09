@@ -1,5 +1,6 @@
-module LiveBook.Types exposing (Book, Cell, CellState(..), CellValue(..), VisualType(..))
+module LiveBook.Types exposing (Book, Cell, CellState(..), CellValue(..), ViewData, VisualType(..))
 
+import Dict exposing (Dict)
 import Time
 
 
@@ -45,3 +46,10 @@ type VisualType
 type CellState
     = CSEdit
     | CSView
+
+
+type alias ViewData =
+    { book : Book
+    , kvDict : Dict String String
+    , width : Int
+    }
