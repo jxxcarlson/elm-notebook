@@ -115,7 +115,7 @@ setClock model =
             Button.smallPrimary { msg = SetClock ClockRunning, status = Button.ActiveTransparent, label = Button.Text "Clock Paused", tooltipText = Nothing }
 
         ClockStopped ->
-            Button.smallPrimary { msg = SetClock ClockPaused, status = Button.ActiveTransparent, label = Button.Text "Clock Stopped", tooltipText = Nothing }
+            Button.smallPrimary { msg = SetClock ClockRunning, status = Button.ActiveTransparent, label = Button.Text "Clock Stopped", tooltipText = Nothing }
 
 
 resetClock : Element FrontendMsg
