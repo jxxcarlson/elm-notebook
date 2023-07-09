@@ -304,7 +304,7 @@ updateSVG model cell_ =
                 |> List.map (String.trim >> unquote)
 
         unquote str =
-            str |> String.dropLeft 1 |> String.dropRight 1
+            String.replace "\"" "" str
 
         isSVG str =
             let
@@ -344,24 +344,20 @@ evalSvg model cell_ =
                 |> String.replace "evalSvg " ""
 
         stringToEvaluate =
-            [ "let", bindingString, "in", exprString ] |> String.join "\n"
+            [ "let", bindingString, "in", exprString ]
+                |> String.join "\n"
+                |> String.replace "ticks" (String.fromInt model.tickCount)
 
+        value_ : List String
         value_ =
             LiveBook.Eval.evaluateString stringToEvaluate
-                |> String.dropLeft 1
-                |> String.dropRight 1
+                --|> String.dropLeft 1
+                --|> String.dropRight 1
                 |> String.split ","
-                |> List.map
-                    (\s ->
-                        if String.contains "\"" s then
-                            (String.trim >> unquote) s
-
-                        else
-                            s
-                    )
+                |> List.map (\s -> (String.trim >> unquote) s)
 
         unquote str =
-            str |> String.dropLeft 1 |> String.dropRight 1
+            String.replace "\"" "" str
     in
     { cell_
         | cellState = CSView

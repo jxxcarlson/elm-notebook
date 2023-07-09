@@ -9,6 +9,20 @@ import TypedSvg.Core exposing (Svg)
 import TypedSvg.Types exposing (Paint(..), px)
 
 
+render : List String -> Element msg
+render svgList =
+    let
+        _ =
+            svgList
+
+        foo : List (Svg msg)
+        foo =
+            List.map stringToSvg svgList
+                |> List.filterMap identity
+    in
+    TypedSvg.svg [ viewBox 0 0 800 400 ] foo |> Element.html
+
+
 type XSVG
     = Circle String String String String
 
@@ -112,17 +126,3 @@ stringToSvg str =
 
         _ ->
             Nothing
-
-
-render : List String -> Element msg
-render svgList =
-    let
-        _ =
-            svgList
-
-        foo : List (Svg msg)
-        foo =
-            List.map stringToSvg svgList
-                |> List.filterMap identity
-    in
-    TypedSvg.svg [ viewBox 0 0 800 400 ] foo |> Element.html

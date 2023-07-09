@@ -327,7 +327,7 @@ evaluateString input =
                     "Parse error"
 
                 Eval.Types.EvalError evalError ->
-                    "Evaluation error. You likely forgot a \">\" or a \"#\" at the very beginning of this cell."
+                    "Evaluation error: " ++ "Eval error"
 
 
 toListFloatPair : Value -> Maybe (List ( Float, Float ))

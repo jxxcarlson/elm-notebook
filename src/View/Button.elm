@@ -19,9 +19,11 @@ module View.Button exposing
     , public
     , publicNotebooks
     , pullNotebook
+    , resetClock
     , runTask
     , saveDataSetAsPrivate
     , saveDataSetAsPublic
+    , setClock
     , setUpUser
     , signIn
     , signOut
@@ -101,6 +103,24 @@ editTitle mode =
 
     else
         Button.smallPrimary { msg = ChangeAppMode Types.AMEditTitle, status = Button.Active, label = Button.Text "Edit Title", tooltipText = Nothing }
+
+
+setClock : FrontendModel -> Element FrontendMsg
+setClock model =
+    case model.clockState of
+        ClockRunning ->
+            Button.smallPrimary { msg = SetClock ClockPaused, status = Button.ActiveTransparent, label = Button.Text "Clock Running", tooltipText = Nothing }
+
+        ClockPaused ->
+            Button.smallPrimary { msg = SetClock ClockRunning, status = Button.ActiveTransparent, label = Button.Text "Clock Paused", tooltipText = Nothing }
+
+        ClockStopped ->
+            Button.smallPrimary { msg = SetClock ClockPaused, status = Button.ActiveTransparent, label = Button.Text "Clock Stopped", tooltipText = Nothing }
+
+
+resetClock : Element FrontendMsg
+resetClock =
+    Button.smallPrimary { msg = ResetClock, status = Button.Active, label = Button.Text "Reset Clock", tooltipText = Nothing }
 
 
 clearValues : Element FrontendMsg

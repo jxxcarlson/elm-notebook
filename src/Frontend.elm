@@ -52,7 +52,7 @@ subscriptions model =
     Sub.batch
         [ Browser.Events.onResize GotNewWindowDimensions
         , Time.every 3000 FETick
-        , Time.every 600 FastTick
+        , Time.every 60 FastTick
         , Sub.map KeyboardMsg Keyboard.subscriptions
         ]
 
@@ -67,7 +67,7 @@ init url key =
       , appMode = AMWorking
       , currentTime = Time.millisToPosix 0
       , tickCount = 0
-      , clockState = ClockStopped
+      , clockState = ClockRunning
       , pressedKeys = []
 
       -- ADMIN
@@ -140,7 +140,8 @@ update msg model =
         FastTick _ ->
             case model.clockState of
                 ClockRunning ->
-                    ( { model | tickCount = model.tickCount + 1 }, Cmd.none )
+                    --( { model | tickCount = model.tickCount + 1 }, Cmd.none )
+                    LiveBook.Cell.evalCell model.currentCellIndex { model | tickCount = model.tickCount + 1 }
 
                 _ ->
                     ( model, Cmd.none )
@@ -573,6 +574,12 @@ update msg model =
 
                 _ ->
                     ( { model | appMode = mode }, Cmd.none )
+
+        ResetClock ->
+            ( { model | clockState = ClockStopped, tickCount = 0 }, Cmd.none )
+
+        SetClock state ->
+            ( { model | clockState = state }, Cmd.none )
 
         UpdateNotebookTitle ->
             if not (Predicate.canSave model) then

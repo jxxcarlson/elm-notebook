@@ -40,13 +40,20 @@ viewNotebookList model user =
         , E.height (E.px (View.Geometry.bodyHeight model))
         , E.paddingXY 24 12
         ]
-        (case model.showNotebooks of
-            Types.ShowUserNotebooks ->
-                viewMyNotebookList model user
+        (notebookControls model
+            :: (case model.showNotebooks of
+                    Types.ShowUserNotebooks ->
+                        viewMyNotebookList model user
 
-            Types.ShowPublicNotebooks ->
-                viewPublicNotebookList model user
+                    Types.ShowPublicNotebooks ->
+                        viewPublicNotebookList model user
+               )
         )
+
+
+notebookControls : FrontendModel -> Element FrontendMsg
+notebookControls model =
+    E.row [ E.spacing 12, E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 } ] [ View.Button.resetClock, View.Button.setClock model ]
 
 
 viewMyNotebookList : FrontendModel -> User.User -> List (Element FrontendMsg)
