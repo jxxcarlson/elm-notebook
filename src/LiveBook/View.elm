@@ -62,7 +62,7 @@ controls cell =
 
 
 controlWidth =
-    76
+    86
 
 
 viewSource : Int -> Cell -> String -> Element FrontendMsg
@@ -308,9 +308,4 @@ deleteCellAt cellState index =
 
 clearCellAt : CellState -> Int -> Element FrontendMsg
 clearCellAt cellState index =
-    case cellState of
-        CSView ->
-            E.none
-
-        CSEdit ->
-            Button.smallPrimary { msg = ClearCell index, status = Button.Active, label = Button.Text "x", tooltipText = Just "Edit cell" }
+    Button.smallPrimary { msg = ClearCell index, status = Button.ActiveTransparent, label = Button.Text "Clear", tooltipText = Just "Edit cell" }

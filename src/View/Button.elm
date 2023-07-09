@@ -207,10 +207,10 @@ lockCell : LiveBook.Types.Cell -> Element FrontendMsg
 lockCell cell =
     case cell.locked of
         True ->
-            Button.smallPrimary { msg = ToggleCellLock cell, status = Button.Active, label = Button.Text "Locked", tooltipText = Nothing }
+            Button.smallPrimary { msg = ToggleCellLock cell, status = Button.ActiveTransparent, label = Button.Text "Locked", tooltipText = Nothing }
 
         False ->
-            Button.smallPrimary { msg = ToggleCellLock cell, status = Button.Active, label = Button.Text "Open", tooltipText = Nothing }
+            Button.smallPrimary { msg = ToggleCellLock cell, status = Button.ActiveTransparent, label = Button.Text "Unlocked", tooltipText = Nothing }
 
 
 saveDataSetAsPublic : LiveBook.DataSet.DataSetMetaData -> Element FrontendMsg

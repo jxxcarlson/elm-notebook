@@ -103,7 +103,7 @@ clearCell model index =
         Just cell_ ->
             let
                 updatedCell =
-                    { cell_ | text = [ "" ], cellState = CSView }
+                    { cell_ | text = [ "" ], cellState = CSView, value = CVNone }
 
                 newBook =
                     LiveBook.CellHelper.updateBook updatedCell model.currentBook

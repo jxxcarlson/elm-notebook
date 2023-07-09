@@ -307,7 +307,7 @@ updateSVG model cell_ =
                 firstWord =
                     str |> String.replace "> svg" "" |> String.words |> List.head |> Maybe.withDefault "--xx--"
             in
-            List.member firstWord [ "circle", "square", "rectangle" ]
+            List.member firstWord [ "f", "circle", "square", "rectangle" ]
 
         simpleValue =
             List.head cell_.text
