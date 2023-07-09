@@ -67,6 +67,7 @@ init url key =
       , appMode = AMWorking
       , currentTime = Time.millisToPosix 0
       , tickCount = 0
+      , clockState = ClockStopped
       , pressedKeys = []
 
       -- ADMIN
@@ -137,7 +138,12 @@ update msg model =
             ( newModel, cmd )
 
         FastTick _ ->
-            ( { model | tickCount = model.tickCount + 1 }, Cmd.none )
+            case model.clockState of
+                ClockRunning ->
+                    ( { model | tickCount = model.tickCount + 1 }, Cmd.none )
+
+                _ ->
+                    ( model, Cmd.none )
 
         FETick time ->
             if Predicate.canSave model && model.currentBook.dirty then

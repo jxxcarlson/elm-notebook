@@ -105,6 +105,7 @@ viewNotebook model user =
             { book = model.currentBook
             , kvDict = model.kvDict
             , width = View.Geometry.notebookWidth model
+            , ticks = model.tickCount
             }
     in
     E.column

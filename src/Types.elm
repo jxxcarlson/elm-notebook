@@ -28,6 +28,7 @@ type alias FrontendModel =
     , appMode : AppMode
     , currentTime : Time.Posix
     , tickCount : Int
+    , clockState : ClockState
     , pressedKeys : List Keyboard.Key
 
     -- ADMIN
@@ -72,6 +73,12 @@ type alias FrontendModel =
     , popupState : PopupState
     , showEditor : Bool
     }
+
+
+type ClockState
+    = ClockRunning
+    | ClockStopped
+    | ClockPaused
 
 
 type alias BackendModel =

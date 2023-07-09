@@ -52,4 +52,5 @@ type alias ViewData =
     { book : Book
     , kvDict : Dict String String
     , width : Int
+    , ticks : Int
     }
