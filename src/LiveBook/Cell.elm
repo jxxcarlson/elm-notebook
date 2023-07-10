@@ -311,7 +311,7 @@ updateSVG model cell_ =
                 firstWord =
                     str |> String.replace "> svg" "" |> String.words |> List.head |> Maybe.withDefault "--xx--"
             in
-            List.member firstWord [ "f", "circle", "square", "rectangle" ]
+            List.member firstWord [ "line", "f", "circle", "square", "rectangle" ]
 
         simpleValue =
             List.head cell_.text
@@ -337,16 +337,18 @@ evalSvg model cell_ =
             LiveBook.Eval.evaluateWithCumulativeBindings_ model.kvDict model.currentBook.cells cell_
 
         bindingString =
-            updatedCell.bindings |> String.join "\n"
+            updatedCell.bindings |> String.join "\n" |> Debug.log "@@BINDINGSTRING@@"
 
         exprString =
             updatedCell.expression
                 |> String.replace "evalSvg " ""
+                |> Debug.log "@@EXPRSTRING@@"
 
         stringToEvaluate =
             [ "let", bindingString, "in", exprString ]
                 |> String.join "\n"
                 |> String.replace "ticks" (String.fromInt model.tickCount)
+                |> Debug.log "@@STRINGTOEVALUATE@@ (1)"
 
         value_ : List String
         value_ =
@@ -354,10 +356,15 @@ evalSvg model cell_ =
                 --|> String.dropLeft 1
                 --|> String.dropRight 1
                 |> String.split ","
-                |> List.map (\s -> (String.trim >> unquote) s)
+                |> List.map (Debug.log "@@STRINGTOEVALUATE@@ (1)")
+                |> List.map (\s -> (String.trim >> unquote >> fix) s)
+                |> Debug.log "@@VALUE_@@"
 
         unquote str =
             String.replace "\"" "" str
+
+        fix str =
+            str |> String.replace "[" "" |> String.replace "]" ""
     in
     { cell_
         | cellState = CSView

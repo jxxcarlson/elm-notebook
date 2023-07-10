@@ -4,7 +4,7 @@ import Color exposing (Color)
 import Element exposing (Element)
 import Html exposing (Html)
 import TypedSvg
-import TypedSvg.Attributes exposing (cx, cy, fill, height, r, stroke, strokeWidth, viewBox, width, x, y)
+import TypedSvg.Attributes exposing (cx, cy, fill, height, r, stroke, strokeWidth, viewBox, width, x, x1, x2, y, y1, y2)
 import TypedSvg.Core exposing (Svg)
 import TypedSvg.Types exposing (Paint(..), px)
 
@@ -112,6 +112,46 @@ rectangle cx1 cy1 w1 h1 color =
             Nothing
 
 
+line : String -> String -> String -> String -> String -> Maybe (Svg msg)
+line xa1 ya1 xb1 yb1 color =
+    let
+        _ =
+            ( ( xa1, ya1 ), ( xb1, yb1 ) ) |> Debug.log "@@END POINTS"
+
+        xa2 =
+            String.toFloat xa1
+
+        ya2 =
+            String.toFloat ya1
+
+        xb2 =
+            String.toFloat xb1
+
+        yb2 =
+            String.toFloat yb1
+    in
+    case ( ( xa2, ya2 ), ( xb2, yb2 ) ) of
+        ( ( Just u1, Just v1 ), ( Just u2, Just v2 ) ) ->
+            let
+                _ =
+                    ( ( Just u1, Just v1 ), ( Just u2, Just v2 ) ) |> Debug.log "@@END POINTS"
+            in
+            Just
+                (TypedSvg.line
+                    [ x1 (px u1)
+                    , y1 (px v1)
+                    , x2 (px u2)
+                    , y2 (px v2)
+                    , stroke <| Paint (stringToColor color)
+                    , strokeWidth (px 3.5)
+                    ]
+                    []
+                )
+
+        _ ->
+            Nothing
+
+
 stringToSvg : String -> Maybe (Svg msg)
 stringToSvg str =
     case String.words str of
@@ -123,6 +163,9 @@ stringToSvg str =
 
         "rectangle" :: cx :: cy :: w :: h :: color :: [] ->
             rectangle cx cy w h color
+
+        "line" :: x1 :: y1 :: x2 :: y2 :: color :: [] ->
+            line x1 y1 x2 y2 "red"
 
         _ ->
             Nothing

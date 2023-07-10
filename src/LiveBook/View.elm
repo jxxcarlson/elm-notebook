@@ -144,8 +144,9 @@ renderVT viewData vt args =
                     args
                         |> List.filter (\s -> not (String.contains s "#"))
                         |> List.map (String.replace "> svg " "")
+                        |> Debug.log "@@RENDER SVG"
             in
-            LiveBook.SVG.render cleanArgs
+            Element.Lazy.lazy LiveBook.SVG.render cleanArgs
 
         VTChart ->
             case List.Extra.unconsLast args of
