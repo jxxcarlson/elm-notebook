@@ -7,6 +7,7 @@ import List.Extra
 import LiveBook.CellHelper
 import LiveBook.Eval
 import LiveBook.Function
+import LiveBook.State
 import LiveBook.Types
     exposing
         ( Book
@@ -51,7 +52,7 @@ evalCell index model =
                         |> List.map String.trim
                         |> List.head
             in
-            if List.member command (List.map Just commands) then
+            if List.member command (List.map Just ("setModel" :: commands)) then
                 executeCell index model
 
             else
@@ -67,6 +68,14 @@ evaluateWithCumulativeBindings model index cell_ =
     { model | currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
 
 
+{-|
+
+    Function executeCell is called when the user presses enter in a cell.
+    As a result, the contents of that cell are updated and (optionally)
+    a command is run.  The FrontendModel is updated only insofar as
+    the given cell is affected or the command is run.
+
+-}
 executeCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 executeCell index model =
     case List.Extra.getAt index model.currentBook.cells of
@@ -95,7 +104,26 @@ executeCell index model =
                 newBook =
                     LiveBook.CellHelper.updateBook updatedCell model.currentBook
             in
-            ( { model | currentBook = newBook }, cmd )
+            ( { model | currentBook = newBook } |> updateModel commandWords, cmd )
+
+
+updateModel : List String -> FrontendModel -> FrontendModel
+updateModel commandWords_ model =
+    case List.head commandWords_ of
+        Nothing ->
+            model
+
+        Just "setModel" ->
+            { model
+                | innerModel =
+                    commandWords_
+                        |> List.drop 1
+                        |> String.join " "
+                        |> LiveBook.State.parse
+            }
+
+        _ ->
+            model
 
 
 commands =
@@ -111,6 +139,11 @@ commands =
     , "eval"
     , "svg"
     , "evalSvg"
+    ]
+
+
+specialCommands =
+    [ "setModel"
     ]
 
 
@@ -200,12 +233,15 @@ updateCell model commandWords cell_ =
         Just "correlation" ->
             updateCorrelation model commandWords cell_
 
+        Just "setModel" ->
+            { cell_ | cellState = CSView, value = CVString "Model set" }
+
         _ ->
             { cell_ | cellState = CSView, value = CVString "Could not parse data (1)" }
 
 
 
--- UPDATE HELPES
+-- UPDATE HELPERS
 
 
 updateEval : FrontendModel -> List String -> Cell -> Cell
@@ -337,12 +373,11 @@ evalSvg model cell_ =
             LiveBook.Eval.evaluateWithCumulativeBindings_ model.kvDict model.currentBook.cells cell_
 
         bindingString =
-            updatedCell.bindings |> String.join "\n" |> Debug.log "@@BINDINGSTRING@@"
+            updatedCell.bindings |> String.join "\n"
 
         exprString =
             updatedCell.expression
                 |> String.replace "evalSvg " ""
-                |> Debug.log "@@EXPRSTRING@@"
 
         stringToEvaluate =
             [ "let", bindingString, "in", exprString ]
@@ -350,7 +385,6 @@ evalSvg model cell_ =
                 |> String.replace "ticks" (String.fromInt model.tickCount)
                 |> String.replace "prob0" (String.fromFloat (List.Extra.getAt 0 model.randomProbabilities |> Maybe.withDefault 0))
                 |> String.replace "prob1" (String.fromFloat (List.Extra.getAt 1 model.randomProbabilities |> Maybe.withDefault 0))
-                |> Debug.log "@@STRINGTOEVALUATE@@ (1)"
 
         value_ : List String
         value_ =
@@ -358,9 +392,7 @@ evalSvg model cell_ =
                 --|> String.dropLeft 1
                 --|> String.dropRight 1
                 |> String.split ","
-                |> List.map (Debug.log "@@STRINGTOEVALUATE@@ (1)")
                 |> List.map (\s -> (String.trim >> unquote >> fix) s)
-                |> Debug.log "@@VALUE_@@"
 
         unquote str =
             String.replace "\"" "" str

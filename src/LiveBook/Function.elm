@@ -142,23 +142,6 @@ toFloatList lines =
     List.map String.toFloat lines |> Maybe.Extra.combine
 
 
-
---getColumns : Int -> Int -> String -> Maybe (List (List Float))
---getColumns column1 column2 data =
---    data
---        |> Debug.log "@@LINES (1)"
---        |> String.lines
---        |> Debug.log "@@LINES (2)"
---        |> List.map (split ",")
---        |> Debug.log "@@LINES (3)"
---        --|> selectColumns (Just [ column1, column2 ])
---        |> selectColumns (Just [ column1 ])
---        |> Debug.log "@@LINES (4)"
---        |> Maybe.andThen listListStringToListListFloat
---        |> Debug.log "@@LINES (5)"
---
-
-
 {-|
 
     > ll = [["1", "2"], ["3", "4"]]

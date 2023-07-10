@@ -12,6 +12,7 @@ import Html exposing (Html)
 import Keyboard
 import Lamdera exposing (ClientId)
 import LiveBook.DataSet
+import LiveBook.State
 import LiveBook.Types exposing (Book, Cell, CellState(..), CellValue(..), VisualType(..))
 import Random
 import Time
@@ -58,6 +59,7 @@ type alias FrontendModel =
     , cloneReference : String
     , deleteNotebookState : DeleteNotebookState
     , showNotebooks : ShowNotebooks
+    , innerModel : Maybe LiveBook.State.IMValue
 
     -- USER
     , signupState : SignupState

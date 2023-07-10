@@ -116,7 +116,7 @@ line : String -> String -> String -> String -> String -> Maybe (Svg msg)
 line xa1 ya1 xb1 yb1 color =
     let
         _ =
-            ( ( xa1, ya1 ), ( xb1, yb1 ) ) |> Debug.log "@@END POINTS"
+            ( ( xa1, ya1 ), ( xb1, yb1 ) )
 
         xa2 =
             String.toFloat xa1
@@ -134,7 +134,7 @@ line xa1 ya1 xb1 yb1 color =
         ( ( Just u1, Just v1 ), ( Just u2, Just v2 ) ) ->
             let
                 _ =
-                    ( ( Just u1, Just v1 ), ( Just u2, Just v2 ) ) |> Debug.log "@@END POINTS"
+                    ( ( Just u1, Just v1 ), ( Just u2, Just v2 ) )
             in
             Just
                 (TypedSvg.line

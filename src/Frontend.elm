@@ -97,6 +97,7 @@ init url key =
       , cloneReference = ""
       , deleteNotebookState = WaitingToDeleteNotebook
       , showNotebooks = ShowUserNotebooks
+      , innerModel = Nothing
 
       -- UI
       , windowWidth = 600
@@ -759,7 +760,7 @@ getRandomProbabilities model k =
         ( randomProbabilities, randomSeed ) =
             Random.step (Random.list k (Random.float 0 1)) model.randomSeed
     in
-    ( { model | randomProbabilities = randomProbabilities |> Debug.log "@@RandomProbabilities", randomSeed = randomSeed }, Cmd.none )
+    ( { model | randomProbabilities = randomProbabilities, randomSeed = randomSeed }, Cmd.none )
 
 
 updateWithViewport : Browser.Dom.Viewport -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
