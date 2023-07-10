@@ -10,6 +10,7 @@ module View.Button exposing
     , dismissPopupSmall
     , editDataSet
     , editTitle
+    , getRandomProbabilities
     , lockCell
     , manual
     , manualLarge
@@ -103,6 +104,11 @@ editTitle mode =
 
     else
         Button.smallPrimary { msg = ChangeAppMode Types.AMEditTitle, status = Button.Active, label = Button.Text "Edit Title", tooltipText = Nothing }
+
+
+getRandomProbabilities : Element FrontendMsg
+getRandomProbabilities =
+    Button.smallPrimary { msg = GetRandomProbabilities 3, status = Button.Active, label = Button.Text "Get Random Probabilities", tooltipText = Nothing }
 
 
 setClock : FrontendModel -> Element FrontendMsg

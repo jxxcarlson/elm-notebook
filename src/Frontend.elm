@@ -70,6 +70,7 @@ init url key =
       , clockState = ClockStopped
       , pressedKeys = []
       , randomSeed = Random.initialSeed 1234
+      , randomProbabilities = []
 
       -- ADMIN
       , users = []
@@ -122,6 +123,16 @@ update msg model =
     case msg of
         NoOpFrontendMsg ->
             ( model, Cmd.none )
+
+        GetRandomProbabilities k ->
+            let
+                ( randomProbabilities, randomSeed ) =
+                    Random.step (Random.list k (Random.float 0 1)) model.randomSeed
+            in
+            ( { model | randomProbabilities = randomProbabilities |> Debug.log "@@RandomProbabilities", randomSeed = randomSeed }, Cmd.none )
+
+        GotRandomProbabilities listOfProbabilities ->
+            ( { model | randomProbabilities = listOfProbabilities }, Cmd.none )
 
         KeyboardMsg keyMsg ->
             let

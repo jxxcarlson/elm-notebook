@@ -52,6 +52,7 @@ view model =
                 , Button.newDataSet
                 , Button.toggleViewPublicDataSets
                 , Button.toggleViewPrivateDataSets
+                , Button.getRandomProbabilities
                 , case model.currentBook.origin of
                     Just origin ->
                         E.el [ E.alignRight, Font.color Color.lightGray ] (E.text <| origin)

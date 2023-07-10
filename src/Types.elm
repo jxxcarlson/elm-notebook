@@ -31,6 +31,7 @@ type alias FrontendModel =
     , clockState : ClockState
     , pressedKeys : List Keyboard.Key
     , randomSeed : Random.Seed
+    , randomProbabilities : List Float
 
     -- ADMIN
     , users : List User
@@ -125,6 +126,8 @@ type FrontendMsg
     | FETick Time.Posix
     | FastTick Time.Posix
     | KeyboardMsg Keyboard.Msg
+    | GetRandomProbabilities Int
+    | GotRandomProbabilities (List Float)
       -- FILE
     | StringDataRequested Int String -- int is the cell index, string is the variable name
     | StringDataSelected Int String File
