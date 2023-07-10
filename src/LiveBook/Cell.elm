@@ -348,6 +348,8 @@ evalSvg model cell_ =
             [ "let", bindingString, "in", exprString ]
                 |> String.join "\n"
                 |> String.replace "ticks" (String.fromInt model.tickCount)
+                |> String.replace "prob0" (String.fromFloat (List.Extra.getAt 0 model.randomProbabilities |> Maybe.withDefault 0))
+                |> String.replace "prob1" (String.fromFloat (List.Extra.getAt 1 model.randomProbabilities |> Maybe.withDefault 0))
                 |> Debug.log "@@STRINGTOEVALUATE@@ (1)"
 
         value_ : List String

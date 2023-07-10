@@ -32,6 +32,7 @@ type alias FrontendModel =
     , pressedKeys : List Keyboard.Key
     , randomSeed : Random.Seed
     , randomProbabilities : List Float
+    , probabilityVectorLength : Int
 
     -- ADMIN
     , users : List User

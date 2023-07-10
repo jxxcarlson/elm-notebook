@@ -71,6 +71,7 @@ init url key =
       , pressedKeys = []
       , randomSeed = Random.initialSeed 1234
       , randomProbabilities = []
+      , probabilityVectorLength = 2
 
       -- ADMIN
       , users = []
@@ -125,11 +126,7 @@ update msg model =
             ( model, Cmd.none )
 
         GetRandomProbabilities k ->
-            let
-                ( randomProbabilities, randomSeed ) =
-                    Random.step (Random.list k (Random.float 0 1)) model.randomSeed
-            in
-            ( { model | randomProbabilities = randomProbabilities |> Debug.log "@@RandomProbabilities", randomSeed = randomSeed }, Cmd.none )
+            getRandomProbabilities model k
 
         GotRandomProbabilities listOfProbabilities ->
             ( { model | randomProbabilities = listOfProbabilities }, Cmd.none )
@@ -153,7 +150,14 @@ update msg model =
             case model.clockState of
                 ClockRunning ->
                     --( { model | tickCount = model.tickCount + 1 }, Cmd.none )
-                    LiveBook.Cell.evalCell model.currentCellIndex { model | tickCount = model.tickCount + 1 }
+                    let
+                        f m =
+                            LiveBook.Cell.evalCell m.currentCellIndex { m | tickCount = m.tickCount + 1 }
+
+                        g m =
+                            getRandomProbabilities m model.probabilityVectorLength
+                    in
+                    glueUpdate f g model
 
                 _ ->
                     ( model, Cmd.none )
@@ -735,6 +739,27 @@ view model =
 
 
 --HELPERS
+
+
+glueUpdate : (Model -> ( Model, Cmd FrontendMsg )) -> (Model -> ( Model, Cmd FrontendMsg )) -> Model -> ( Model, Cmd FrontendMsg )
+glueUpdate f g model =
+    let
+        ( m1, cmd1 ) =
+            f model
+
+        ( m2, cmd2 ) =
+            g m1
+    in
+    ( m2, Cmd.batch [ cmd1, cmd2 ] )
+
+
+getRandomProbabilities : Model -> Int -> ( Model, Cmd FrontendMsg )
+getRandomProbabilities model k =
+    let
+        ( randomProbabilities, randomSeed ) =
+            Random.step (Random.list k (Random.float 0 1)) model.randomSeed
+    in
+    ( { model | randomProbabilities = randomProbabilities |> Debug.log "@@RandomProbabilities", randomSeed = randomSeed }, Cmd.none )
 
 
 updateWithViewport : Browser.Dom.Viewport -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
