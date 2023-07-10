@@ -1,52 +1,111 @@
-module LiveBook.State exposing (..)
+module LiveBook.State exposing
+    ( NBValue(..)
+    , getValue
+    , parse
+    , setValue
+    , unwrapFloat
+    , unwrapListFloat
+    , updateKVDictWithValue
+    )
 
---( IMValue
---, parse
---, unwrapFloat
---, unwrapListFloat
---)
---
-
+import Dict exposing (Dict)
 import Parser exposing ((|.), (|=), Parser)
 
 
-type IMValue
-    = IMFloat Float
-    | IMList (List IMValue)
-    | IMPoint Point
+type NBValue
+    = NBFloat Float
+    | NBFloatList (List Float)
+    | NBList (List NBValue)
+    | NBPoint Point
 
 
-unwrapFloat : IMValue -> Maybe Float
+
+---setValueFromFloats : List Float -> FrontendModel -> FrontendModel
+
+
+setValueFromFloats : List Float -> TinyModel a -> TinyModel a
+setValueFromFloats floats model =
+    setValue (List.map String.fromFloat floats) model
+
+
+type alias TinyModel a =
+    { a | kvDict : Dict String String, valueDict : Dict String NBValue }
+
+
+getValue : String -> TinyModel a -> Maybe NBValue
+getValue name model =
+    Dict.get name model.valueDict
+
+
+setValue : List String -> TinyModel a -> TinyModel a
+setValue commandWords_ model =
+    case commandWords_ of
+        "setValue" :: name :: tail ->
+            let
+                value : Maybe NBValue
+                value =
+                    tail
+                        |> String.join " "
+                        |> parse
+                        |> Debug.log "@@VALUE"
+
+                valueDict =
+                    case value of
+                        Nothing ->
+                            model.valueDict |> Debug.log "@@VALUE DICT (1)"
+
+                        Just value_ ->
+                            Dict.insert name value_ model.valueDict |> Debug.log "@@VALUE DICT (2)"
+            in
+            { model
+                | valueDict = valueDict
+            }
+
+        _ ->
+            model
+
+
+updateKVDictWithValue : NBValue -> Dict String String -> Dict String String
+updateKVDictWithValue value kvDict =
+    case value of
+        NBList [ NBFloat x, NBFloat y ] ->
+            kvDict |> Dict.insert "xValue" (String.fromFloat x) |> Dict.insert "yValue" (String.fromFloat y)
+
+        _ ->
+            kvDict
+
+
+unwrapFloat : NBValue -> Maybe Float
 unwrapFloat value =
     case value of
-        IMFloat float ->
+        NBFloat float ->
             Just float
 
         _ ->
             Nothing
 
 
-unwrapListFloat : IMValue -> Maybe (List Float)
+unwrapListFloat : NBValue -> Maybe (List Float)
 unwrapListFloat value =
     case value of
-        IMList list ->
+        NBList list ->
             List.map unwrapFloat list |> List.filterMap identity |> Just
 
         _ ->
             Nothing
 
 
-unwrapPoint : IMValue -> Maybe Point
+unwrapPoint : NBValue -> Maybe Point
 unwrapPoint value =
     case value of
-        IMPoint point ->
+        NBPoint point ->
             Just point
 
         _ ->
             Nothing
 
 
-parse : String -> Maybe IMValue
+parse : String -> Maybe NBValue
 parse str =
     Parser.run parserIMValue str
         |> Result.toMaybe
@@ -60,26 +119,36 @@ parse str =
     > parse "1.234"
     Ok (IMFloat 1.234)
 
-    > parse "[1.2 2.1]"
-    Ok (IMList [IMFloat 1.2,IMFloat 2.1])
+> parse "[1, 2]"
+> Just (IMFloatList [1,2])
 
-    > parse "[[1.2 2.1] [7 8]]"
-    Ok (IMList [IMList [IMFloat 1.2,IMFloat 2.1],IMList [IMFloat 7,IMFloat 8]])
+> parse "L[1,2]"
+> Just (IMList [IMFloat 1,IMFloat 2])
+
+> parse "L[[1,2],[3,4]]"
+> Just (IMList [IMFloatList [1,2],IMFloatList [3,4]])
 
 -}
-parserIMValue : Parser IMValue
+parserIMValue : Parser NBValue
 parserIMValue =
     Parser.oneOf
-        [ Parser.float |> Parser.map IMFloat
+        [ Parser.float |> Parser.map NBFloat
         , listParser
-        , pointParser |> Parser.map IMPoint
+        , floatListParser
+        , pointParser |> Parser.map NBPoint
         ]
 
 
-listParser : Parser IMValue
-listParser =
+floatListParser : Parser NBValue
+floatListParser =
     Parser.symbol "["
-        |> Parser.andThen (\_ -> Parser.lazy (\_ -> manySeparatedBy "," parserIMValue) |> Parser.map IMList)
+        |> Parser.andThen (\_ -> Parser.lazy (\_ -> manySeparatedBy "," Parser.float) |> Parser.map NBFloatList)
+
+
+listParser : Parser NBValue
+listParser =
+    Parser.symbol "L["
+        |> Parser.andThen (\_ -> Parser.lazy (\_ -> manySeparatedBy "," parserIMValue) |> Parser.map NBList)
 
 
 

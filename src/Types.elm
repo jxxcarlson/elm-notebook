@@ -59,7 +59,7 @@ type alias FrontendModel =
     , cloneReference : String
     , deleteNotebookState : DeleteNotebookState
     , showNotebooks : ShowNotebooks
-    , innerModel : Maybe LiveBook.State.IMValue
+    , valueDict : Dict String LiveBook.State.NBValue
 
     -- USER
     , signupState : SignupState

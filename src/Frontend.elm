@@ -97,7 +97,7 @@ init url key =
       , cloneReference = ""
       , deleteNotebookState = WaitingToDeleteNotebook
       , showNotebooks = ShowUserNotebooks
-      , innerModel = Nothing
+      , valueDict = Dict.empty
 
       -- UI
       , windowWidth = 600
@@ -759,8 +759,16 @@ getRandomProbabilities model k =
     let
         ( randomProbabilities, randomSeed ) =
             Random.step (Random.list k (Random.float 0 1)) model.randomSeed
+
+        kvDict =
+            case randomProbabilities of
+                prob0 :: prob1 :: _ ->
+                    model.kvDict |> Dict.insert "prob0" (String.fromFloat prob0) |> Dict.insert "prob1" (String.fromFloat prob1)
+
+                _ ->
+                    model.kvDict
     in
-    ( { model | randomProbabilities = randomProbabilities, randomSeed = randomSeed }, Cmd.none )
+    ( { model | randomProbabilities = randomProbabilities, kvDict = kvDict, randomSeed = randomSeed }, Cmd.none )
 
 
 updateWithViewport : Browser.Dom.Viewport -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )

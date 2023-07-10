@@ -1,6 +1,6 @@
 module LiveBook.Cell exposing (evalCell)
 
-import Dict
+import Dict exposing (Dict)
 import File.Select
 import Lamdera
 import List.Extra
@@ -52,7 +52,7 @@ evalCell index model =
                         |> List.map String.trim
                         |> List.head
             in
-            if List.member command (List.map Just ("setModel" :: commands)) then
+            if List.member command (List.map Just ("setValue" :: commands)) then
                 executeCell index model
 
             else
@@ -104,26 +104,7 @@ executeCell index model =
                 newBook =
                     LiveBook.CellHelper.updateBook updatedCell model.currentBook
             in
-            ( { model | currentBook = newBook } |> updateModel commandWords, cmd )
-
-
-updateModel : List String -> FrontendModel -> FrontendModel
-updateModel commandWords_ model =
-    case List.head commandWords_ of
-        Nothing ->
-            model
-
-        Just "setModel" ->
-            { model
-                | innerModel =
-                    commandWords_
-                        |> List.drop 1
-                        |> String.join " "
-                        |> LiveBook.State.parse
-            }
-
-        _ ->
-            model
+            ( { model | currentBook = newBook } |> LiveBook.State.setValue commandWords, cmd )
 
 
 commands =
@@ -143,7 +124,7 @@ commands =
 
 
 specialCommands =
-    [ "setModel"
+    [ "setValue"
     ]
 
 
@@ -233,8 +214,8 @@ updateCell model commandWords cell_ =
         Just "correlation" ->
             updateCorrelation model commandWords cell_
 
-        Just "setModel" ->
-            { cell_ | cellState = CSView, value = CVString "Model set" }
+        Just "setValue" ->
+            { cell_ | cellState = CSView, value = CVString "Value set" }
 
         _ ->
             { cell_ | cellState = CSView, value = CVString "Could not parse data (1)" }
