@@ -12,6 +12,7 @@ module LiveBook.Eval exposing
     , getPriorBindings
     , isBinding_
     , toListFloatPair
+    , transformWordWithValueDict
     , transformWordsWithKVDict
     )
 
@@ -19,7 +20,7 @@ import Dict exposing (Dict)
 import Eval
 import Eval.Types
 import List.Extra
-import LiveBook.State exposing (NBValue(..))
+import LiveBook.State exposing (unwrapFloat, unwrapListFloat)
 import LiveBook.Types exposing (Cell, CellState(..), CellValue(..))
 import LiveBook.Utility
 import Maybe.Extra
@@ -40,19 +41,22 @@ evaluate cell =
     }
 
 
-evaluateWithCumulativeBindings : Dict String String -> List Cell -> Cell -> Cell
-evaluateWithCumulativeBindings kvDict cells cell =
+evaluateWithCumulativeBindings : Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
+evaluateWithCumulativeBindings valueDict kvDict cells cell =
     case cell.value of
         CVVisual _ _ ->
             cell
 
         _ ->
-            evaluateWithCumulativeBindings_ kvDict cells cell
+            evaluateWithCumulativeBindings_ valueDict kvDict cells cell
 
 
-evaluateWithCumulativeBindings_ : Dict String String -> List Cell -> Cell -> Cell
-evaluateWithCumulativeBindings_ kvDict cells cell =
+evaluateWithCumulativeBindings_ : Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
+evaluateWithCumulativeBindings_ valueDict kvDict cells cell =
     let
+        _ =
+            cell
+
         exprRecords =
             cells
                 |> List.take (cell.index + 1)
@@ -65,9 +69,9 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
         bindings =
             exprRecords
                 |> List.map .bindings
-                |> List.map (List.map (transformWordsWithKVDict (kvDict |> Debug.log "@@KVDICT")))
+                |> List.map (List.map (transformWordsWithKVDict kvDict))
+                |> List.map (List.map (transformWordWithValueDict valueDict))
                 |> List.concat
-                |> Debug.log "@@BINDINGS"
 
         --|> String.join "\n"
         expressionString_ =
@@ -77,6 +81,7 @@ evaluateWithCumulativeBindings_ kvDict cells cell =
                 |> String.join "\n"
                 |> String.words
                 |> List.map (transformWordsWithKVDict kvDict)
+                |> List.map (transformWordWithValueDict valueDict)
                 |> String.join " "
 
         expressionString =
@@ -208,7 +213,7 @@ transformWordWithKVDict dict word =
             substitute
 
 
-transformWordWithValueDict : Dict String NBValue -> String -> String
+transformWordWithValueDict : Dict String Value -> String -> String
 transformWordWithValueDict dict word =
     case Dict.get word dict of
         Nothing ->
@@ -216,11 +221,25 @@ transformWordWithValueDict dict word =
 
         Just substitute ->
             case substitute of
-                NBFloat float ->
+                Float float ->
                     String.fromFloat float
+
+                List list ->
+                    substitute
+                        |> LiveBook.State.unwrapListFloat
+                        |> Maybe.map listFloatToString
+                        |> Maybe.withDefault "[]"
 
                 _ ->
                     "None"
+
+
+listFloatToString : List Float -> String
+listFloatToString list =
+    list
+        |> List.map String.fromFloat
+        |> String.join ", "
+        |> (\str -> "[" ++ str ++ "]")
 
 
 evaluateSource : Cell -> Maybe String

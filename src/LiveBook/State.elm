@@ -1,8 +1,9 @@
 module LiveBook.State exposing
-    ( NBValue(..)
-    , getValue
+    ( getValue
+    , getValueFromDict
     , parse
     , setValue
+    , setValueInDict
     , unwrapFloat
     , unwrapListFloat
     , updateKVDictWithValue
@@ -10,13 +11,7 @@ module LiveBook.State exposing
 
 import Dict exposing (Dict)
 import Parser exposing ((|.), (|=), Parser)
-
-
-type NBValue
-    = NBFloat Float
-    | NBFloatList (List Float)
-    | NBList (List NBValue)
-    | NBPoint Point
+import Value exposing (Value(..))
 
 
 
@@ -29,12 +24,17 @@ setValueFromFloats floats model =
 
 
 type alias TinyModel a =
-    { a | kvDict : Dict String String, valueDict : Dict String NBValue }
+    { a | kvDict : Dict String String, valueDict : Dict String Value }
 
 
-getValue : String -> TinyModel a -> Maybe NBValue
+getValue : String -> TinyModel a -> Maybe Value
 getValue name model =
     Dict.get name model.valueDict
+
+
+getValueFromDict : String -> Dict String Value -> Maybe Value
+getValueFromDict name valueDict =
+    Dict.get name valueDict
 
 
 setValue : List String -> TinyModel a -> TinyModel a
@@ -42,20 +42,19 @@ setValue commandWords_ model =
     case commandWords_ of
         "setValue" :: name :: tail ->
             let
-                value : Maybe NBValue
+                value : Maybe Value
                 value =
                     tail
                         |> String.join " "
                         |> parse
-                        |> Debug.log "@@VALUE"
 
                 valueDict =
                     case value of
                         Nothing ->
-                            model.valueDict |> Debug.log "@@VALUE DICT (1)"
+                            model.valueDict
 
                         Just value_ ->
-                            Dict.insert name value_ model.valueDict |> Debug.log "@@VALUE DICT (2)"
+                            Dict.insert name value_ model.valueDict
             in
             { model
                 | valueDict = valueDict
@@ -65,90 +64,88 @@ setValue commandWords_ model =
             model
 
 
-updateKVDictWithValue : NBValue -> Dict String String -> Dict String String
+setValueInDict : String -> Dict String Value -> Dict String Value
+setValueInDict str valueDict =
+    case String.words str of
+        name :: tail ->
+            let
+                value : Maybe Value
+                value =
+                    tail
+                        |> String.join " "
+                        |> parse
+            in
+            case value of
+                Nothing ->
+                    valueDict
+
+                Just value_ ->
+                    Dict.insert name value_ valueDict
+
+        _ ->
+            valueDict
+
+
+updateKVDictWithValue : Value -> Dict String String -> Dict String String
 updateKVDictWithValue value kvDict =
     case value of
-        NBList [ NBFloat x, NBFloat y ] ->
+        List [ Float x, Float y ] ->
             kvDict |> Dict.insert "xValue" (String.fromFloat x) |> Dict.insert "yValue" (String.fromFloat y)
 
         _ ->
             kvDict
 
 
-unwrapFloat : NBValue -> Maybe Float
+unwrapFloat : Value -> Maybe Float
 unwrapFloat value =
     case value of
-        NBFloat float ->
+        Float float ->
             Just float
 
         _ ->
             Nothing
 
 
-unwrapListFloat : NBValue -> Maybe (List Float)
+unwrapListFloat : Value -> Maybe (List Float)
 unwrapListFloat value =
     case value of
-        NBList list ->
+        List list ->
             List.map unwrapFloat list |> List.filterMap identity |> Just
 
         _ ->
             Nothing
 
 
-unwrapPoint : NBValue -> Maybe Point
-unwrapPoint value =
-    case value of
-        NBPoint point ->
-            Just point
-
-        _ ->
-            Nothing
-
-
-parse : String -> Maybe NBValue
+parse : String -> Maybe Value
 parse str =
-    Parser.run parserIMValue str
+    Parser.run parserValue str
         |> Result.toMaybe
 
 
 {-|
 
-    > parse "{x = 1, y = 2}"
-    Just (IMPoint { x = 1, y = 2 })
+    > parse "1.2"
+    Just (Float 1.2)
 
-    > parse "1.234"
-    Ok (IMFloat 1.234)
+    > parse "[1.1, 2.2]"
+    Just (List [Float 1.1,Float 2.2])
 
-> parse "[1, 2]"
-> Just (IMFloatList [1,2])
-
-> parse "L[1,2]"
-> Just (IMList [IMFloat 1,IMFloat 2])
-
-> parse "L[[1,2],[3,4]]"
-> Just (IMList [IMFloatList [1,2],IMFloatList [3,4]])
+    > parse "[[1.1, 2.2], [7,8]]"
+    Just (List [List [Float 1.1,Float 2.2],List [Float 7,Float 8]])
 
 -}
-parserIMValue : Parser NBValue
-parserIMValue =
+parserValue : Parser Value
+parserValue =
     Parser.oneOf
-        [ Parser.float |> Parser.map NBFloat
+        [ Parser.float |> Parser.map Float
         , listParser
-        , floatListParser
-        , pointParser |> Parser.map NBPoint
         ]
 
 
-floatListParser : Parser NBValue
-floatListParser =
-    Parser.symbol "["
-        |> Parser.andThen (\_ -> Parser.lazy (\_ -> manySeparatedBy "," Parser.float) |> Parser.map NBFloatList)
-
-
-listParser : Parser NBValue
+listParser : Parser Value
 listParser =
-    Parser.symbol "L["
-        |> Parser.andThen (\_ -> Parser.lazy (\_ -> manySeparatedBy "," parserIMValue) |> Parser.map NBList)
+    Parser.symbol "["
+        |> Parser.andThen (\_ -> Parser.lazy (\_ -> manySeparatedBy "," parserValue) |> Parser.map List)
 
 
 

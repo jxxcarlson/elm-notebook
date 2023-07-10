@@ -18,6 +18,7 @@ import Random
 import Time
 import Url exposing (Url)
 import User exposing (User)
+import Value exposing (Value)
 
 
 type alias FrontendModel =
@@ -59,7 +60,7 @@ type alias FrontendModel =
     , cloneReference : String
     , deleteNotebookState : DeleteNotebookState
     , showNotebooks : ShowNotebooks
-    , valueDict : Dict String LiveBook.State.NBValue
+    , valueDict : Dict String Value
 
     -- USER
     , signupState : SignupState
