@@ -30,6 +30,7 @@ type alias FrontendModel =
     , tickCount : Int
     , clockState : ClockState
     , pressedKeys : List Keyboard.Key
+    , randomSeed : Random.Seed
 
     -- ADMIN
     , users : List User
@@ -216,6 +217,7 @@ type SearchTerm
 
 type ToBackend
     = NoOpToBackend
+    | GetRandomSeed
       -- ADMIN
     | RunTask
     | SendUsers
@@ -252,6 +254,7 @@ type BackendMsg
 type ToFrontend
     = NoOpToFrontend
     | MessageReceived Message
+    | GotRandomSeed Random.Seed
       -- ADMIN
     | GotUsers (List User)
       -- DATA

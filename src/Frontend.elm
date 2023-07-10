@@ -69,6 +69,7 @@ init url key =
       , tickCount = 0
       , clockState = ClockStopped
       , pressedKeys = []
+      , randomSeed = Random.initialSeed 1234
 
       -- ADMIN
       , users = []
@@ -112,7 +113,7 @@ init url key =
       , inputEmail = ""
       , inputTitle = ""
       }
-    , setupWindow
+    , Cmd.batch [ setupWindow, sendToBackend GetRandomSeed ]
     )
 
 
@@ -647,6 +648,9 @@ updateFromBackend msg model =
     case msg of
         NoOpToFrontend ->
             ( model, Cmd.none )
+
+        GotRandomSeed seed ->
+            ( { model | randomSeed = seed }, Cmd.none )
 
         -- ADMIN
         GotUsers users ->

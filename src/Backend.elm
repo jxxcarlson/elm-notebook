@@ -71,6 +71,13 @@ updateFromFrontend sessionId clientId msg model =
         NoOpToBackend ->
             ( model, Cmd.none )
 
+        GetRandomSeed ->
+            let
+                ( _, newRandomSeed ) =
+                    Random.step (Random.float 0 1) model.randomSeed
+            in
+            ( { model | randomSeed = newRandomSeed }, sendToFrontend clientId (GotRandomSeed newRandomSeed) )
+
         -- ADMIN
         RunTask ->
             ( model, Cmd.none )
