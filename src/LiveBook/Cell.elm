@@ -63,7 +63,7 @@ evaluateWithCumulativeBindings : FrontendModel -> Int -> Cell -> FrontendModel
 evaluateWithCumulativeBindings model index cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithCumulativeBindings_ model.valueDict model.kvDict model.currentBook.cells cell_
     in
     { model | currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
 
@@ -179,22 +179,22 @@ updateCell model commandWords cell_ =
             { cell_ | cellState = CSView }
 
         Just "head" ->
-            updateHead model commandWords cell_
+            handleHeadCmd model commandWords cell_
 
         Just "eval" ->
             updateEval model commandWords cell_
 
         Just "info" ->
-            updateInfo model commandWords cell_
+            handleInfoCmd model commandWords cell_
 
         Just "image" ->
             { cell_ | cellState = CSView, value = CVVisual VTImage (List.drop 1 commandWords) }
 
         Just "svg" ->
-            updateSVG model cell_
+            svgHandler model cell_
 
         Just "evalSvg" ->
-            evalSvg model cell_
+            evalSvgHandler model cell_
 
         Just "chart" ->
             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
@@ -209,10 +209,10 @@ updateCell model commandWords cell_ =
             { cell_ | cellState = CSView, value = CVString "*......*" }
 
         Just "export" ->
-            updateExport commandWords cell_
+            exportDataHandler commandWords cell_
 
         Just "correlation" ->
-            updateCorrelation model commandWords cell_
+            correnlationHandler model commandWords cell_
 
         Just "setValue" ->
             { cell_ | cellState = CSView, value = CVString "Value set" }
@@ -239,8 +239,8 @@ updateEval model commandWords cell_ =
     }
 
 
-updateHead : FrontendModel -> List String -> Cell -> Cell
-updateHead model commandWords cell_ =
+handleHeadCmd : FrontendModel -> List String -> Cell -> Cell
+handleHeadCmd model commandWords cell_ =
     let
         n : Maybe Int
         n =
@@ -268,8 +268,8 @@ updateHead model commandWords cell_ =
     { cell_ | cellState = CSView, value = CVString message }
 
 
-updateInfo : FrontendModel -> List String -> Cell -> Cell
-updateInfo model commandWords cell_ =
+handleInfoCmd : FrontendModel -> List String -> Cell -> Cell
+handleInfoCmd model commandWords cell_ =
     let
         identifier : String
         identifier =
@@ -297,8 +297,8 @@ updateInfo model commandWords cell_ =
             { cell_ | cellState = CSView, value = CVString text }
 
 
-updateSVG : FrontendModel -> Cell -> Cell
-updateSVG model cell_ =
+svgHandler : FrontendModel -> Cell -> Cell
+svgHandler model cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings_ model.valueDict model.kvDict model.currentBook.cells cell_
@@ -347,8 +347,8 @@ updateSVG model cell_ =
     }
 
 
-evalSvg : FrontendModel -> Cell -> Cell
-evalSvg model cell_ =
+evalSvgHandler : FrontendModel -> Cell -> Cell
+evalSvgHandler model cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings_ model.valueDict model.kvDict model.currentBook.cells cell_
@@ -388,8 +388,8 @@ evalSvg model cell_ =
     }
 
 
-updateExport : List String -> Cell -> Cell
-updateExport commandWords cell_ =
+exportDataHandler : List String -> Cell -> Cell
+exportDataHandler commandWords cell_ =
     let
         file =
             (List.Extra.getAt 1 commandWords |> Maybe.withDefault "???" |> String.replace "." "-") ++ ".csv"
@@ -397,8 +397,8 @@ updateExport commandWords cell_ =
     { cell_ | cellState = CSView, value = CVString ("Exported data to file " ++ file) }
 
 
-updateCorrelation : FrontendModel -> List String -> Cell -> Cell
-updateCorrelation model commandWords cell_ =
+correnlationHandler : FrontendModel -> List String -> Cell -> Cell
+correnlationHandler model commandWords cell_ =
     -- correlation column1 column2 identifier
     case commandWords of
         "correlation" :: column1 :: column2 :: identifier :: _ ->

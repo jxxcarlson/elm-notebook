@@ -1,26 +1,17 @@
 module LiveBook.Eval exposing
-    ( basicCell
-    , evaluate
-    , evaluateSource
-    , evaluateString
+    ( evaluateString
     , evaluateWithCumulativeBindings
     , evaluateWithCumulativeBindingsToResult
     , evaluateWithCumulativeBindingsToResult2
     , evaluateWithCumulativeBindings_
-    , getBlocks
-    , getCellExprRecord
-    , getPriorBindings
-    , isBinding_
     , toListFloatPair
-    , transformWordWithValueDict
     , transformWordsWithKVDict
     )
 
 import Dict exposing (Dict)
 import Eval
 import Eval.Types
-import List.Extra
-import LiveBook.State exposing (unwrapFloat, unwrapListFloat)
+import LiveBook.State
 import LiveBook.Types exposing (Cell, CellState(..), CellValue(..))
 import LiveBook.Utility
 import Maybe.Extra
@@ -54,9 +45,6 @@ evaluateWithCumulativeBindings valueDict kvDict cells cell =
 evaluateWithCumulativeBindings_ : Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
 evaluateWithCumulativeBindings_ valueDict kvDict cells cell =
     let
-        _ =
-            cell
-
         exprRecords =
             cells
                 |> List.take (cell.index + 1)
@@ -364,7 +352,7 @@ evaluateString input =
                     "Parse error"
 
                 Eval.Types.EvalError evalError ->
-                    "Evaluation error: " ++ "Eval error"
+                    "Evaluation error"
 
 
 toListFloatPair : Value -> Maybe (List ( Float, Float ))
