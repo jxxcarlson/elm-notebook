@@ -370,8 +370,6 @@ evalSvgHandler model cell_ =
         value_ : List String
         value_ =
             LiveBook.Eval.evaluateString stringToEvaluate
-                --|> String.dropLeft 1
-                --|> String.dropRight 1
                 |> String.split ","
                 |> List.map (\s -> (String.trim >> unquote >> fix) s)
 
