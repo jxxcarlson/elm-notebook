@@ -69,6 +69,7 @@ viewNotebookList model user =
         , Element.Border.color Color.stillDarkerSteelGray
         , Background.color (E.rgb255 73 78 89)
         , E.height (E.px (View.Geometry.bodyHeight model - monitorHeight))
+        , E.scrollbarY
         , E.paddingXY 24 12
         ]
         (notebookControls model
