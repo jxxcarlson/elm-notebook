@@ -1,5 +1,6 @@
 module LiveBook.Eval exposing
     ( evaluateString
+    , evaluateStringWithBindings
     , evaluateWithCumulativeBindings
     , evaluateWithCumulativeBindingsCore
     , evaluateWithCumulativeBindingsToResult
@@ -36,6 +37,12 @@ evaluateWithCumulativeBindings valueDict kvDict cells cell =
     let
         ( stringToEvaluate, bindings ) =
             evaluateWithCumulativeBindingsCore valueDict kvDict cells cell
+
+        _ =
+            stringToEvaluate |> Debug.log "@@String to evaluate"
+
+        _ =
+            bindings |> Debug.log "@@Bindings"
     in
     if stringToEvaluate == "()" then
         { cell | value = CVNone, cellState = CSView }
@@ -101,7 +108,20 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                     ++ "\nin\n"
                     ++ expressionString
         in
-        ( letExpression, bindings )
+        ( letExpression, bindings ) |> Debug.log "@@(E, B) (1)"
+
+
+evaluateStringWithBindings : List String -> String -> String
+evaluateStringWithBindings bindings str =
+    if bindings == [] then
+        str |> evaluateString
+
+    else
+        "let\n"
+            ++ String.join "\n" bindings
+            ++ "\nin\n"
+            ++ str
+            |> evaluateString
 
 
 compress : String -> String

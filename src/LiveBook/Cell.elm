@@ -56,11 +56,11 @@ evalCell index model =
                 executeCell index model
 
             else
-                ( evaluateWithCumulativeBindings model index cell_, Cmd.none )
+                ( evaluateWithCumulativeBindings model cell_, Cmd.none )
 
 
-evaluateWithCumulativeBindings : FrontendModel -> Int -> Cell -> FrontendModel
-evaluateWithCumulativeBindings model index cell_ =
+evaluateWithCumulativeBindings : FrontendModel -> Cell -> FrontendModel
+evaluateWithCumulativeBindings model cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
@@ -84,6 +84,9 @@ executeCell index model =
 
         Just cell_ ->
             let
+                _ =
+                    Debug.log "@@BINDINGS (00000)" cell_.bindings
+
                 updatedCell =
                     -- Update the cell according to
                     -- (a) the expression (if any) in the cell
@@ -104,7 +107,7 @@ executeCell index model =
                 newBook =
                     LiveBook.CellHelper.updateBook updatedCell model.currentBook
             in
-            ( { model | currentBook = newBook } |> LiveBook.State.setValue commandWords, cmd )
+            ( { model | currentBook = newBook } |> LiveBook.State.setValue cell_ commandWords, cmd )
 
 
 commands =

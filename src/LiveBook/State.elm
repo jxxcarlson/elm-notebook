@@ -9,6 +9,7 @@ module LiveBook.State exposing
 
 import Dict exposing (Dict)
 import LiveBook.Eval
+import LiveBook.Types exposing (Cell)
 import Parser exposing ((|.), (|=), Parser)
 import Value exposing (Value(..))
 
@@ -17,9 +18,9 @@ import Value exposing (Value(..))
 ---setValueFromFloats : List Float -> FrontendModel -> FrontendModel
 
 
-setValueFromFloats : List Float -> TinyModel a -> TinyModel a
-setValueFromFloats floats model =
-    setValue (List.map String.fromFloat floats) model
+setValueFromFloats : Cell -> List Float -> TinyModel a -> TinyModel a
+setValueFromFloats cell floats model =
+    setValue cell (List.map String.fromFloat floats) model
 
 
 type alias TinyModel a =
@@ -36,17 +37,26 @@ getValueFromDict name valueDict =
     Dict.get name valueDict
 
 
-setValue : List String -> TinyModel a -> TinyModel a
-setValue commandWords_ model =
+setValue : Cell -> List String -> TinyModel a -> TinyModel a
+setValue cell commandWords_ model =
     case commandWords_ of
         "setValue" :: name :: tail ->
             let
+                _ =
+                    Debug.log "@@SETVALUE (bindings)" cell.bindings
+
                 value : Maybe Value
                 value =
                     tail
+                        |> Debug.log "@@SETVALUE (1)"
                         |> List.map (LiveBook.Eval.transformWordWithValueDict model.valueDict)
+                        |> Debug.log "@@SETVALUE (2)"
                         |> String.join " "
+                        |> Debug.log "@@SETVALUE (3"
+                        |> LiveBook.Eval.evaluateStringWithBindings cell.bindings
+                        |> Debug.log "@@SETVALUE (4)"
                         |> parse
+                        |> Debug.log "@@SETVALUE (5)"
 
                 valueDict =
                     case value of
