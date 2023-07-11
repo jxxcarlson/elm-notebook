@@ -53,7 +53,7 @@ evalCell index model =
                         |> List.head
             in
             if List.member command (List.map Just ("setValue" :: commands)) then
-                executeCell index model
+                executeCell cell_ model
 
             else
                 ( evaluateWithCumulativeBindings model cell_, Cmd.none )
@@ -76,38 +76,36 @@ evaluateWithCumulativeBindings model cell_ =
     the given cell is affected or the command is run.
 
 -}
-executeCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
-executeCell index model =
-    case List.Extra.getAt index model.currentBook.cells of
-        Nothing ->
-            ( model, Cmd.none )
+executeCell : Cell -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
+executeCell cell_ model =
+    let
+        _ =
+            Debug.log "@@BINDINGS (00000)" cell_.bindings
 
-        Just cell_ ->
-            let
-                _ =
-                    Debug.log "@@BINDINGS (00000)" cell_.bindings
+        ( stringToEvaluate, bindings ) =
+            LiveBook.Eval.evaluateWithCumulativeBindingsCore model.valueDict model.kvDict model.currentBook.cells cell_
 
-                updatedCell =
-                    -- Update the cell according to
-                    -- (a) the expression (if any) in the cell
-                    -- (b) the command (if any) in the cell
-                    --
-                    -- Regarding (b), it may happen that the command
-                    -- is executed as the result of
-                    -- (c) running an Elm command (see 'cmd' below)
-                    updateCell model commandWords cell_
+        updatedCell =
+            -- Update the cell according to
+            -- (a) the expression (if any) in the cell
+            -- (b) the command (if any) in the cell
+            --
+            -- Regarding (b), it may happen that the command
+            -- is executed as the result of
+            -- (c) running an Elm command (see 'cmd' below)
+            updateCell model commandWords cell_
 
-                cmd =
-                    getCommand index cell_ commandWords
+        cmd =
+            getCommand cell_ commandWords
 
-                commandWords =
-                    -- run a the command defined in the cell
-                    getCommandWords cell_
+        commandWords =
+            -- run a the command defined in the cell
+            getCommandWords cell_
 
-                newBook =
-                    LiveBook.CellHelper.updateBook updatedCell model.currentBook
-            in
-            ( { model | currentBook = newBook } |> LiveBook.State.setValue cell_ commandWords, cmd )
+        newBook =
+            LiveBook.CellHelper.updateBook updatedCell model.currentBook
+    in
+    ( { model | currentBook = newBook } |> LiveBook.State.setValue { cell_ | bindings = bindings } commandWords, cmd )
 
 
 commands =
@@ -131,8 +129,8 @@ specialCommands =
     ]
 
 
-getCommand : Int -> Cell -> List String -> Cmd FrontendMsg
-getCommand index cell_ commandWords =
+getCommand : Cell -> List String -> Cmd FrontendMsg
+getCommand cell_ commandWords =
     case List.head commandWords of
         Nothing ->
             Cmd.none
@@ -143,7 +141,7 @@ getCommand index cell_ commandWords =
                     Cmd.none
 
                 Just variable ->
-                    File.Select.file [ "text/csv" ] (StringDataSelected index variable)
+                    File.Select.file [ "text/csv" ] (StringDataSelected cell_.index variable)
 
         Just "import" ->
             case commandWords of
