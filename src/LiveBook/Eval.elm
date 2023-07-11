@@ -95,13 +95,13 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
 
     else
         let
-            exprString =
+            letExpression =
                 "let\n"
                     ++ bindingString
                     ++ "\nin\n"
                     ++ expressionString
         in
-        ( exprString, bindings, expressionString )
+        ( letExpression, bindings, expressionString )
 
 
 compress : String -> String

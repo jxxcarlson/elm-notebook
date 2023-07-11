@@ -352,6 +352,7 @@ evalSvgHandler model cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
+                |> Debug.log "@@UPDATED CELL@@"
 
         bindingString =
             updatedCell.bindings |> String.join "\n"
