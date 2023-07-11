@@ -8,6 +8,11 @@ import LiveBook.Update
 import Types
 
 
+{-|
+
+    Uses kvDict to store the data in the frontend model
+
+-}
 readData : Int -> String -> String -> String -> Types.FrontendModel -> Types.FrontendModel
 readData index fileName variable dataString model =
     let
@@ -29,6 +34,11 @@ readData index fileName variable dataString model =
         |> (\model_ -> LiveBook.Update.setCellValue model_ index (CVString message))
 
 
+{-|
+
+    Uses kvDict to store the data in the frontend model
+
+-}
 importData : Int -> String -> LiveBook.DataSet.DataSet -> Types.FrontendModel -> Types.FrontendModel
 importData index variable dataset model =
     let
