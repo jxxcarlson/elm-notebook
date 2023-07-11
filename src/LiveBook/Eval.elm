@@ -1,8 +1,8 @@
 module LiveBook.Eval exposing
     ( evaluateString
     , evaluateWithCumulativeBindings
+    , evaluateWithCumulativeBindingsCore
     , evaluateWithCumulativeBindingsToResult
-    , evaluateWithCumulativeBindingsToResult2
     , toListFloatPair
     , transformWordsWithKVDict
     )
@@ -33,6 +33,24 @@ evaluate cell =
 
 evaluateWithCumulativeBindings : Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
 evaluateWithCumulativeBindings valueDict kvDict cells cell =
+    let
+        ( stringToEvaluate, bindings, expressionString ) =
+            evaluateWithCumulativeBindingsCore valueDict kvDict cells cell
+    in
+    if stringToEvaluate == "()" then
+        { cell | value = CVNone, cellState = CSView }
+
+    else
+        { cell
+            | value = CVString (evaluateString stringToEvaluate)
+            , bindings = bindings
+            , expression = expressionString
+            , cellState = CSView
+        }
+
+
+evaluateWithCumulativeBindingsCore : Dict String Value -> Dict String String -> List Cell -> Cell -> ( String, List String, String )
+evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
     let
         exprRecords =
             cells
@@ -70,43 +88,27 @@ evaluateWithCumulativeBindings valueDict kvDict cells cell =
 
         bindingString =
             String.join "\n" bindings
+    in
+    if bindingString == "" then
+        ( expressionString, bindings, expressionString )
 
-        stringToEvaluate =
-            if bindingString == "" then
-                expressionString
-
-            else
+    else
+        let
+            exprString =
                 "let\n"
                     ++ bindingString
                     ++ "\nin\n"
                     ++ expressionString
-    in
-    if stringToEvaluate == "()" then
-        { cell | value = CVNone, cellState = CSView }
-
-    else
-        { cell
-            | value = CVString (evaluateString stringToEvaluate)
-            , bindings = bindings
-            , expression = expressionString
-            , cellState = CSView
-        }
+        in
+        ( exprString, bindings, expressionString )
 
 
-evaluateBindingsToResult : String -> Result Eval.Types.Error Value
-evaluateBindingsToResult sourceText =
-    Eval.eval sourceText
-
-
-evaluateWithCumulativeBindingsToResult2 : Dict String String -> List Cell -> String -> Result Eval.Types.Error Value
-evaluateWithCumulativeBindingsToResult2 kvDict cells variable =
+evaluateWithCumulativeBindingsToResult : Dict String String -> List Cell -> String -> Result Eval.Types.Error Value
+evaluateWithCumulativeBindingsToResult kvDict cells variable =
     let
         exprRecords =
             cells
                 |> List.map getCellExprRecord
-
-        nRecords =
-            List.length exprRecords
 
         bindingString : String
         bindingString =
@@ -124,53 +126,6 @@ evaluateWithCumulativeBindingsToResult2 kvDict cells variable =
                     ++ bindingString
                     ++ "\nin\n"
                     ++ variable
-    in
-    Eval.eval stringToEvaluate
-
-
-evaluateWithCumulativeBindingsToResult : Dict String String -> List Cell -> { a | index : Int } -> Result Eval.Types.Error Value
-evaluateWithCumulativeBindingsToResult kvDict cells cell =
-    let
-        exprRecords =
-            cells
-                |> List.take (cell.index + 1)
-                |> List.map getCellExprRecord
-
-        nRecords =
-            List.length exprRecords
-
-        bindingString : String
-        bindingString =
-            exprRecords
-                |> List.map .bindings
-                |> List.concat
-                |> String.join "\n"
-
-        expressionString_ =
-            exprRecords
-                |> List.drop (nRecords - 1)
-                |> List.map .expression
-                |> String.join "\n"
-                |> String.words
-                |> List.map (transformWordsWithKVDict kvDict)
-                |> String.join " "
-
-        expressionString =
-            if expressionString_ == "" then
-                "()"
-
-            else
-                expressionString_
-
-        stringToEvaluate =
-            if bindingString == "" then
-                expressionString
-
-            else
-                "let\n"
-                    ++ bindingString
-                    ++ "\nin\n"
-                    ++ expressionString
     in
     Eval.eval stringToEvaluate
 

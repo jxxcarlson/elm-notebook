@@ -1,12 +1,29 @@
-module Example exposing (..)
+module EvalTest exposing (..)
 
-import Dict
+import Dict exposing (Dict)
+import Eval
+import Eval.Types
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import List.Extra
 import LiveBook.Eval
 import LiveBook.Types exposing (Cell, CellState(..), CellValue(..))
 import Test exposing (..)
+import Value exposing (Value)
+
+
+{-|
+
+    This function is used exclusively for testing.
+
+-}
+evaluateWithCumulativeBindingsToResult : Dict String String -> List Cell -> Cell -> Result Eval.Types.Error Value
+evaluateWithCumulativeBindingsToResult kvDict cells cell =
+    let
+        ( stringToEvaluate, _, _ ) =
+            LiveBook.Eval.evaluateWithCumulativeBindingsCore Dict.empty kvDict cells cell
+    in
+    Eval.eval stringToEvaluate
 
 
 testCell : Int -> List String -> Cell
@@ -41,7 +58,7 @@ makeTest testDatum =
             Expect.fail "No cells"
 
         Just ( cells_, cell_ ) ->
-            Expect.ok <| LiveBook.Eval.evaluateWithCumulativeBindingsToResult Dict.empty cell_ cells_
+            Expect.ok <| evaluateWithCumulativeBindingsToResult Dict.empty cell_ cells_
 
 
 suite : Test

@@ -185,16 +185,12 @@ renderVT viewData vt args =
                         kind =
                             List.head innerArgs |> Maybe.withDefault "line"
                     in
-                    case LiveBook.Eval.evaluateWithCumulativeBindingsToResult2 Dict.empty viewData.book.cells dataVariable of
+                    case LiveBook.Eval.evaluateWithCumulativeBindingsToResult Dict.empty viewData.book.cells dataVariable of
                         Err _ ->
                             E.text "Error"
 
                         Ok listPairs ->
                             LiveBook.Chart.plot2D kind options (Maybe.andThen LiveBook.Eval.toListFloatPair (Just listPairs) |> Maybe.withDefault [])
-
-
-
---LiveBook.Chart.plot2D kind options (dataVariable |> LiveBook.Eval.evaluateWithCumulativeBindingsToResult2 Dict.empty cells)
 
 
 getArg : Int -> List String -> String

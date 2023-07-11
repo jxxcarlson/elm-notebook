@@ -17,7 +17,7 @@ scratchPad username =
     , title = "Scatchpad"
     , cells =
         [ { index = 0
-          , text = [ "# Example: ", "> 1 + 1 == 2" ]
+          , text = [ "# EvalTest: ", "> 1 + 1 == 2" ]
           , bindings = []
           , expression = ""
           , value = CVNone
@@ -42,7 +42,7 @@ new author title =
     , title = title
     , cells =
         [ { index = 0
-          , text = [ "# Example: ", "> 1 + 1 == 42" ]
+          , text = [ "# EvalTest: ", "> 1 + 1 == 42" ]
           , bindings = []
           , expression = ""
           , value = CVString "True"
