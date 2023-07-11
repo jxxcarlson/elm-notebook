@@ -34,7 +34,7 @@ evaluate cell =
 evaluateWithCumulativeBindings : Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
 evaluateWithCumulativeBindings valueDict kvDict cells cell =
     let
-        ( stringToEvaluate, bindings, expressionString ) =
+        ( stringToEvaluate, bindings ) =
             evaluateWithCumulativeBindingsCore valueDict kvDict cells cell
     in
     if stringToEvaluate == "()" then
@@ -44,12 +44,12 @@ evaluateWithCumulativeBindings valueDict kvDict cells cell =
         { cell
             | value = CVString (evaluateString stringToEvaluate)
             , bindings = bindings
-            , expression = expressionString
+            , expression = stringToEvaluate
             , cellState = CSView
         }
 
 
-evaluateWithCumulativeBindingsCore : Dict String Value -> Dict String String -> List Cell -> Cell -> ( String, List String, String )
+evaluateWithCumulativeBindingsCore : Dict String Value -> Dict String String -> List Cell -> Cell -> ( String, List String )
 evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
     let
         exprRecords =
@@ -91,7 +91,7 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
             String.join "\n" bindings
     in
     if bindingString == "" then
-        ( expressionString, bindings, expressionString )
+        ( expressionString, bindings )
 
     else
         let
@@ -101,7 +101,7 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                     ++ "\nin\n"
                     ++ expressionString
         in
-        ( letExpression, bindings, expressionString )
+        ( letExpression, bindings )
 
 
 compress : String -> String
