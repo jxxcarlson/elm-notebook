@@ -63,7 +63,7 @@ evaluateWithCumulativeBindings : FrontendModel -> Int -> Cell -> FrontendModel
 evaluateWithCumulativeBindings model index cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings_ model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
     in
     { model | currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
 
@@ -301,7 +301,7 @@ svgHandler : FrontendModel -> Cell -> Cell
 svgHandler model cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings_ model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
 
         bindingString =
             updatedCell.bindings |> String.join "\n"
@@ -351,7 +351,7 @@ evalSvgHandler : FrontendModel -> Cell -> Cell
 evalSvgHandler model cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings_ model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
 
         bindingString =
             updatedCell.bindings |> String.join "\n"

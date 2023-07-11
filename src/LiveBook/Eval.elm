@@ -3,7 +3,6 @@ module LiveBook.Eval exposing
     , evaluateWithCumulativeBindings
     , evaluateWithCumulativeBindingsToResult
     , evaluateWithCumulativeBindingsToResult2
-    , evaluateWithCumulativeBindings_
     , toListFloatPair
     , transformWordsWithKVDict
     )
@@ -34,16 +33,6 @@ evaluate cell =
 
 evaluateWithCumulativeBindings : Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
 evaluateWithCumulativeBindings valueDict kvDict cells cell =
-    case cell.value of
-        CVVisual _ _ ->
-            cell
-
-        _ ->
-            evaluateWithCumulativeBindings_ valueDict kvDict cells cell
-
-
-evaluateWithCumulativeBindings_ : Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
-evaluateWithCumulativeBindings_ valueDict kvDict cells cell =
     let
         exprRecords =
             cells
