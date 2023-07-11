@@ -36,7 +36,8 @@ evaluateWithCumulativeBindings : Dict String Value -> Dict String String -> List
 evaluateWithCumulativeBindings valueDict kvDict cells cell =
     let
         ( stringToEvaluate, bindings ) =
-            evaluateWithCumulativeBindingsCore valueDict kvDict cells cell
+            evaluateWithCumulativeBindingsCore valueDict kvDict cells (cell |> Debug.log "@@Cell")
+                |> Debug.log "@@(E, B) (2)"
 
         _ =
             stringToEvaluate |> Debug.log "@@String to evaluate"
@@ -86,6 +87,7 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                 |> List.map (transformWordsWithKVDict kvDict)
                 |> List.map (transformWordWithValueDict valueDict)
                 |> String.join " "
+                |> Debug.log "@@Expression string_"
 
         expressionString =
             if expressionString_ == "" then
