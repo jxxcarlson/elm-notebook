@@ -38,8 +38,9 @@ monitor model =
         , E.height (E.px monitorHeight)
         , Font.color Color.white
         ]
-        [ E.paragraph [] [ E.text <| "kvDict: " ++ kVDictToString model.kvDict ]
-        , E.paragraph [] [ E.text <| "valueDict: " ++ Debug.toString model.valueDict ]
+        [ E.text <| "Ticks: " ++ String.fromInt model.tickCount
+        , E.paragraph [] [ E.text <| "kvDict: " ++ kVDictToString model.kvDict ]
+        , E.paragraph [] [ E.text <| "valueDict: " ++ valueDictToString model.valueDict ]
         ]
 
 
