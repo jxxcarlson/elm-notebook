@@ -4,12 +4,11 @@ module LiveBook.State exposing
     , parse
     , setValue
     , setValueInDict
-    , unwrapFloat
-    , unwrapListFloat
     , updateKVDictWithValue
     )
 
 import Dict exposing (Dict)
+import LiveBook.Eval
 import Parser exposing ((|.), (|=), Parser)
 import Value exposing (Value(..))
 
@@ -45,6 +44,7 @@ setValue commandWords_ model =
                 value : Maybe Value
                 value =
                     tail
+                        |> List.map (LiveBook.Eval.transformWordWithValueDict model.valueDict)
                         |> String.join " "
                         |> parse
 
@@ -94,26 +94,6 @@ updateKVDictWithValue value kvDict =
 
         _ ->
             kvDict
-
-
-unwrapFloat : Value -> Maybe Float
-unwrapFloat value =
-    case value of
-        Float float ->
-            Just float
-
-        _ ->
-            Nothing
-
-
-unwrapListFloat : Value -> Maybe (List Float)
-unwrapListFloat value =
-    case value of
-        List list ->
-            List.map unwrapFloat list |> List.filterMap identity |> Just
-
-        _ ->
-            Nothing
 
 
 parse : String -> Maybe Value
