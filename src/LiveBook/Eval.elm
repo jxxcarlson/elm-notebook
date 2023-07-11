@@ -207,6 +207,9 @@ transformWordWithValueDict dict word =
                         |> Maybe.map listFloatToString
                         |> Maybe.withDefault "[]"
 
+                Tuple (Float float1) (Float float2) ->
+                    "(" ++ String.fromFloat float1 ++ ", " ++ String.fromFloat float2 ++ ")"
+
                 _ ->
                     "None"
 
