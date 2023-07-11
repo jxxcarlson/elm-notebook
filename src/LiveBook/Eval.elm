@@ -4,13 +4,13 @@ module LiveBook.Eval exposing
     , evaluateWithCumulativeBindingsCore
     , evaluateWithCumulativeBindingsToResult
     , toListFloatPair
+    , transformWordWithValueDict
     , transformWordsWithKVDict
     )
 
 import Dict exposing (Dict)
 import Eval
 import Eval.Types
-import LiveBook.State
 import LiveBook.Types exposing (Cell, CellState(..), CellValue(..))
 import LiveBook.Utility
 import Maybe.Extra
@@ -67,6 +67,7 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                 |> List.map (List.map (transformWordsWithKVDict kvDict))
                 |> List.map (List.map (transformWordWithValueDict valueDict))
                 |> List.concat
+                |> Debug.log "@@BINDINGS"
 
         --|> String.join "\n"
         expressionString_ =
@@ -74,10 +75,13 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                 |> List.drop (nRecords - 1)
                 |> List.map .expression
                 |> String.join "\n"
+                |> normalize
                 |> String.words
                 |> List.map (transformWordsWithKVDict kvDict)
                 |> List.map (transformWordWithValueDict valueDict)
                 |> String.join " "
+                |> compress
+                |> Debug.log "@@EXPR STRING"
 
         expressionString =
             if expressionString_ == "" then
@@ -101,6 +105,17 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                     ++ expressionString
         in
         ( exprString, bindings, expressionString )
+
+
+compress : String -> String
+compress str =
+    str
+        |> String.replace " , " ","
+        |> String.replace " ( " "("
+        |> String.replace " ) " ")"
+        |> String.replace " [ " "["
+        |> String.replace " ] " "]"
+        |> Debug.log "@@COMPRESSED"
 
 
 evaluateWithCumulativeBindingsToResult : Dict String String -> List Cell -> String -> Result Eval.Types.Error Value
@@ -135,6 +150,17 @@ transformWordsWithKVDict dict str =
     str |> String.words |> List.map (transformWordWithKVDict dict) |> String.join " "
 
 
+normalize : String -> String
+normalize str =
+    str
+        |> String.replace "," " , "
+        |> String.replace "(" " ( "
+        |> String.replace ")" " ) "
+        |> String.replace "[" " [ "
+        |> String.replace "]" " ] "
+        |> Debug.log "@@NORMALIZED"
+
+
 transformWordWithKVDict : Dict String String -> String -> String
 transformWordWithKVDict dict word =
     case Dict.get word dict of
@@ -147,6 +173,10 @@ transformWordWithKVDict dict word =
 
 transformWordWithValueDict : Dict String Value -> String -> String
 transformWordWithValueDict dict word =
+    let
+        _ =
+            Debug.log "@@WORD" word
+    in
     case Dict.get word dict of
         Nothing ->
             word
@@ -158,7 +188,7 @@ transformWordWithValueDict dict word =
 
                 List list ->
                     substitute
-                        |> LiveBook.State.unwrapListFloat
+                        |> unwrapListFloat
                         |> Maybe.map listFloatToString
                         |> Maybe.withDefault "[]"
 
@@ -349,3 +379,23 @@ toFloat_ value =
 --    | PartiallyApplied Env (List Value) (List (Node Pattern)) (Maybe QualifiedNameRef) (Node Expression)
 --    | JsArray (Array Value)
 --    | List (List Value)
+
+
+unwrapFloat : Value -> Maybe Float
+unwrapFloat value =
+    case value of
+        Float float ->
+            Just float
+
+        _ ->
+            Nothing
+
+
+unwrapListFloat : Value -> Maybe (List Float)
+unwrapListFloat value =
+    case value of
+        List list ->
+            List.map unwrapFloat list |> List.filterMap identity |> Just
+
+        _ ->
+            Nothing
