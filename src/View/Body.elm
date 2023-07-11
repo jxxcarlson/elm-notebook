@@ -1,5 +1,6 @@
 module View.Body exposing (view)
 
+import Dict exposing (Dict)
 import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Border
@@ -10,6 +11,7 @@ import Types exposing (FrontendModel, FrontendMsg)
 import UILibrary.Color as Color
 import User
 import Util
+import Value exposing (Value(..))
 import View.Button
 import View.Geometry
 import View.Style
@@ -36,9 +38,19 @@ monitor model =
         , E.height (E.px monitorHeight)
         , Font.color Color.white
         ]
-        [ E.paragraph [] [ E.text <| "kvDict: " ++ Debug.toString model.kvDict ]
+        [ E.paragraph [] [ E.text <| "kvDict: " ++ kVDictToString model.kvDict ]
         , E.paragraph [] [ E.text <| "valueDict: " ++ Debug.toString model.valueDict ]
         ]
+
+
+kVDictToString : Dict String String -> String
+kVDictToString dict =
+    Dict.foldl (\k v acc -> acc ++ k ++ ": " ++ v ++ "\n") "" dict
+
+
+valueDictToString : Dict String Value -> String
+valueDictToString dict =
+    Dict.foldl (\k v acc -> acc ++ k ++ ": " ++ Value.toString v ++ "\n") "" dict
 
 
 monitorHeight =

@@ -67,7 +67,6 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                 |> List.map (List.map (transformWordsWithKVDict kvDict))
                 |> List.map (List.map (transformWordWithValueDict valueDict))
                 |> List.concat
-                |> Debug.log "@@BINDINGS"
 
         --|> String.join "\n"
         expressionString_ =
@@ -75,13 +74,11 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                 |> List.drop (nRecords - 1)
                 |> List.map .expression
                 |> String.join "\n"
-                |> normalize
+                --|> normalize
                 |> String.words
                 |> List.map (transformWordsWithKVDict kvDict)
                 |> List.map (transformWordWithValueDict valueDict)
                 |> String.join " "
-                |> compress
-                |> Debug.log "@@EXPR STRING"
 
         expressionString =
             if expressionString_ == "" then
@@ -115,7 +112,6 @@ compress str =
         |> String.replace " ) " ")"
         |> String.replace " [ " "["
         |> String.replace " ] " "]"
-        |> Debug.log "@@COMPRESSED"
 
 
 evaluateWithCumulativeBindingsToResult : Dict String String -> List Cell -> String -> Result Eval.Types.Error Value
@@ -158,7 +154,6 @@ normalize str =
         |> String.replace ")" " ) "
         |> String.replace "[" " [ "
         |> String.replace "]" " ] "
-        |> Debug.log "@@NORMALIZED"
 
 
 transformWordWithKVDict : Dict String String -> String -> String
@@ -175,7 +170,7 @@ transformWordWithValueDict : Dict String Value -> String -> String
 transformWordWithValueDict dict word =
     let
         _ =
-            Debug.log "@@WORD" word
+            word
     in
     case Dict.get word dict of
         Nothing ->
