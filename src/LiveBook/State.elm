@@ -14,10 +14,6 @@ import Parser exposing ((|.), (|=), Parser)
 import Value exposing (Value(..))
 
 
-
----setValueFromFloats : List Float -> FrontendModel -> FrontendModel
-
-
 setValueFromFloats : Cell -> List Float -> TinyModel a -> TinyModel a
 setValueFromFloats cell floats model =
     setValue cell (List.map String.fromFloat floats) model
@@ -108,7 +104,7 @@ updateKVDictWithValue value kvDict =
 
 parse : String -> Maybe Value
 parse str =
-    Parser.run parserValue str
+    Parser.run valueParser str
         |> Result.toMaybe
 
 
@@ -124,18 +120,39 @@ parse str =
     Just (List [List [Float 1.1,Float 2.2],List [Float 7,Float 8]])
 
 -}
-parserValue : Parser Value
-parserValue =
+valueParser : Parser Value
+valueParser =
     Parser.oneOf
-        [ Parser.float |> Parser.map Float
+        [ Parser.lazy (\_ -> pairParser)
+        , signedFloat
+        , Parser.float |> Parser.map Float
         , listParser
         ]
+
+
+pairParser : Parser Value
+pairParser =
+    Parser.succeed (\a b -> Value.Tuple a b)
+        |. Parser.symbol "("
+        |. Parser.spaces
+        |= valueParser
+        |. Parser.spaces
+        |. Parser.symbol ","
+        |. Parser.spaces
+        |= valueParser
+        |. Parser.spaces
+        |. Parser.symbol ")"
+
+
+signedFloat : Parser Value
+signedFloat =
+    Parser.symbol "-" |> Parser.andThen (\_ -> Parser.float |> Parser.map (\f -> -f)) |> Parser.map Float
 
 
 listParser : Parser Value
 listParser =
     Parser.symbol "["
-        |> Parser.andThen (\_ -> Parser.lazy (\_ -> manySeparatedBy "," parserValue) |> Parser.map List)
+        |> Parser.andThen (\_ -> Parser.lazy (\_ -> manySeparatedBy "," valueParser) |> Parser.map List)
 
 
 
