@@ -23,8 +23,26 @@ view model user =
         , E.padding 0
         ]
         [ viewNotebook model user
-        , viewNotebookList model user
+        , E.column [] [ viewNotebookList model user, monitor model ]
         ]
+
+
+monitor : FrontendModel -> Element FrontendMsg
+monitor model =
+    E.column
+        [ E.padding 12
+        , E.spacing 24
+        , Font.size 14
+        , E.height (E.px monitorHeight)
+        , Font.color Color.white
+        ]
+        [ E.paragraph [] [ E.text <| "kvDict: " ++ Debug.toString model.kvDict ]
+        , E.paragraph [] [ E.text <| "valueDict: " ++ Debug.toString model.valueDict ]
+        ]
+
+
+monitorHeight =
+    400
 
 
 viewNotebookList : FrontendModel -> User.User -> Element FrontendMsg
@@ -37,7 +55,7 @@ viewNotebookList model user =
         , Element.Border.widthEach { left = 1, right = 0, top = 0, bottom = 1 }
         , Element.Border.color Color.stillDarkerSteelGray
         , Background.color (E.rgb255 73 78 89)
-        , E.height (E.px (View.Geometry.bodyHeight model))
+        , E.height (E.px (View.Geometry.bodyHeight model - monitorHeight))
         , E.paddingXY 24 12
         ]
         (notebookControls model
