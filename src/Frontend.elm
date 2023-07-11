@@ -29,6 +29,7 @@ import Time
 import Types exposing (..)
 import Url exposing (Url)
 import User
+import Value
 import View.Main
 
 
@@ -763,12 +764,31 @@ getRandomProbabilities model k =
         kvDict =
             case randomProbabilities of
                 prob0 :: prob1 :: _ ->
-                    model.kvDict |> Dict.insert "prob0" (String.fromFloat prob0) |> Dict.insert "prob1" (String.fromFloat prob1)
+                    model.kvDict
+                        |> Dict.insert "prob0" (String.fromFloat prob0)
+                        |> Dict.insert "prob1" (String.fromFloat prob1)
 
                 _ ->
                     model.kvDict
+
+        valueDict =
+            case randomProbabilities of
+                p0 :: p1 :: _ ->
+                    model.valueDict
+                        |> Dict.insert "p0" (Value.Float p0)
+                        |> Dict.insert "p1" (Value.Float p1)
+
+                _ ->
+                    model.valueDict
     in
-    ( { model | randomProbabilities = randomProbabilities, kvDict = kvDict, randomSeed = randomSeed }, Cmd.none )
+    ( { model
+        | randomProbabilities = randomProbabilities
+        , valueDict = valueDict
+        , kvDict = kvDict
+        , randomSeed = randomSeed
+      }
+    , Cmd.none
+    )
 
 
 updateWithViewport : Browser.Dom.Viewport -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
