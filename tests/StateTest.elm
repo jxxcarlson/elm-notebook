@@ -34,7 +34,7 @@ nextStateRecord1 =
 initialState1 : MState
 initialState1 =
     { value = Value.Float 1.2
-    , probabilityVector = [ 0.1, 0.9 ]
+    , probabilities = Dict.empty
     , ticks = 0
     , nextStateRecord = nextStateRecord1
     }
