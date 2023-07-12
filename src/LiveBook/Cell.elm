@@ -387,13 +387,17 @@ evalSvgHandler model cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
+                |> Debug.log "@UPDATED CELL"
 
         bindingString =
-            updatedCell.bindings |> String.join "\n"
+            updatedCell.bindings
+                |> String.join "\n"
+                |> Debug.log "@BINDING STRING"
 
         exprString =
             updatedCell.expression
                 |> String.replace "evalSvg " ""
+                |> Debug.log "@EXPR STRING"
 
         stringToEvaluate =
             [ "let", bindingString, "in", exprString ]
@@ -401,12 +405,14 @@ evalSvgHandler model cell_ =
                 |> String.replace "ticks" (String.fromInt model.tickCount)
                 |> String.replace "prob0" (String.fromFloat (List.Extra.getAt 0 model.randomProbabilities |> Maybe.withDefault 0))
                 |> String.replace "prob1" (String.fromFloat (List.Extra.getAt 1 model.randomProbabilities |> Maybe.withDefault 0))
+                |> Debug.log "@STRING TO EVALUATE"
 
         value_ : List String
         value_ =
             LiveBook.Eval.evaluateString stringToEvaluate
                 |> String.split ","
                 |> List.map (\s -> (String.trim >> unquote >> fix) s)
+                |> Debug.log "@VALUE"
 
         unquote str =
             String.replace "\"" "" str

@@ -1,9 +1,11 @@
 module LiveBook.State exposing
-    ( getValue
+    ( NextStateRecord
+    , getValue
     , getValueFromDict
     , parse
     , setValue
     , setValueInDict
+    , update
     , updateKVDictWithValue
     )
 
@@ -14,25 +16,53 @@ import Parser exposing ((|.), (|=), Parser)
 import Value exposing (Value(..))
 
 
-setValueFromFloats : Cell -> List Float -> TinyModel a -> TinyModel a
-setValueFromFloats cell floats model =
-    setValue cell (List.map String.fromFloat floats) model
-
-
 type alias TinyModel a =
-    { a | kvDict : Dict String String, valueDict : Dict String Value }
+    { a | kvDict : Dict String String, valueDict : Dict String Value, nextStateRecord : Maybe NextStateRecord }
 
 
-getValue : String -> TinyModel a -> Maybe Value
-getValue name model =
-    Dict.get name model.valueDict
+type alias NextStateRecord =
+    { expression : String, bindings : List String }
 
 
-getValueFromDict : String -> Dict String Value -> Maybe Value
-getValueFromDict name valueDict =
-    Dict.get name valueDict
+{-|
+
+    This is the update function for a "mini Elm app" whose model is
+    the value of "state" in model.valueDict.
+
+-}
+update : TinyModel a -> TinyModel a
+update model =
+    let
+        maybeState =
+            Dict.get "state" model.valueDict |> Maybe.map Value.toString
+    in
+    case ( maybeState, model.nextStateRecord ) of
+        ( Just state, Just nextStateRecord ) ->
+            let
+                nexState =
+                    LiveBook.Eval.evaluateWithBindings
+                        model.kvDict
+                        model.valueDict
+                        nextStateRecord.bindings
+                        nextStateRecord.expression
+            in
+            case nexState of
+                Ok value ->
+                    { model | valueDict = Dict.insert "state" value model.valueDict }
+
+                _ ->
+                    model
+
+        _ ->
+            model
 
 
+{-|
+
+    This function is used via the syntax `setValue name value` in a cell
+    to set the value of a variable in the model.valueDict
+
+-}
 setValue : Cell -> List String -> TinyModel a -> TinyModel a
 setValue cell commandWords_ model =
     case commandWords_ of
@@ -60,6 +90,21 @@ setValue cell commandWords_ model =
 
         _ ->
             model
+
+
+setValueFromFloats : Cell -> List Float -> TinyModel a -> TinyModel a
+setValueFromFloats cell floats model =
+    setValue cell (List.map String.fromFloat floats) model
+
+
+getValue : String -> TinyModel a -> Maybe Value
+getValue name model =
+    Dict.get name model.valueDict
+
+
+getValueFromDict : String -> Dict String Value -> Maybe Value
+getValueFromDict name valueDict =
+    Dict.get name valueDict
 
 
 setValueInDict : String -> Dict String Value -> Dict String Value

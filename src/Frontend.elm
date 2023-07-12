@@ -20,6 +20,7 @@ import LiveBook.Book
 import LiveBook.Cell
 import LiveBook.DataSet
 import LiveBook.Eval
+import LiveBook.State
 import LiveBook.Types exposing (Book)
 import LiveBook.Update
 import Loading
@@ -162,29 +163,31 @@ update msg model =
                             getRandomProbabilities m model.probabilityVectorLength
 
                         h m =
-                            let
-                                maybeState =
-                                    Dict.get "state" model.valueDict |> Maybe.map Value.toString
-                            in
-                            case ( maybeState, model.nextStateRecord ) of
-                                ( Just state, Just nextStateRecord ) ->
-                                    let
-                                        nexState =
-                                            LiveBook.Eval.evaluateWithBindings
-                                                model.kvDict
-                                                model.valueDict
-                                                nextStateRecord.bindings
-                                                nextStateRecord.expression
-                                    in
-                                    case nexState of
-                                        Ok value ->
-                                            { m | valueDict = Dict.insert "state" value m.valueDict }
+                            LiveBook.State.update m
 
-                                        _ ->
-                                            m
-
-                                _ ->
-                                    m
+                        --let
+                        --    maybeState =
+                        --        Dict.get "state" model.valueDict |> Maybe.map Value.toString
+                        --in
+                        --case ( maybeState, model.nextStateRecord ) of
+                        --    ( Just state, Just nextStateRecord ) ->
+                        --        let
+                        --            nexState =
+                        --                LiveBook.Eval.evaluateWithBindings
+                        --                    model.kvDict
+                        --                    model.valueDict
+                        --                    nextStateRecord.bindings
+                        --                    nextStateRecord.expression
+                        --        in
+                        --        case nexState of
+                        --            Ok value ->
+                        --                { m | valueDict = Dict.insert "state" value m.valueDict }
+                        --
+                        --            _ ->
+                        --                m
+                        --
+                        --    _ ->
+                        --        m
                     in
                     glueUpdate f g (h model)
 
