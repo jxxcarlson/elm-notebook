@@ -7,6 +7,7 @@ import List.Extra
 import LiveBook.CellHelper
 import LiveBook.Eval
 import LiveBook.Function
+import LiveBook.Parser
 import LiveBook.State
 import LiveBook.Types
     exposing
@@ -493,7 +494,7 @@ setValue cell commandWords_ model =
                         |> List.map (LiveBook.Eval.transformWordWithValueDict model.valueDict)
                         |> String.join " "
                         |> LiveBook.Eval.evaluateStringWithBindings cell.bindings
-                        |> LiveBook.State.parse
+                        |> LiveBook.Parser.parse
 
                 valueDict =
                     case value of

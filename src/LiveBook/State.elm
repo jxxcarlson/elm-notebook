@@ -8,7 +8,6 @@ module LiveBook.State exposing
     , updateProbabilitiesInModel
     )
 
-import Dict exposing (Dict)
 import Eval
 import Eval.Types
 import Value exposing (Value(..))
@@ -16,7 +15,7 @@ import Value exposing (Value(..))
 
 type alias MState =
     { value : Value
-    , probabilities : Dict String Float
+    , probabilities : List ( String, Float )
     , ticks : Int
     , nextStateRecord : NextStateRecord
     }
@@ -33,7 +32,7 @@ type alias NextStateRecord =
 initialState : MState
 initialState =
     { value = Float 0
-    , probabilities = Dict.empty
+    , probabilities = []
     , ticks = 0
     , nextStateRecord = { expression = "", bindings = [] }
     }
@@ -47,7 +46,7 @@ initialState =
 -}
 updateProbabilities : List Float -> MState -> MState
 updateProbabilities ps state =
-    { state | probabilities = Dict.fromList (List.indexedMap (\i p -> ( "p" ++ String.fromInt i, p )) ps) }
+    { state | probabilities = List.indexedMap (\i p -> ( "p" ++ String.fromInt i, p )) ps }
 
 
 {-|
@@ -99,6 +98,7 @@ evaluate state =
                 |> String.words
                 |> List.map (makeSubstitutions state)
                 |> String.join " "
+                |> Debug.log "String to evaluate"
     in
     Eval.eval stringToEvaluate
 
@@ -109,4 +109,33 @@ makeSubstitutions state word =
         val =
             Value.toString state.value
     in
-    String.replace "state" val word
+    word
+        |> String.replace "state" val
+        |> substituteProbabilities state.probabilities
+
+
+
+--|> List.foldl folderP
+
+
+{-|
+
+    > substituteProbabilities [("p0", 0.2), ("p1", 0.8)] "abc p0, def, p1"
+    "abc 0.2, def, 0.8"
+
+-}
+substituteProbabilities : List ( String, Float ) -> String -> String
+substituteProbabilities probabilities word =
+    List.foldl substituteProbability word probabilities
+
+
+substituteProbability : ( String, Float ) -> String -> String
+substituteProbability ( word, probability ) str =
+    String.replace word (String.fromFloat probability) str
+
+
+
+--|> List.foldl folderP
+-- foldl : (a -> b -> b) -> b -> List a -> b
+-- a : (String, Float )
+-- b : String
