@@ -61,7 +61,7 @@ type alias FrontendModel =
     , deleteNotebookState : DeleteNotebookState
     , showNotebooks : ShowNotebooks
     , valueDict : Dict String Value
-    , nextStateRecord : Maybe { nextStateFunctionText : String, bindings : List String }
+    , nextStateRecord : Maybe { expression : String, bindings : List String }
 
     -- USER
     , signupState : SignupState

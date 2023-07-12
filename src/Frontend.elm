@@ -19,6 +19,7 @@ import LiveBook.Action
 import LiveBook.Book
 import LiveBook.Cell
 import LiveBook.DataSet
+import LiveBook.Eval
 import LiveBook.Types exposing (Book)
 import LiveBook.Update
 import Loading
@@ -160,10 +161,41 @@ update msg model =
                         g m =
                             getRandomProbabilities m model.probabilityVectorLength
 
-                        _ =
-                            Dict.get "state" model.valueDict |> Debug.log "@@@state"
+                        h m =
+                            let
+                                maybeState =
+                                    Dict.get "state" model.valueDict |> Maybe.map Value.toString |> Debug.log "@@@state"
+                            in
+                            case ( maybeState, model.nextStateRecord ) of
+                                ( Just state, Just nextStateRecord ) ->
+                                    let
+                                        nexState =
+                                            LiveBook.Eval.evaluateWithBindings
+                                                model.kvDict
+                                                model.valueDict
+                                                nextStateRecord.bindings
+                                                nextStateRecord.expression
+                                                |> Debug.log "@@@nextState"
+                                    in
+                                    case nexState of
+                                        Ok value ->
+                                            let
+                                                _ =
+                                                    Debug.log "@@@VALUE" value
+                                            in
+                                            { m | valueDict = Dict.insert "state" value m.valueDict }
+
+                                        _ ->
+                                            let
+                                                _ =
+                                                    Debug.log "@@@VALUE" "ERROR"
+                                            in
+                                            m
+
+                                _ ->
+                                    m
                     in
-                    glueUpdate f g model
+                    glueUpdate f g (h model)
 
                 _ ->
                     ( model, Cmd.none )
@@ -787,7 +819,8 @@ getRandomProbabilities model k =
     in
     ( { model
         | randomProbabilities = randomProbabilities
-        , valueDict = valueDict
+
+        --, valueDict = valueDict
         , kvDict = kvDict
         , randomSeed = randomSeed
       }

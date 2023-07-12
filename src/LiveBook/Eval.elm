@@ -1,6 +1,7 @@
 module LiveBook.Eval exposing
     ( evaluateString
     , evaluateStringWithBindings
+    , evaluateWithBindings
     , evaluateWithCumulativeBindings
     , evaluateWithCumulativeBindingsCore
     , evaluateWithCumulativeBindingsToResult
@@ -37,10 +38,7 @@ evaluateWithCumulativeBindings : Dict String Value -> Dict String String -> List
 evaluateWithCumulativeBindings valueDict kvDict cells cell =
     let
         _ =
-            Debug.log "@@KV DICT)" kvDict
-
-        _ =
-            Debug.log "@@VALUE DICT)" valueDict
+            cell.text |> Debug.log "@@Cell text"
 
         ( stringToEvaluate, bindings ) =
             evaluateWithCumulativeBindingsCore valueDict kvDict cells (cell |> Debug.log "@@Cell")
@@ -84,17 +82,21 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                 |> List.concat
 
         --|> String.join "\n"
-        expressionString_ =
+        expressionString__ =
             exprRecords
                 |> List.drop (nRecords - 1)
                 |> List.map .expression
                 |> String.join "\n"
+                |> Debug.log "@@Expression string_ (1)"
+
+        expressionString_ =
+            expressionString__
                 --|> normalize
                 |> String.words
                 |> List.map (transformWordsWithKVDict kvDict)
                 |> List.map (transformWordWithValueDict valueDict)
                 |> String.join " "
-                |> Debug.log "@@Expression string_"
+                |> Debug.log "@@Expression string_ (2)"
 
         expressionString =
             if expressionString_ == "" then
@@ -106,7 +108,10 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
         bindingString =
             String.join "\n" bindings
     in
-    if bindingString == "" then
+    if expressionString__ == "state" then
+        ( expressionString, [] )
+
+    else if bindingString == "" then
         ( expressionString, bindings )
 
     else
@@ -118,6 +123,30 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                     ++ expressionString
         in
         ( letExpression, bindings ) |> Debug.log "@@(E, B) (1)"
+
+
+evaluateWithBindings : Dict String String -> Dict String Value -> List String -> String -> Result Eval.Types.Error Value
+evaluateWithBindings kvDict valueDict bindings str =
+    let
+        stringToEvaluate_ =
+            if bindings == [] then
+                str
+
+            else
+                "let\n"
+                    ++ String.join "\n" bindings
+                    ++ "\nin\n"
+                    ++ str
+
+        stringToEvaluate =
+            stringToEvaluate_
+                |> String.words
+                |> List.map (transformWordsWithKVDict kvDict)
+                |> List.map (transformWordWithValueDict valueDict)
+                |> String.join " "
+                |> Debug.log "@@@String to evaluate"
+    in
+    Eval.eval stringToEvaluate
 
 
 evaluateStringWithBindings : List String -> String -> String

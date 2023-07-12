@@ -45,16 +45,12 @@ evalCell index model =
             let
                 command =
                     cell_.text
-                        |> Debug.log "@@@CURRENT CELL TEXT"
                         |> List.head
                         |> Maybe.withDefault ""
                         |> String.replace ">" ""
                         |> String.words
                         |> List.map String.trim
                         |> List.head
-
-                _ =
-                    Debug.log "@@@CURRENT CELL BINDINGS" cell_.bindings
             in
             if command == Just "use:" then
                 let
@@ -63,15 +59,26 @@ evalCell index model =
 
                     newBook =
                         LiveBook.CellHelper.updateBook { cell_ | cellState = CSView } model.currentBook
+
+                    getExpression : String -> String
+                    getExpression str =
+                        str |> String.split "=" |> List.drop 1 |> String.join ""
                 in
                 case List.Extra.unconsLast bindings_ of
                     Nothing ->
                         ( { model | currentBook = newBook }, Cmd.none )
 
                     Just ( nextStateFunctionText, bindings ) ->
+                        let
+                            n =
+                                List.length bindings
+
+                            scopedBindings =
+                                List.drop (n - 1) bindings
+                        in
                         ( { model
                             | nextStateRecord =
-                                Just { nextStateFunctionText = nextStateFunctionText, bindings = bindings }
+                                Just { expression = nextStateFunctionText |> getExpression, bindings = scopedBindings }
                             , currentBook = newBook
                           }
                         , Cmd.none
@@ -89,6 +96,9 @@ evaluateWithCumulativeBindings model cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
+
+        _ =
+            Debug.log "@@BINDINGS (1)" updatedCell.bindings
     in
     { model | currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
 
