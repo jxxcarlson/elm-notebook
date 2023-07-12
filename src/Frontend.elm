@@ -99,6 +99,7 @@ init url key =
       , deleteNotebookState = WaitingToDeleteNotebook
       , showNotebooks = ShowUserNotebooks
       , valueDict = Dict.empty
+      , nextStateRecord = Nothing
 
       -- UI
       , windowWidth = 600
@@ -158,6 +159,9 @@ update msg model =
 
                         g m =
                             getRandomProbabilities m model.probabilityVectorLength
+
+                        _ =
+                            Dict.get "state" model.valueDict |> Debug.log "@@@state"
                     in
                     glueUpdate f g model
 

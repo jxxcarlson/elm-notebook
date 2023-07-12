@@ -4,6 +4,7 @@ module LiveBook.Eval exposing
     , evaluateWithCumulativeBindings
     , evaluateWithCumulativeBindingsCore
     , evaluateWithCumulativeBindingsToResult
+    , getPriorBindings
     , toListFloatPair
     , transformWordWithValueDict
     , transformWordsWithKVDict
@@ -35,6 +36,12 @@ evaluate cell =
 evaluateWithCumulativeBindings : Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
 evaluateWithCumulativeBindings valueDict kvDict cells cell =
     let
+        _ =
+            Debug.log "@@KV DICT)" kvDict
+
+        _ =
+            Debug.log "@@VALUE DICT)" valueDict
+
         ( stringToEvaluate, bindings ) =
             evaluateWithCumulativeBindingsCore valueDict kvDict cells (cell |> Debug.log "@@Cell")
                 |> Debug.log "@@(E, B) (2)"

@@ -41,6 +41,8 @@ monitor model =
         [ E.text <| "Ticks: " ++ String.fromInt model.tickCount
         , E.paragraph [] [ E.text <| "kvDict: " ++ kVDictToString model.kvDict ]
         , E.paragraph [] [ E.text <| "valueDict: " ++ valueDictToString model.valueDict ]
+        , E.paragraph [] [ E.text <| "f: " ++ (Maybe.map .nextStateFunctionText model.nextStateRecord |> Maybe.withDefault "Nothing") ]
+        , E.paragraph [] [ E.text <| "bindings: " ++ (Maybe.map .bindings model.nextStateRecord |> Maybe.withDefault [] |> String.join "\n ") ]
         ]
 
 
