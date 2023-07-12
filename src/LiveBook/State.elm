@@ -15,7 +15,7 @@ import Value exposing (Value(..))
 
 type alias MState =
     { value : Value
-    , cumulativeValue : List Value
+    , values : List Value
     , probabilities : List ( String, Float )
     , ticks : Int
     , expression : String
@@ -34,11 +34,9 @@ type alias NextStateRecord =
 initialState : MState
 initialState =
     { value = Float 10
-    , cumulativeValue = [ Float 10 ]
+    , values = [ Float 10 ]
     , probabilities = []
     , ticks = 0
-
-    --, expression = "state + ds p0"
     , expression = "if state <= 0 then 0 else state + ds p0"
     , bindings = [ "ds p = if p < 0.5 then -1 else 1" ]
     }
@@ -80,7 +78,7 @@ update state =
     in
     case nexState of
         Ok value ->
-            { state | value = value, cumulativeValue = value :: state.cumulativeValue }
+            { state | value = value, values = value :: state.values }
 
         _ ->
             state
