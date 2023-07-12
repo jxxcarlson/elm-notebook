@@ -18,6 +18,7 @@ import LiveBook.Types
         )
 import Stat
 import Types exposing (FrontendModel, FrontendMsg(..))
+import Value
 
 
 
@@ -134,7 +135,7 @@ executeCell cell_ model =
         newBook =
             LiveBook.CellHelper.updateBook updatedCell model.currentBook
     in
-    ( { model | currentBook = newBook } |> LiveBook.State.setValue { cell_ | bindings = bindings } commandWords, cmd )
+    ( { model | currentBook = newBook } |> setValue { cell_ | bindings = bindings } commandWords, cmd )
 
 
 commands =
@@ -469,3 +470,47 @@ correnlationHandler model commandWords cell_ =
 
         _ ->
             { cell_ | cellState = CSView, value = CVString "Could not parse data (2)" }
+
+
+
+-- HELPER
+
+
+{-|
+
+    This function is used via the syntax `setValue name value` in a cell
+    to set the value of a variable in the model.valueDict
+
+-}
+setValue : Cell -> List String -> Types.FrontendModel -> Types.FrontendModel
+setValue cell commandWords_ model =
+    case commandWords_ of
+        "setValue" :: name :: tail ->
+            let
+                value : Maybe Value.Value
+                value =
+                    tail
+                        |> List.map (LiveBook.Eval.transformWordWithValueDict model.valueDict)
+                        |> String.join " "
+                        |> LiveBook.Eval.evaluateStringWithBindings cell.bindings
+                        |> LiveBook.State.parse
+
+                valueDict =
+                    case value of
+                        Nothing ->
+                            model.valueDict
+
+                        Just value_ ->
+                            Dict.insert name value_ model.valueDict
+            in
+            { model
+                | valueDict = valueDict
+            }
+
+        _ ->
+            model
+
+
+setValueFromFloats : Cell -> List Float -> FrontendModel -> FrontendModel
+setValueFromFloats cell floats model =
+    setValue cell (List.map String.fromFloat floats) model

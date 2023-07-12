@@ -62,7 +62,7 @@ type alias FrontendModel =
     , showNotebooks : ShowNotebooks
     , valueDict : Dict String Value
     , nextStateRecord : Maybe LiveBook.State.NextStateRecord
-    , state : Value.Value
+    , state : LiveBook.State.MState
 
     -- USER
     , signupState : SignupState

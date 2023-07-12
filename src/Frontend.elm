@@ -102,7 +102,7 @@ init url key =
       , showNotebooks = ShowUserNotebooks
       , valueDict = Dict.empty
       , nextStateRecord = Nothing
-      , state = Value.Unit
+      , state = LiveBook.State.initialState
 
       -- UI
       , windowWidth = 600

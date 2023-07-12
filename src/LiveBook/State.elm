@@ -3,8 +3,8 @@ module LiveBook.State exposing
     , NextStateRecord
     , getValue
     , getValueFromDict
+    , initialState
     , parse
-    , setValue
     , setValueInDict
     , update
     , updateInModel
@@ -29,6 +29,15 @@ type alias MState =
     }
 
 
+initialState : MState
+initialState =
+    { value = Float 0
+    , probabilityVector = [ 1 ]
+    , ticks = 0
+    , nextStateRecord = { expression = "", bindings = [] }
+    }
+
+
 getProbability : MState -> Int -> Float
 getProbability state index =
     List.Extra.getAt index state.probabilityVector
@@ -36,7 +45,7 @@ getProbability state index =
 
 
 type alias TinyModel a =
-    { a | kvDict : Dict String String, valueDict : Dict String Value, nextStateRecord : Maybe NextStateRecord }
+    { a | state : MState }
 
 
 type alias NextStateRecord =
@@ -97,70 +106,12 @@ makeSubstitutions state word =
 -}
 updateInModel : TinyModel a -> TinyModel a
 updateInModel model =
-    case model.nextStateRecord of
-        Just nextStateRecord ->
-            let
-                nexState =
-                    LiveBook.Eval.evaluateWithBindings
-                        model.kvDict
-                        model.valueDict
-                        nextStateRecord.bindings
-                        nextStateRecord.expression
-            in
-            case nexState of
-                Ok value ->
-                    { model | valueDict = Dict.insert "state" value model.valueDict }
-
-                _ ->
-                    model
-
-        _ ->
-            model
+    { model | state = update model.state }
 
 
-{-|
-
-    This function is used via the syntax `setValue name value` in a cell
-    to set the value of a variable in the model.valueDict
-
--}
-setValue : Cell -> List String -> TinyModel a -> TinyModel a
-setValue cell commandWords_ model =
-    case commandWords_ of
-        "setValue" :: name :: tail ->
-            let
-                value : Maybe Value
-                value =
-                    tail
-                        |> List.map (LiveBook.Eval.transformWordWithValueDict model.valueDict)
-                        |> String.join " "
-                        |> LiveBook.Eval.evaluateStringWithBindings cell.bindings
-                        |> parse
-
-                valueDict =
-                    case value of
-                        Nothing ->
-                            model.valueDict
-
-                        Just value_ ->
-                            Dict.insert name value_ model.valueDict
-            in
-            { model
-                | valueDict = valueDict
-            }
-
-        _ ->
-            model
-
-
-setValueFromFloats : Cell -> List Float -> TinyModel a -> TinyModel a
-setValueFromFloats cell floats model =
-    setValue cell (List.map String.fromFloat floats) model
-
-
-getValue : String -> TinyModel a -> Maybe Value
-getValue name model =
-    Dict.get name model.valueDict
+getValue : TinyModel a -> Value
+getValue model =
+    model.state.value
 
 
 getValueFromDict : String -> Dict String Value -> Maybe Value
