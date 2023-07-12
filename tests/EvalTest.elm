@@ -20,7 +20,7 @@ import Value exposing (Value)
 evaluateWithCumulativeBindingsToResult : Dict String String -> List Cell -> Cell -> Result Eval.Types.Error Value
 evaluateWithCumulativeBindingsToResult kvDict cells cell =
     let
-        ( stringToEvaluate, _, _ ) =
+        ( stringToEvaluate, _ ) =
             LiveBook.Eval.evaluateWithCumulativeBindingsCore Dict.empty kvDict cells cell
     in
     Eval.eval stringToEvaluate

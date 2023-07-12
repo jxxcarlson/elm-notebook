@@ -102,6 +102,7 @@ init url key =
       , showNotebooks = ShowUserNotebooks
       , valueDict = Dict.empty
       , nextStateRecord = Nothing
+      , state = Value.Unit
 
       -- UI
       , windowWidth = 600
@@ -163,31 +164,7 @@ update msg model =
                             getRandomProbabilities m model.probabilityVectorLength
 
                         h m =
-                            LiveBook.State.update m
-
-                        --let
-                        --    maybeState =
-                        --        Dict.get "state" model.valueDict |> Maybe.map Value.toString
-                        --in
-                        --case ( maybeState, model.nextStateRecord ) of
-                        --    ( Just state, Just nextStateRecord ) ->
-                        --        let
-                        --            nexState =
-                        --                LiveBook.Eval.evaluateWithBindings
-                        --                    model.kvDict
-                        --                    model.valueDict
-                        --                    nextStateRecord.bindings
-                        --                    nextStateRecord.expression
-                        --        in
-                        --        case nexState of
-                        --            Ok value ->
-                        --                { m | valueDict = Dict.insert "state" value m.valueDict }
-                        --
-                        --            _ ->
-                        --                m
-                        --
-                        --    _ ->
-                        --        m
+                            LiveBook.State.updateInModel m
                     in
                     glueUpdate f g (h model)
 
