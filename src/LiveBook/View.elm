@@ -176,6 +176,12 @@ renderVT viewData vt args =
 
                 Just ( dataVariable, args_ ) ->
                     let
+                        _ =
+                            Debug.log "@@dataVariable" dataVariable
+
+                        _ =
+                            Debug.log "@@args_" args_
+
                         options =
                             LiveBook.Utility.keyValueDict (("width:" ++ String.fromInt realWidth) :: args_)
 
@@ -187,7 +193,7 @@ renderVT viewData vt args =
                     in
                     case LiveBook.Eval.evaluateWithCumulativeBindingsToResult Dict.empty viewData.book.cells dataVariable of
                         Err _ ->
-                            E.text "Error"
+                            E.text "Error (22)"
 
                         Ok listPairs ->
                             LiveBook.Chart.plot2D kind options (Maybe.andThen LiveBook.Eval.toListFloatPair (Just listPairs) |> Maybe.withDefault [])
