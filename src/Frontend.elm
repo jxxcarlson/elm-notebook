@@ -132,10 +132,17 @@ update msg model =
             ( model, Cmd.none )
 
         GetRandomProbabilities k ->
+            let
+                _ =
+                    Debug.log "@@GETRANDOMPROBABILITIES" k
+            in
             getRandomProbabilities model k
 
         GotRandomProbabilities listOfProbabilities ->
-            ( { model | randomProbabilities = listOfProbabilities }, Cmd.none )
+            ( { model | randomProbabilities = listOfProbabilities }
+                |> LiveBook.State.updateWorldInModel model.tickCount (listOfProbabilities |> Debug.log "@@PROBABILITIES")
+            , Cmd.none
+            )
 
         KeyboardMsg keyMsg ->
             let
@@ -674,7 +681,7 @@ updateFromBackend msg model =
             ( model, Cmd.none )
 
         GotRandomSeed seed ->
-            ( { model | randomSeed = seed }, Cmd.none )
+            glueUpdate (\m -> ( { m | randomSeed = seed }, Cmd.none )) (\m -> getRandomProbabilities m 2) model
 
         -- ADMIN
         GotUsers users ->
@@ -767,12 +774,15 @@ getRandomProbabilities model k =
     let
         ( randomProbabilities, randomSeed ) =
             Random.step (Random.list k (Random.float 0 1)) model.randomSeed
+
+        _ =
+            Debug.log "@@Random Probabilities" randomProbabilities
     in
     ( { model
         | randomProbabilities = randomProbabilities
         , randomSeed = randomSeed
       }
-        |> LiveBook.State.updateProbabilitiesInModel randomProbabilities
+        |> LiveBook.State.updateWorldInModel model.tickCount randomProbabilities
     , Cmd.none
     )
 

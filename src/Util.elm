@@ -2,10 +2,20 @@ module Util exposing
     ( firstPart
     , getChunks
     , insertInList
+    , roundTo
     , secondPart
     )
 
 import List.Extra
+
+
+roundTo : Int -> Float -> Float
+roundTo n x =
+    let
+        factor =
+            10.0 ^ toFloat n
+    in
+    (x * factor) |> round |> (\x_ -> toFloat x_ / factor)
 
 
 {-| Copilot almost wrote this

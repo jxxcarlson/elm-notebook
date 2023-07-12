@@ -4,8 +4,8 @@ module LiveBook.State exposing
     , initialState
     , update
     , updateInModel
-    , updateProbabilities
-    , updateProbabilitiesInModel
+    , updateWorld
+    , updateWorldInModel
     )
 
 import Eval
@@ -15,9 +15,11 @@ import Value exposing (Value(..))
 
 type alias MState =
     { value : Value
+    , cumulativeValue : List Value
     , probabilities : List ( String, Float )
     , ticks : Int
-    , nextStateRecord : NextStateRecord
+    , expression : String
+    , bindings : List String
     }
 
 
@@ -31,10 +33,14 @@ type alias NextStateRecord =
 
 initialState : MState
 initialState =
-    { value = Float 0
+    { value = Float 10
+    , cumulativeValue = [ Float 10 ]
     , probabilities = []
     , ticks = 0
-    , nextStateRecord = { expression = "", bindings = [] }
+
+    --, expression = "state + ds p0"
+    , expression = "if state <= 0 then 0 else state + ds p0"
+    , bindings = [ "ds p = if p < 0.5 then -1 else 1" ]
     }
 
 
@@ -44,9 +50,9 @@ initialState =
     { nextStateRecord = { bindings = [], expression = "" }, probabilities = Dict.fromList [("p0",0.2),("p1",0.8)], ticks = 0, value = Float 0 }
 
 -}
-updateProbabilities : List Float -> MState -> MState
-updateProbabilities ps state =
-    { state | probabilities = List.indexedMap (\i p -> ( "p" ++ String.fromInt i, p )) ps }
+updateWorld : Int -> List Float -> MState -> MState
+updateWorld ticks ps state =
+    { state | ticks = ticks, probabilities = List.indexedMap (\i p -> ( "p" ++ String.fromInt i, p )) ps }
 
 
 {-|
@@ -60,9 +66,9 @@ updateInModel model =
     { model | state = update model.state }
 
 
-updateProbabilitiesInModel : List Float -> TinyModel a -> TinyModel a
-updateProbabilitiesInModel ps model =
-    { model | state = updateProbabilities ps model.state }
+updateWorldInModel : Int -> List Float -> TinyModel a -> TinyModel a
+updateWorldInModel ticks ps model =
+    { model | state = updateWorld ticks ps model.state }
 
 
 update : MState -> MState
@@ -74,7 +80,7 @@ update state =
     in
     case nexState of
         Ok value ->
-            { state | value = value }
+            { state | value = value, cumulativeValue = value :: state.cumulativeValue }
 
         _ ->
             state
@@ -84,14 +90,14 @@ evaluate : MState -> Result Eval.Types.Error Value
 evaluate state =
     let
         stringToEvaluate_ =
-            if state.nextStateRecord.bindings == [] then
-                state.nextStateRecord.expression
+            if state.bindings == [] then
+                state.expression
 
             else
                 "let\n"
-                    ++ String.join "\n" state.nextStateRecord.bindings
+                    ++ String.join "\n" state.bindings
                     ++ "\nin\n"
-                    ++ state.nextStateRecord.expression
+                    ++ state.expression
 
         stringToEvaluate =
             stringToEvaluate_
