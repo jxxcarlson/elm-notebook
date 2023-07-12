@@ -4,11 +4,8 @@ import Authentication exposing (AuthenticationDict)
 import Browser exposing (UrlRequest)
 import Browser.Dom
 import Browser.Navigation exposing (Key)
-import Bytes
 import Dict exposing (Dict)
-import Element
 import File exposing (File)
-import Html exposing (Html)
 import Keyboard
 import Lamdera exposing (ClientId)
 import LiveBook.DataSet
