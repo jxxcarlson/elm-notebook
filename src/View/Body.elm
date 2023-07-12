@@ -42,7 +42,7 @@ monitor model =
         , E.text <| "ticks: " ++ String.fromInt model.state.ticks
         , E.paragraph [] [ E.text <| "probabilities: " ++ (model.state.probabilities |> List.map (\( name, p ) -> name ++ ":" ++ String.fromFloat (Util.roundTo 3 p) |> String.padRight 8 '0') |> String.join ", ") ]
         , E.paragraph [] [ E.text <| "value: " ++ Value.toString model.state.value ]
-        , E.paragraph [] [ E.text <| "values: " ++ (List.map Value.toString (List.take 10 model.state.cumulativeValue) |> String.join ", ") ]
+        , E.paragraph [] [ E.text <| "values: " ++ (List.map Value.toString (List.take 10 model.state.values) |> String.join ", ") ]
         , E.paragraph [] [ E.text <| "f: " ++ model.state.expression ]
         , E.paragraph [] [ E.text <| "bindings: " ++ (model.state.bindings |> String.join "\n ") ]
         ]
