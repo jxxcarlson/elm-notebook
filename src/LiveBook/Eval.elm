@@ -14,6 +14,7 @@ module LiveBook.Eval exposing
 import Dict exposing (Dict)
 import Eval
 import Eval.Types
+import LiveBook.State
 import LiveBook.Types exposing (Cell, CellState(..), CellValue(..))
 import LiveBook.Utility
 import Maybe.Extra
@@ -34,11 +35,11 @@ evaluate cell =
     }
 
 
-evaluateWithCumulativeBindings : Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
-evaluateWithCumulativeBindings valueDict kvDict cells cell =
+evaluateWithCumulativeBindings : LiveBook.State.MState -> Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
+evaluateWithCumulativeBindings state valueDict kvDict cells cell =
     let
         ( stringToEvaluate, bindings ) =
-            evaluateWithCumulativeBindingsCore valueDict kvDict cells cell
+            evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell
     in
     if stringToEvaluate == "()" then
         { cell | value = CVNone, cellState = CSView }
@@ -52,8 +53,8 @@ evaluateWithCumulativeBindings valueDict kvDict cells cell =
         }
 
 
-evaluateWithCumulativeBindingsCore : Dict String Value -> Dict String String -> List Cell -> Cell -> ( String, List String )
-evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
+evaluateWithCumulativeBindingsCore : LiveBook.State.MState -> Dict String Value -> Dict String String -> List Cell -> Cell -> ( String, List String )
+evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell =
     let
         exprRecords =
             cells
@@ -69,6 +70,7 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                 |> List.map .bindings
                 |> List.map (List.map (transformWordsWithKVDict kvDict))
                 |> List.map (List.map (transformWordWithValueDict valueDict))
+                |> List.map (List.map (evaluateWordsWithState state))
                 |> List.concat
 
         --|> String.join "\n"
@@ -82,9 +84,15 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
             expressionString__
                 --|> normalize
                 |> String.words
+                |> Debug.log "@@ EXPRESSION STRING (1)"
                 |> List.map (transformWordsWithKVDict kvDict)
+                |> Debug.log "@@ EXPRESSION STRING (2)"
                 |> List.map (transformWordWithValueDict valueDict)
+                |> Debug.log "@@ EXPRESSION STRING (3)"
+                |> List.map (evaluateWordsWithState state)
+                |> Debug.log "@@ EXPRESSION STRING (4)"
                 |> String.join " "
+                |> Debug.log "@@ EXPRESSION STRING (5)"
 
         expressionString =
             if expressionString_ == "" then
@@ -209,6 +217,39 @@ transformWordWithKVDict dict word =
 
         Just substitute ->
             substitute
+
+
+evaluateWordsWithState : LiveBook.State.MState -> String -> String
+evaluateWordsWithState state str =
+    str
+        |> String.words
+        |> List.map (evaluateWordWithState state)
+        |> String.join " "
+
+
+evaluateWordWithState : LiveBook.State.MState -> String -> String
+evaluateWordWithState state str =
+    str
+        |> evaluateWordWithState1 state
+        |> evaluateWordWithState2 state
+
+
+evaluateWordWithState1 : LiveBook.State.MState -> String -> String
+evaluateWordWithState1 state str =
+    str
+        |> String.replace "state.values"
+            (state.values
+                |> List.map Value.toString
+                |> String.join ", "
+                |> (\x -> "[ " ++ x ++ " ]")
+                |> Debug.log "@@VALUES"
+            )
+
+
+evaluateWordWithState2 : LiveBook.State.MState -> String -> String
+evaluateWordWithState2 state str =
+    str
+        |> String.replace "state.value" (state.value |> Value.toString |> Debug.log "@@VALUE")
 
 
 transformWordWithValueDict : Dict String Value -> String -> String
