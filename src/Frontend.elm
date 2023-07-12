@@ -164,7 +164,7 @@ update msg model =
                         h m =
                             let
                                 maybeState =
-                                    Dict.get "state" model.valueDict |> Maybe.map Value.toString |> Debug.log "@@@state"
+                                    Dict.get "state" model.valueDict |> Maybe.map Value.toString
                             in
                             case ( maybeState, model.nextStateRecord ) of
                                 ( Just state, Just nextStateRecord ) ->
@@ -175,21 +175,12 @@ update msg model =
                                                 model.valueDict
                                                 nextStateRecord.bindings
                                                 nextStateRecord.expression
-                                                |> Debug.log "@@@nextState"
                                     in
                                     case nexState of
                                         Ok value ->
-                                            let
-                                                _ =
-                                                    Debug.log "@@@VALUE" value
-                                            in
                                             { m | valueDict = Dict.insert "state" value m.valueDict }
 
                                         _ ->
-                                            let
-                                                _ =
-                                                    Debug.log "@@@VALUE" "ERROR"
-                                            in
                                             m
 
                                 _ ->

@@ -37,18 +37,8 @@ evaluate cell =
 evaluateWithCumulativeBindings : Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
 evaluateWithCumulativeBindings valueDict kvDict cells cell =
     let
-        _ =
-            cell.text |> Debug.log "@@Cell text"
-
         ( stringToEvaluate, bindings ) =
-            evaluateWithCumulativeBindingsCore valueDict kvDict cells (cell |> Debug.log "@@Cell")
-                |> Debug.log "@@(E, B) (2)"
-
-        _ =
-            stringToEvaluate |> Debug.log "@@String to evaluate"
-
-        _ =
-            bindings |> Debug.log "@@Bindings"
+            evaluateWithCumulativeBindingsCore valueDict kvDict cells cell
     in
     if stringToEvaluate == "()" then
         { cell | value = CVNone, cellState = CSView }
@@ -87,7 +77,6 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                 |> List.drop (nRecords - 1)
                 |> List.map .expression
                 |> String.join "\n"
-                |> Debug.log "@@Expression string_ (1)"
 
         expressionString_ =
             expressionString__
@@ -96,7 +85,6 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                 |> List.map (transformWordsWithKVDict kvDict)
                 |> List.map (transformWordWithValueDict valueDict)
                 |> String.join " "
-                |> Debug.log "@@Expression string_ (2)"
 
         expressionString =
             if expressionString_ == "" then
@@ -122,7 +110,7 @@ evaluateWithCumulativeBindingsCore valueDict kvDict cells cell =
                     ++ "\nin\n"
                     ++ expressionString
         in
-        ( letExpression, bindings ) |> Debug.log "@@(E, B) (1)"
+        ( letExpression, bindings )
 
 
 evaluateWithBindings : Dict String String -> Dict String Value -> List String -> String -> Result Eval.Types.Error Value
@@ -144,7 +132,6 @@ evaluateWithBindings kvDict valueDict bindings str =
                 |> List.map (transformWordsWithKVDict kvDict)
                 |> List.map (transformWordWithValueDict valueDict)
                 |> String.join " "
-                |> Debug.log "@@@String to evaluate"
     in
     Eval.eval stringToEvaluate
 

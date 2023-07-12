@@ -96,9 +96,6 @@ evaluateWithCumulativeBindings model cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
-
-        _ =
-            Debug.log "@@BINDINGS (1)" updatedCell.bindings
     in
     { model | currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
 
@@ -274,7 +271,6 @@ handleNextStateFunction model cell_ =
     { cell_
         | cellState = CSView
         , bindings = LiveBook.Eval.getPriorBindings cell_.index model.currentBook.cells
-        , value = CVString ("Program: " ++ Debug.toString parts)
     }
 
 
