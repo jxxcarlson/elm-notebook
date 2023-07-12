@@ -38,6 +38,23 @@ monitor model =
         , E.height (E.px monitorHeight)
         , Font.color Color.white
         ]
+        [ E.text <| "Ticks: " ++ String.fromInt model.state.ticks
+        , E.paragraph [] [ E.text <| "probabilities: " ++ (model.state.probabilities |> List.map (\( name, p ) -> name ++ ":" ++ String.fromFloat p) |> String.join "\n ") ]
+        , E.paragraph [] [ E.text <| "value: " ++ Value.toString model.state.value ]
+        , E.paragraph [] [ E.text <| "f: " ++ model.state.nextStateRecord.expression ]
+        , E.paragraph [] [ E.text <| "bindings: " ++ (model.state.nextStateRecord.bindings |> String.join "\n ") ]
+        ]
+
+
+monitorOLD : FrontendModel -> Element FrontendMsg
+monitorOLD model =
+    E.column
+        [ E.padding 12
+        , E.spacing 24
+        , Font.size 14
+        , E.height (E.px monitorHeight)
+        , Font.color Color.white
+        ]
         [ E.text <| "Ticks: " ++ String.fromInt model.tickCount
         , E.paragraph [] [ E.text <| "kvDict: " ++ kVDictToString model.kvDict ]
         , E.paragraph [] [ E.text <| "valueDict: " ++ valueDictToString model.valueDict ]
