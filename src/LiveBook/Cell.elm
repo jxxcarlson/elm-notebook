@@ -46,45 +46,14 @@ evalCell index model =
         Just cell_ ->
             let
                 command =
-                    cell_.text
-                        |> List.head
-                        |> Maybe.withDefault ""
-                        |> String.replace ">" ""
-                        |> String.words
-                        |> List.map String.trim
-                        |> List.head
+                    commandFromCell cell_ |> Debug.log "@@command"
             in
+            --if command == Just "state.value" then
+            --    handleStateValueCmd model cell_
+            --    --else if command == Just "state.values" then
+            --    handleStateValuesCmd model cell_
             if command == Just "use:" then
-                let
-                    bindings_ =
-                        LiveBook.Eval.getPriorBindings cell_.index model.currentBook.cells
-
-                    newBook =
-                        LiveBook.CellHelper.updateBook { cell_ | cellState = CSView } model.currentBook
-
-                    getExpression : String -> String
-                    getExpression str =
-                        str |> String.split "=" |> List.drop 1 |> String.join ""
-                in
-                case List.Extra.unconsLast bindings_ of
-                    Nothing ->
-                        ( { model | currentBook = newBook }, Cmd.none )
-
-                    Just ( nextStateFunctionText, bindings ) ->
-                        let
-                            n =
-                                List.length bindings
-
-                            scopedBindings =
-                                List.drop (n - 1) bindings
-                        in
-                        ( { model
-                            | nextStateRecord =
-                                Just { expression = nextStateFunctionText |> getExpression, bindings = scopedBindings }
-                            , currentBook = newBook
-                          }
-                        , Cmd.none
-                        )
+                handleUseCmd model cell_
 
             else if List.member command (List.map Just ("setValue" :: commands)) then
                 executeCell cell_ model
@@ -93,11 +62,83 @@ evalCell index model =
                 ( evaluateWithCumulativeBindings model cell_, Cmd.none )
 
 
+handleStateValueCmd model cell_ =
+    let
+        value =
+            model.state.value |> Value.toString |> Debug.log "@@state.value"
+
+        newCell =
+            { cell_ | value = CVString value, cellState = CSView }
+
+        newBook =
+            LiveBook.CellHelper.updateBook newCell model.currentBook
+    in
+    ( { model | currentBook = newBook }, Cmd.none )
+
+
+handleStateValuesCmd model cell_ =
+    let
+        cumulativeValues =
+            model.state.cumulativeValues |> List.map Value.toString |> String.join ","
+
+        newCell =
+            { cell_ | value = CVString cumulativeValues, cellState = CSView }
+
+        newBook =
+            LiveBook.CellHelper.updateBook newCell model.currentBook
+    in
+    ( { model | currentBook = newBook }, Cmd.none )
+
+
+handleUseCmd model cell_ =
+    let
+        bindings_ =
+            LiveBook.Eval.getPriorBindings cell_.index model.currentBook.cells
+
+        newBook =
+            LiveBook.CellHelper.updateBook { cell_ | cellState = CSView } model.currentBook
+
+        getExpression : String -> String
+        getExpression str =
+            str |> String.split "=" |> List.drop 1 |> String.join ""
+    in
+    case List.Extra.unconsLast bindings_ of
+        Nothing ->
+            ( { model | currentBook = newBook }, Cmd.none )
+
+        Just ( nextStateFunctionText, bindings ) ->
+            let
+                n =
+                    List.length bindings
+
+                scopedBindings =
+                    List.drop (n - 1) bindings
+            in
+            ( { model
+                | nextStateRecord =
+                    Just { expression = nextStateFunctionText |> getExpression, bindings = scopedBindings }
+                , currentBook = newBook
+              }
+            , Cmd.none
+            )
+
+
+commandFromCell : Cell -> Maybe String
+commandFromCell cell =
+    cell.text
+        |> List.head
+        |> Maybe.withDefault ""
+        |> String.replace ">" ""
+        |> String.words
+        |> List.map String.trim
+        |> List.head
+
+
 evaluateWithCumulativeBindings : FrontendModel -> Cell -> FrontendModel
 evaluateWithCumulativeBindings model cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
     in
     { model | currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
 
@@ -114,7 +155,7 @@ executeCell : Cell -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 executeCell cell_ model =
     let
         ( stringToEvaluate, bindings ) =
-            LiveBook.Eval.evaluateWithCumulativeBindingsCore model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithCumulativeBindingsCore model.state model.valueDict model.kvDict model.currentBook.cells cell_
 
         updatedCell =
             -- Update the cell according to
@@ -244,7 +285,7 @@ updateCell model commandWords cell_ =
             exportDataHandler commandWords cell_
 
         Just "correlation" ->
-            correnlationHandler model commandWords cell_
+            correlationHandler model commandWords cell_
 
         Just "setValue" ->
             { cell_ | cellState = CSView, value = CVString "Value set" }
@@ -338,7 +379,7 @@ svgHandler : FrontendModel -> Cell -> Cell
 svgHandler model cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
 
         bindingString =
             updatedCell.bindings |> String.join "\n"
@@ -388,7 +429,7 @@ evalSvgHandler : FrontendModel -> Cell -> Cell
 evalSvgHandler model cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
                 |> Debug.log "@UPDATED CELL"
 
         bindingString =
@@ -438,8 +479,8 @@ exportDataHandler commandWords cell_ =
     { cell_ | cellState = CSView, value = CVString ("Exported data to file " ++ file) }
 
 
-correnlationHandler : FrontendModel -> List String -> Cell -> Cell
-correnlationHandler model commandWords cell_ =
+correlationHandler : FrontendModel -> List String -> Cell -> Cell
+correlationHandler model commandWords cell_ =
     -- correlation column1 column2 identifier
     case commandWords of
         "correlation" :: column1 :: column2 :: identifier :: _ ->
