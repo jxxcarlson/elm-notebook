@@ -1,19 +1,14 @@
 module LiveBook.State exposing
     ( MState
     , NextStateRecord
-    , getValue
-    , getValueFromDict
     , initialState
-    , setValueInDict
     , update
     , updateInModel
     )
 
-import Dict exposing (Dict)
 import Eval
 import Eval.Types
 import List.Extra
-import LiveBook.Parser
 import Value exposing (Value(..))
 
 
@@ -103,35 +98,3 @@ makeSubstitutions state word =
 updateInModel : TinyModel a -> TinyModel a
 updateInModel model =
     { model | state = update model.state }
-
-
-getValue : TinyModel a -> Value
-getValue model =
-    model.state.value
-
-
-getValueFromDict : String -> Dict String Value -> Maybe Value
-getValueFromDict name valueDict =
-    Dict.get name valueDict
-
-
-setValueInDict : String -> Dict String Value -> Dict String Value
-setValueInDict str valueDict =
-    case String.words str of
-        name :: tail ->
-            let
-                value : Maybe Value
-                value =
-                    tail
-                        |> String.join " "
-                        |> LiveBook.Parser.parse
-            in
-            case value of
-                Nothing ->
-                    valueDict
-
-                Just value_ ->
-                    Dict.insert name value_ valueDict
-
-        _ ->
-            valueDict
