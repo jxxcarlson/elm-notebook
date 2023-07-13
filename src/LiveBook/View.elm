@@ -93,6 +93,33 @@ viewValue viewData cell =
             par realWidth
                 [ MarkdownThemed.renderFull (scale 1.0 realWidth) cellHeight_ str ]
 
+        CVPlot2D args data ->
+            case List.Extra.unconsLast args of
+                Nothing ->
+                    E.image
+                        [ E.width (E.px realWidth) ]
+                        { src = getArg 0 args, description = "image" }
+
+                Just ( dataVariable, args_ ) ->
+                    let
+                        options =
+                            LiveBook.Utility.keyValueDict (("width:" ++ String.fromInt realWidth) :: args_)
+
+                        innerArgs =
+                            List.filter (\s -> not (String.contains s ":")) args_
+
+                        kind =
+                            List.head innerArgs |> Maybe.withDefault "line"
+                    in
+                    --case LiveBook.Eval.evaluateWithCumulativeBindingsToResult Dict.empty viewData.book.cells dataVariable of
+                    --    Err _ ->
+                    --        E.text "Error (22)"
+                    --
+                    --    Ok listPairs ->
+                    --@@dataVariable: "data"
+                    --(index):260 @@args_: ["plot2D","line"]
+                    LiveBook.Chart.plot2D "line" options data
+
         CVVisual vt args ->
             Element.Lazy.lazy3 renderVT viewData vt args
 
@@ -166,37 +193,6 @@ renderVT viewData vt args =
                             List.head innerArgs |> Maybe.withDefault "line"
                     in
                     LiveBook.Chart.chart kind options (dataVariable |> LiveBook.Eval.transformWordsWithKVDict viewData.kvDict)
-
-        VTPlot2D ->
-            case List.Extra.unconsLast args of
-                Nothing ->
-                    E.image
-                        [ E.width (E.px realWidth) ]
-                        { src = getArg 0 args, description = "image" }
-
-                Just ( dataVariable, args_ ) ->
-                    let
-                        _ =
-                            Debug.log "@@dataVariable" dataVariable
-
-                        _ =
-                            Debug.log "@@args_" args_
-
-                        options =
-                            LiveBook.Utility.keyValueDict (("width:" ++ String.fromInt realWidth) :: args_)
-
-                        innerArgs =
-                            List.filter (\s -> not (String.contains s ":")) args_
-
-                        kind =
-                            List.head innerArgs |> Maybe.withDefault "line"
-                    in
-                    case LiveBook.Eval.evaluateWithCumulativeBindingsToResult Dict.empty viewData.book.cells dataVariable of
-                        Err _ ->
-                            E.text "Error (22)"
-
-                        Ok listPairs ->
-                            LiveBook.Chart.plot2D kind options (Maybe.andThen LiveBook.Eval.toListFloatPair (Just listPairs) |> Maybe.withDefault [])
 
 
 getArg : Int -> List String -> String

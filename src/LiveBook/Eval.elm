@@ -5,6 +5,7 @@ module LiveBook.Eval exposing
     , evaluateWithCumulativeBindings
     , evaluateWithCumulativeBindingsCore
     , evaluateWithCumulativeBindingsToResult
+    , evaluateWordsWithState
     , getPriorBindings
     , toListFloatPair
     , transformWordWithValueDict
@@ -84,15 +85,10 @@ evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell =
             expressionString__
                 --|> normalize
                 |> String.words
-                |> Debug.log "@@ EXPRESSION STRING (1)"
                 |> List.map (transformWordsWithKVDict kvDict)
-                |> Debug.log "@@ EXPRESSION STRING (2)"
                 |> List.map (transformWordWithValueDict valueDict)
-                |> Debug.log "@@ EXPRESSION STRING (3)"
                 |> List.map (evaluateWordsWithState state)
-                |> Debug.log "@@ EXPRESSION STRING (4)"
                 |> String.join " "
-                |> Debug.log "@@ EXPRESSION STRING (5)"
 
         expressionString =
             if expressionString_ == "" then
@@ -242,14 +238,13 @@ evaluateWordWithState1 state str =
                 |> List.map Value.toString
                 |> String.join ", "
                 |> (\x -> "[ " ++ x ++ " ]")
-                |> Debug.log "@@VALUES"
             )
 
 
 evaluateWordWithState2 : LiveBook.State.MState -> String -> String
 evaluateWordWithState2 state str =
     str
-        |> String.replace "state.value" (state.value |> Value.toString |> Debug.log "@@VALUE")
+        |> String.replace "state.value" (state.value |> Value.toString)
 
 
 transformWordWithValueDict : Dict String Value -> String -> String

@@ -34,11 +34,11 @@ type CellValue
     = CVNone
     | CVString String
     | CVVisual VisualType (List String)
+    | CVPlot2D (List String) (List ( Float, Float ))
 
 
 type VisualType
     = VTChart
-    | VTPlot2D
     | VTSvg
     | VTImage
 

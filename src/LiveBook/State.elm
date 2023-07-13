@@ -102,7 +102,6 @@ evaluate state =
                 |> String.words
                 |> List.map (makeSubstitutions state)
                 |> String.join " "
-                |> Debug.log "String to evaluate"
     in
     Eval.eval stringToEvaluate
 

@@ -1,6 +1,7 @@
 module LiveBook.Cell exposing (evalCell)
 
 import Dict exposing (Dict)
+import Eval
 import File.Select
 import Lamdera
 import List.Extra
@@ -19,7 +20,7 @@ import LiveBook.Types
         )
 import Stat
 import Types exposing (FrontendModel, FrontendMsg(..))
-import Value
+import Value exposing (Value(..))
 
 
 
@@ -45,13 +46,10 @@ evalCell index model =
 
         Just cell_ ->
             let
+                command : Maybe String
                 command =
-                    commandFromCell cell_ |> Debug.log "@@command"
+                    commandFromCell cell_
             in
-            --if command == Just "state.value" then
-            --    handleStateValueCmd model cell_
-            --    --else if command == Just "state.values" then
-            --    handleStateValuesCmd model cell_
             if command == Just "use:" then
                 handleUseCmd model cell_
 
@@ -60,34 +58,6 @@ evalCell index model =
 
             else
                 ( evaluateWithCumulativeBindings model cell_, Cmd.none )
-
-
-handleStateValueCmd model cell_ =
-    let
-        value =
-            model.state.value |> Value.toString |> Debug.log "@@state.value"
-
-        newCell =
-            { cell_ | value = CVString value, cellState = CSView }
-
-        newBook =
-            LiveBook.CellHelper.updateBook newCell model.currentBook
-    in
-    ( { model | currentBook = newBook }, Cmd.none )
-
-
-handleStateValuesCmd model cell_ =
-    let
-        cumulativeValues =
-            model.state.cumulativeValues |> List.map Value.toString |> String.join ","
-
-        newCell =
-            { cell_ | value = CVString cumulativeValues, cellState = CSView }
-
-        newBook =
-            LiveBook.CellHelper.updateBook newCell model.currentBook
-    in
-    ( { model | currentBook = newBook }, Cmd.none )
 
 
 handleUseCmd model cell_ =
@@ -245,6 +215,12 @@ getCommandWords cell_ =
         |> String.words
 
 
+
+-- > plot2D line [(0, 10), (1, 9), (2, 10), (3, 9), (4, 8), (5, 7)]
+--@@dataVariable: "7)]"
+--(index):260 @@args_: ["line","[(0,","10),","(1,","9),","(2,","10),","(3,","9),","(4,","8),","(5,"]
+
+
 updateCell : FrontendModel -> List String -> Cell -> Cell
 updateCell model commandWords cell_ =
     case List.head commandWords of
@@ -273,7 +249,57 @@ updateCell model commandWords cell_ =
             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
 
         Just "plot2D" ->
-            { cell_ | cellState = CSView, value = CVVisual VTPlot2D (List.drop 1 commandWords) }
+            let
+                --bindingPair : String
+                -- bindingPair : Result Error Value.Value
+                maybeValue : Maybe Value.Value
+                maybeValue =
+                    LiveBook.Eval.getPriorBindings cell_.index model.currentBook.cells
+                        |> List.map (String.split "=" >> List.map String.trim)
+                        |> List.map twoListToPair
+                        |> List.filterMap identity
+                        |> List.Extra.find (\( a, b ) -> a == "data")
+                        |> Maybe.map Tuple.second
+                        |> Maybe.withDefault ""
+                        |> LiveBook.Eval.evaluateWordsWithState model.state
+                        |> unquote
+                        |> Eval.eval
+                        |> Result.toMaybe
+
+                valueList =
+                    case maybeValue of
+                        Nothing ->
+                            []
+
+                        Just (List floatList) ->
+                            floatList |> LiveBook.Parser.unwrapListTupleFloat
+
+                        Just _ ->
+                            []
+
+                unquote str =
+                    String.replace "\"" "" str
+
+                twoListToPair : List a -> Maybe ( a, a )
+                twoListToPair list =
+                    case list of
+                        [ x, y ] ->
+                            Just ( x, y )
+
+                        _ ->
+                            Nothing
+
+                -- List.map (List.map (evaluateWordsWithState state))
+                dataList : List ( Float, Float )
+                dataList =
+                    cell_.text
+                        |> String.join " "
+                        |> String.replace "> plot2D line " ""
+                        |> String.trim
+                        |> LiveBook.Parser.parseListFloatPair
+                        |> Maybe.withDefault []
+            in
+            { cell_ | cellState = CSView, value = CVPlot2D commandWords valueList }
 
         Just "readinto" ->
             { cell_ | cellState = CSView, value = CVString "*......*" }
@@ -430,17 +456,14 @@ evalSvgHandler model cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
-                |> Debug.log "@UPDATED CELL"
 
         bindingString =
             updatedCell.bindings
                 |> String.join "\n"
-                |> Debug.log "@BINDING STRING"
 
         exprString =
             updatedCell.expression
                 |> String.replace "evalSvg " ""
-                |> Debug.log "@EXPR STRING"
 
         stringToEvaluate =
             [ "let", bindingString, "in", exprString ]
@@ -448,14 +471,12 @@ evalSvgHandler model cell_ =
                 |> String.replace "ticks" (String.fromInt model.tickCount)
                 |> String.replace "prob0" (String.fromFloat (List.Extra.getAt 0 model.randomProbabilities |> Maybe.withDefault 0))
                 |> String.replace "prob1" (String.fromFloat (List.Extra.getAt 1 model.randomProbabilities |> Maybe.withDefault 0))
-                |> Debug.log "@STRING TO EVALUATE"
 
         value_ : List String
         value_ =
             LiveBook.Eval.evaluateString stringToEvaluate
                 |> String.split ","
                 |> List.map (\s -> (String.trim >> unquote >> fix) s)
-                |> Debug.log "@VALUE"
 
         unquote str =
             String.replace "\"" "" str
