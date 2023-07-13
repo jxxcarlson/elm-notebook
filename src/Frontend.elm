@@ -609,7 +609,7 @@ update msg model =
                     model.state
 
                 newState =
-                    { oldState | values = [ oldState.currentValue ], currentValue = oldState.initialValue }
+                    { oldState | values = [ oldState.initialValue ], currentValue = oldState.initialValue }
             in
             ( { model | clockState = ClockStopped, tickCount = 0, state = newState }, Cmd.none )
 
