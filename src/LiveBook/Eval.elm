@@ -40,7 +40,7 @@ evaluateWithCumulativeBindings : LiveBook.State.MState -> Dict String Value -> D
 evaluateWithCumulativeBindings state valueDict kvDict cells cell =
     let
         ( stringToEvaluate, bindings ) =
-            evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell |> Debug.log "@@ evawcb: (stringToEvaluate, bindings)"
+            evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell
     in
     if stringToEvaluate == "()" then
         { cell | value = CVNone, cellState = CSView }
@@ -73,7 +73,6 @@ evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell =
                 |> List.map (List.map (transformWordWithValueDict valueDict))
                 |> List.map (List.map (evaluateWordsWithState state))
                 |> List.concat
-                |> Debug.log "@@ bindings (1)"
 
         --|> String.join "\n"
         expressionString__ =
@@ -96,7 +95,7 @@ evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell =
                 "()"
 
             else
-                expressionString_ |> Debug.log "@@ expressionString (1)"
+                expressionString_
 
         bindingString =
             String.join "\n" bindings
@@ -115,7 +114,7 @@ evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell =
                     ++ "\nin\n"
                     ++ expressionString
         in
-        ( letExpression, bindings ) |> Debug.log "@@ (letExpression, bindings)"
+        ( letExpression, bindings )
 
 
 evaluateWithBindings : Dict String String -> Dict String Value -> List String -> String -> Result Eval.Types.Error Value
@@ -137,9 +136,8 @@ evaluateWithBindings kvDict valueDict bindings str =
                 |> List.map (transformWordsWithKVDict kvDict)
                 |> List.map (transformWordWithValueDict valueDict)
                 |> String.join " "
-                |> Debug.log "@@ stringToEvaluate"
     in
-    Eval.eval stringToEvaluate |> Debug.log "@@ Eval.eval stringToEvaluate"
+    Eval.eval stringToEvaluate
 
 
 evaluateStringWithBindings : List String -> String -> String

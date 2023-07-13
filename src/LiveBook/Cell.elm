@@ -290,16 +290,35 @@ updateCell model commandWords cell_ =
 
         Just "plot2D" ->
             let
-                updatedCell =
-                    LiveBook.Eval.evaluateWithCumulativeBindings model.state
+                ( exprString_, bindings ) =
+                    LiveBook.Eval.evaluateWithCumulativeBindingsCore model.state
                         model.valueDict
                         model.kvDict
-                        (model.currentBook.cells |> List.drop 1)
-                        { cell_ | expression = "data", text = [ "> data" ] }
-                        |> Debug.log "@@@ evaluateWithCumulativeBindings (UDCELL)"
+                        model.currentBook.cells
+                        { cell_ | text = [ "> data" ] }
 
-                --bindingPair : String
-                -- bindingPair : Result Error Value.Value
+                exprString =
+                    Debug.log "@@ exprString" (String.replace "plot2D line " "" exprString_)
+
+                expr =
+                    case Eval.eval exprString of
+                        Err _ ->
+                            []
+
+                        Ok value ->
+                            case value of
+                                List valueList_ ->
+                                    LiveBook.Parser.unwrapListTupleFloat valueList_
+
+                                _ ->
+                                    []
+
+                _ =
+                    Debug.log "@@ expr" expr
+
+                _ =
+                    Debug.log "@@ bindings" bindings
+
                 maybeValue : Maybe Value.Value
                 maybeValue =
                     LiveBook.Eval.getPriorBindings cell_.index model.currentBook.cells
@@ -315,29 +334,6 @@ updateCell model commandWords cell_ =
                         |> Result.toMaybe
                         |> Debug.log "@@MAYBEVALUE"
 
-                bindings =
-                    LiveBook.Eval.getPriorBindings cell_.index model.currentBook.cells
-                        |> Debug.log "@@BINDINGS"
-
-                foobar =
-                    case List.Extra.unconsLast bindings of
-                        Nothing ->
-                            Nothing
-
-                        Just ( lastBinding, bindings_ ) ->
-                            case String.split "=" lastBinding of
-                                var :: expr :: _ ->
-                                    let
-                                        _ =
-                                            expr |> Debug.log "@@EXPR"
-                                    in
-                                    LiveBook.Eval.evaluateWithBindings model.kvDict model.valueDict bindings (var |> String.trim)
-                                        |> Result.toMaybe
-                                        |> Debug.log "@@FOOBAR"
-
-                                _ ->
-                                    Nothing
-
                 valueList : List ( Float, Float )
                 valueList =
                     case maybeValue of
@@ -349,18 +345,8 @@ updateCell model commandWords cell_ =
 
                         Just _ ->
                             []
-
-                -- List.map (List.map (evaluateWordsWithState state))
-                dataList : List ( Float, Float )
-                dataList =
-                    cell_.text
-                        |> String.join " "
-                        |> String.replace "> plot2D line " ""
-                        |> String.trim
-                        |> LiveBook.Parser.parseListFloatPair
-                        |> Maybe.withDefault []
             in
-            { cell_ | cellState = CSView, value = CVPlot2D commandWords valueList }
+            { cell_ | cellState = CSView, value = CVPlot2D commandWords expr }
 
         Just "readinto" ->
             { cell_ | cellState = CSView, value = CVString "*......*" }
