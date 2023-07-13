@@ -290,18 +290,15 @@ updateCell model commandWords cell_ =
 
         Just "plot2D" ->
             let
-                ( exprString_, bindings ) =
+                ( exprString, bindings ) =
                     LiveBook.Eval.evaluateWithCumulativeBindingsCore model.state
                         model.valueDict
                         model.kvDict
                         model.currentBook.cells
                         { cell_ | text = [ "> data" ] }
 
-                exprString =
-                    Debug.log "@@ exprString" (String.replace "plot2D line " "" exprString_)
-
-                expr =
-                    case Eval.eval exprString of
+                valueList1 =
+                    case Eval.eval (String.replace "plot2D line " "" exprString) of
                         Err _ ->
                             []
 
@@ -312,12 +309,6 @@ updateCell model commandWords cell_ =
 
                                 _ ->
                                     []
-
-                _ =
-                    Debug.log "@@ expr" expr
-
-                _ =
-                    Debug.log "@@ bindings" bindings
 
                 maybeValue : Maybe Value.Value
                 maybeValue =
@@ -334,8 +325,8 @@ updateCell model commandWords cell_ =
                         |> Result.toMaybe
                         |> Debug.log "@@MAYBEVALUE"
 
-                valueList : List ( Float, Float )
-                valueList =
+                valueList2 : List ( Float, Float )
+                valueList2 =
                     case maybeValue of
                         Nothing ->
                             []
@@ -345,8 +336,15 @@ updateCell model commandWords cell_ =
 
                         Just _ ->
                             []
+
+                valueList =
+                    if List.isEmpty valueList1 then
+                        valueList2
+
+                    else
+                        valueList1
             in
-            { cell_ | cellState = CSView, value = CVPlot2D commandWords expr }
+            { cell_ | cellState = CSView, value = CVPlot2D commandWords valueList }
 
         Just "readinto" ->
             { cell_ | cellState = CSView, value = CVString "*......*" }
