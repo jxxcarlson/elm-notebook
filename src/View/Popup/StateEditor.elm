@@ -21,11 +21,15 @@ view model =
                 , Background.color UILibrary.Color.lightBlue
                 , E.padding 24
                 , E.centerX
-                , E.width (E.px 500)
+                , E.width (E.px 550)
                 , E.height (E.px 500)
                 , E.moveUp (View.Geometry.appHeight model - 100 |> toFloat)
                 ]
                 [ E.text "Model Editor" -- View.Input.title model
+                , View.Input.initialStateValue model
+                , View.Input.stateExpr model
+                , View.Input.stateBindings model
+                , View.Button.setState
                 ]
 
         _ ->

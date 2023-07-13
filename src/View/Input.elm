@@ -6,10 +6,13 @@ module View.Input exposing
     , description
     , email
     , identifier
+    , initialStateValue
     , name
     , password
     , passwordAgain
     , signupUsername
+    , stateBindings
+    , stateExpr
     , title
     , username
     )
@@ -43,6 +46,10 @@ inputFieldTemplate2 attr width_ default msg text =
         }
 
 
+initialStateValue model =
+    inputFieldTemplate (E.px 300) "Initial Value" InputInitialStateValue model.inputInitialStateValue
+
+
 name model =
     inputFieldTemplate (E.px 300) "Name" InputName model.inputName
 
@@ -53,6 +60,14 @@ identifier model =
 
 author model =
     inputFieldTemplate (E.px 300) "Author" InputAuthor model.inputAuthor
+
+
+stateExpr model =
+    multiLineTemplate 500 80 "Expression" InputStateExpression model.inputStateExpression
+
+
+stateBindings model =
+    multiLineTemplate 500 80 "Definitions" InputStateBindings model.inputStateBindings
 
 
 description model =

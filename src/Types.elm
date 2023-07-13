@@ -43,6 +43,9 @@ type alias FrontendModel =
     , inputDescription : String
     , inputComments : String
     , inputData : String
+    , inputInitialStateValue : String
+    , inputStateExpression : String
+    , inputStateBindings : String
 
     -- DATA
     , publicDataSetMetaDataList : List LiveBook.DataSet.DataSetMetaData
@@ -142,6 +145,9 @@ type FrontendMsg
     | InputComments String
     | InputData String
     | InputAuthor String
+    | InputInitialStateValue String
+    | InputStateExpression String
+    | InputStateBindings String
       -- DATA
     | AskToListDataSets DataSetDescription
     | AskToSaveDataSet LiveBook.DataSet.DataSetMetaData
@@ -161,6 +167,7 @@ type FrontendMsg
     | CancelDeleteNotebook
     | ChangeAppMode AppMode
     | SetClock ClockState
+    | SetState
     | Reset
     | TogglePublic
     | ClearNotebookValues

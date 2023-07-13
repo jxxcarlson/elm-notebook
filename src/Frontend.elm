@@ -86,6 +86,9 @@ init url key =
       , inputDescription = ""
       , inputComments = ""
       , inputData = ""
+      , inputInitialStateValue = ""
+      , inputStateBindings = ""
+      , inputStateExpression = ""
 
       -- DATASETS
       , publicDataSetMetaDataList = []
@@ -390,6 +393,15 @@ update msg model =
         InputData str ->
             ( { model | inputData = str }, Cmd.none )
 
+        InputInitialStateValue str ->
+            ( { model | inputInitialStateValue = str }, Cmd.none )
+
+        InputStateExpression str ->
+            ( { model | inputStateExpression = str }, Cmd.none )
+
+        InputStateBindings str ->
+            ( { model | inputStateBindings = str }, Cmd.none )
+
         -- DATA
         AskToDeleteDataSet dataSetMetaData ->
             let
@@ -622,6 +634,9 @@ update msg model =
 
         SetClock state ->
             ( { model | clockState = state }, Cmd.none )
+
+        SetState ->
+            ( { model | popupState = NoPopup }, Cmd.none )
 
         UpdateNotebookTitle ->
             if not (Predicate.canSave model) then

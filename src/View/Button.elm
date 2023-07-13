@@ -25,6 +25,7 @@ module View.Button exposing
     , saveDataSetAsPrivate
     , saveDataSetAsPublic
     , setClock
+    , setState
     , setUpUser
     , signIn
     , signOut
@@ -128,6 +129,11 @@ setClock model =
 resetClock : Element FrontendMsg
 resetClock =
     Button.smallPrimary { msg = Reset, status = Button.Active, label = Button.Text "Reset", tooltipText = Nothing }
+
+
+setState : Element FrontendMsg
+setState =
+    Button.smallPrimary { msg = SetState, status = Button.Active, label = Button.Text "Set state", tooltipText = Nothing }
 
 
 clearValues : Element FrontendMsg
