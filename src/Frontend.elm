@@ -20,6 +20,7 @@ import LiveBook.Book
 import LiveBook.Cell
 import LiveBook.DataSet
 import LiveBook.Eval
+import LiveBook.Parser
 import LiveBook.State
 import LiveBook.Types exposing (Book)
 import LiveBook.Update
@@ -261,7 +262,14 @@ update msg model =
                         ( { model | popupState = NoPopup }, Cmd.none )
 
                     else
-                        ( { model | popupState = StateEditorPopup }, Cmd.none )
+                        ( { model
+                            | popupState = StateEditorPopup
+                            , inputInitialStateValue = model.state.initialValue |> Value.toString
+                            , inputStateExpression = model.state.expression
+                            , inputStateBindings = model.state.bindings |> String.join "; "
+                          }
+                        , Cmd.none
+                        )
 
                 ManualPopup ->
                     if model.popupState == ManualPopup then
@@ -628,7 +636,7 @@ update msg model =
                     model.state
 
                 newState =
-                    { oldState | values = [ oldState.initialValue ], currentValue = oldState.initialValue }
+                    { oldState | ticks = 0, values = [ oldState.initialValue ], currentValue = oldState.initialValue }
             in
             ( { model | clockState = ClockStopped, tickCount = 0, state = newState }, Cmd.none )
 
@@ -636,7 +644,28 @@ update msg model =
             ( { model | clockState = state }, Cmd.none )
 
         SetState ->
-            ( { model | popupState = NoPopup }, Cmd.none )
+            let
+                setValue state_ =
+                    case LiveBook.Parser.parse model.inputInitialStateValue of
+                        Nothing ->
+                            state_
+
+                        Just value ->
+                            { state_ | values = [ value ], currentValue = value, initialValue = value }
+
+                setExpression state_ =
+                    { state_ | expression = model.inputStateExpression }
+
+                setBindings state_ =
+                    { state_ | bindings = model.inputStateBindings |> String.split ";" |> List.map String.trim }
+
+                oldState =
+                    model.state
+
+                newState =
+                    oldState |> setValue |> setExpression |> setBindings
+            in
+            ( { model | state = newState, popupState = NoPopup }, Cmd.none )
 
         UpdateNotebookTitle ->
             if not (Predicate.canSave model) then
@@ -757,6 +786,24 @@ updateFromBackend msg model =
                     else
                         xbook :: books
 
+                initialStateValue : Maybe Value.Value
+                initialStateValue =
+                    LiveBook.Parser.parse book_.initialStateString
+
+                oldState =
+                    model.state
+
+                newState1 =
+                    case initialStateValue of
+                        Nothing ->
+                            oldState
+
+                        Just value ->
+                            { oldState | values = [ value ], currentValue = value, initialValue = value }
+
+                newState2 =
+                    { newState1 | expression = book_.initialStateExpression, bindings = book_.initialStateBindings }
+
                 showNotebooks =
                     if book.public then
                         ShowUserNotebooks
@@ -764,7 +811,7 @@ updateFromBackend msg model =
                     else
                         ShowUserNotebooks
             in
-            ( { model | currentBook = book, books = addOrReplaceBook book model.books }, Cmd.none )
+            ( { model | state = newState2, currentBook = book, books = addOrReplaceBook book model.books }, Cmd.none )
 
         GotNotebooks books ->
             ( { model | books = books, currentBook = List.head books |> Maybe.withDefault model.currentBook }, Cmd.none )

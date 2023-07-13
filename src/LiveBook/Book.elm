@@ -26,6 +26,9 @@ scratchPad username =
           }
         ]
     , currentIndex = 0
+    , initialStateString = initialStateString
+    , initialStateExpression = initialStateExpression
+    , initialStateBindings = initialStateBindings
     }
 
 
@@ -51,6 +54,9 @@ new author title =
           }
         ]
     , currentIndex = 0
+    , initialStateString = initialStateString
+    , initialStateExpression = initialStateExpression
+    , initialStateBindings = initialStateBindings
     }
 
 
@@ -67,7 +73,22 @@ newBook author title =
     , title = title
     , cells = []
     , currentIndex = 0
+    , initialStateString = initialStateString
+    , initialStateExpression = initialStateExpression
+    , initialStateBindings = initialStateBindings
     }
+
+
+initialStateString =
+    "10"
+
+
+initialStateExpression =
+    "if state <= 0 then 0 else state + ds p0"
+
+
+initialStateBindings =
+    [ "ds p = if p < 0.5 then -1 else 1" ]
 
 
 initializeCellState : Book -> Book

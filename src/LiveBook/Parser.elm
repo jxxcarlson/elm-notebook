@@ -1,4 +1,4 @@
-module LiveBook.Parser exposing (..)
+module LiveBook.Parser exposing (parse, unwrapFloat, unwrapListTupleFloat)
 
 import Parser exposing ((|.), (|=), Parser)
 import Value exposing (Value(..))

@@ -16,6 +16,9 @@ type alias Book =
     , title : String
     , cells : List Cell
     , currentIndex : Int
+    , initialStateString : String
+    , initialStateExpression : String
+    , initialStateBindings : List String
     }
 
 
