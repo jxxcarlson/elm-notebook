@@ -237,9 +237,23 @@ manySeparateByHelp2 sep p vs =
 --unwrapListTupleFloat : List (Tuple Float Float) -> List ( Float, Float )
 
 
+unwrapListTupleFloat : List Value -> List ( Float, Float )
 unwrapListTupleFloat list =
     List.map unwrapTupleFloat list
         |> List.filterMap identity
+
+
+unwrapFloat : Value -> Maybe Float
+unwrapFloat value =
+    case value of
+        Float f ->
+            Just f
+
+        Int i ->
+            Just (toFloat i)
+
+        _ ->
+            Nothing
 
 
 

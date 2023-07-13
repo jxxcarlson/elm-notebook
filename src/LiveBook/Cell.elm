@@ -258,7 +258,6 @@ updateCell model commandWords cell_ =
 
         Just "timeSeries" ->
             let
-                maybeValue : Maybe Value.Value
                 maybeValue =
                     LiveBook.Eval.getPriorBindings cell_.index model.currentBook.cells
                         |> List.map (String.split "=" >> List.map String.trim)
@@ -271,7 +270,6 @@ updateCell model commandWords cell_ =
                         |> unquote
                         |> Eval.eval
                         |> Result.toMaybe
-                        |> Debug.log "@@MAYBEVALUE"
 
                 valueList : List ( Float, Float )
                 valueList =
@@ -280,7 +278,10 @@ updateCell model commandWords cell_ =
                             []
 
                         Just (List floatList) ->
-                            floatList |> LiveBook.Parser.unwrapListTupleFloat
+                            floatList
+                                |> List.map LiveBook.Parser.unwrapFloat
+                                |> List.filterMap identity
+                                |> List.indexedMap (\k v -> ( toFloat k, v ))
 
                         Just _ ->
                             []
