@@ -73,7 +73,6 @@ evaluateWithCumulativeBindings model cell_ =
     let
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
-                |> Debug.log "@@@ evaluateWithCumulativeBindings (UDCELL)"
     in
     { model | currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
 
@@ -323,7 +322,6 @@ updateCell model commandWords cell_ =
                         |> unquote
                         |> Eval.eval
                         |> Result.toMaybe
-                        |> Debug.log "@@MAYBEVALUE"
 
                 valueList2 : List ( Float, Float )
                 valueList2 =
