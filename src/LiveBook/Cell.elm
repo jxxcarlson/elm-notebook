@@ -285,18 +285,6 @@ updateCell model commandWords cell_ =
 
                         Just _ ->
                             []
-
-                unquote str =
-                    String.replace "\"" "" str
-
-                twoListToPair : List a -> Maybe ( a, a )
-                twoListToPair list =
-                    case list of
-                        [ x, y ] ->
-                            Just ( x, y )
-
-                        _ ->
-                            Nothing
             in
             { cell_ | cellState = CSView, value = CVPlot2D commandWords valueList }
 
@@ -350,6 +338,7 @@ updateCell model commandWords cell_ =
                                 _ ->
                                     Nothing
 
+                valueList : List ( Float, Float )
                 valueList =
                     case maybeValue of
                         Nothing ->
@@ -360,18 +349,6 @@ updateCell model commandWords cell_ =
 
                         Just _ ->
                             []
-
-                unquote str =
-                    String.replace "\"" "" str
-
-                twoListToPair : List a -> Maybe ( a, a )
-                twoListToPair list =
-                    case list of
-                        [ x, y ] ->
-                            Just ( x, y )
-
-                        _ ->
-                            Nothing
 
                 -- List.map (List.map (evaluateWordsWithState state))
                 dataList : List ( Float, Float )
@@ -508,9 +485,6 @@ svgHandler model cell_ =
                 |> String.split ","
                 |> List.map (String.trim >> unquote)
 
-        unquote str =
-            String.replace "\"" "" str
-
         isSVG str =
             let
                 firstWord =
@@ -561,9 +535,6 @@ evalSvgHandler model cell_ =
             LiveBook.Eval.evaluateString stringToEvaluate
                 |> String.split ","
                 |> List.map (\s -> (String.trim >> unquote >> fix) s)
-
-        unquote str =
-            String.replace "\"" "" str
 
         fix str =
             str |> String.replace "[" "" |> String.replace "]" ""
@@ -661,3 +632,18 @@ setValue cell commandWords_ model =
 setValueFromFloats : Cell -> List Float -> FrontendModel -> FrontendModel
 setValueFromFloats cell floats model =
     setValue cell (List.map String.fromFloat floats) model
+
+
+unquote : String -> String
+unquote str =
+    String.replace "\"" "" str
+
+
+twoListToPair : List a -> Maybe ( a, a )
+twoListToPair list =
+    case list of
+        [ x, y ] ->
+            Just ( x, y )
+
+        _ ->
+            Nothing
