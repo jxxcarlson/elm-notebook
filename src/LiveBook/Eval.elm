@@ -40,7 +40,7 @@ evaluateWithCumulativeBindings : LiveBook.State.MState -> Dict String Value -> D
 evaluateWithCumulativeBindings state valueDict kvDict cells cell =
     let
         ( stringToEvaluate, bindings ) =
-            evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell
+            evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell |> Debug.log "@@ evawcb: (stringToEvaluate, bindings)"
     in
     if stringToEvaluate == "()" then
         { cell | value = CVNone, cellState = CSView }
@@ -73,6 +73,7 @@ evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell =
                 |> List.map (List.map (transformWordWithValueDict valueDict))
                 |> List.map (List.map (evaluateWordsWithState state))
                 |> List.concat
+                |> Debug.log "@@ bindings (1)"
 
         --|> String.join "\n"
         expressionString__ =
@@ -95,7 +96,7 @@ evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell =
                 "()"
 
             else
-                expressionString_
+                expressionString_ |> Debug.log "@@ expressionString (1)"
 
         bindingString =
             String.join "\n" bindings
@@ -114,7 +115,7 @@ evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell =
                     ++ "\nin\n"
                     ++ expressionString
         in
-        ( letExpression, bindings )
+        ( letExpression, bindings ) |> Debug.log "@@ (letExpression, bindings)"
 
 
 evaluateWithBindings : Dict String String -> Dict String Value -> List String -> String -> Result Eval.Types.Error Value
@@ -136,8 +137,9 @@ evaluateWithBindings kvDict valueDict bindings str =
                 |> List.map (transformWordsWithKVDict kvDict)
                 |> List.map (transformWordWithValueDict valueDict)
                 |> String.join " "
+                |> Debug.log "@@ stringToEvaluate"
     in
-    Eval.eval stringToEvaluate
+    Eval.eval stringToEvaluate |> Debug.log "@@ Eval.eval stringToEvaluate"
 
 
 evaluateStringWithBindings : List String -> String -> String
@@ -244,7 +246,7 @@ evaluateWordWithState1 state str =
 evaluateWordWithState2 : LiveBook.State.MState -> String -> String
 evaluateWordWithState2 state str =
     str
-        |> String.replace "state.value" (state.value |> Value.toString)
+        |> String.replace "state.value" (state.currentValue |> Value.toString)
 
 
 transformWordWithValueDict : Dict String Value -> String -> String

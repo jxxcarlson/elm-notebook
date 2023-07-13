@@ -161,7 +161,7 @@ type FrontendMsg
     | CancelDeleteNotebook
     | ChangeAppMode AppMode
     | SetClock ClockState
-    | ResetClock
+    | Reset
     | TogglePublic
     | ClearNotebookValues
     | SetCurrentNotebook Book

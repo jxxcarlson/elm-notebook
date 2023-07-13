@@ -14,7 +14,7 @@ import Value exposing (Value)
 
 testState : MState -> Value -> Expectation
 testState state value =
-    Expect.equal (update state).value value
+    Expect.equal (update state).currentValue value
 
 
 nextStateRecord1 : NextStateRecord

@@ -126,7 +126,7 @@ setClock model =
 
 resetClock : Element FrontendMsg
 resetClock =
-    Button.smallPrimary { msg = ResetClock, status = Button.Active, label = Button.Text "Reset Clock", tooltipText = Nothing }
+    Button.smallPrimary { msg = Reset, status = Button.Active, label = Button.Text "Reset", tooltipText = Nothing }
 
 
 clearValues : Element FrontendMsg

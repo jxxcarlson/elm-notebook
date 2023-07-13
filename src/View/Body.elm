@@ -38,13 +38,14 @@ monitor model =
         , E.height (E.px monitorHeight)
         , Font.color Color.white
         ]
-        [ E.el [ Font.size 16, Font.underline, E.paddingEach { top = 12, bottom = 0, left = 0, right = 0 } ] <| E.text <| "Internal State"
+        [ E.el [ Font.size 16, Font.underline, E.paddingEach { top = 12, bottom = 0, left = 0, right = 0 } ] <| E.text <| "Monitor"
+        , notebookControls model
         , E.text <| "ticks: " ++ String.fromInt model.state.ticks
         , E.paragraph [] [ E.text <| "probabilities: " ++ (model.state.probabilities |> List.map (\( name, p ) -> name ++ ":" ++ String.fromFloat (Util.roundTo 3 p) |> String.padRight 8 '0') |> String.join ", ") ]
-        , E.paragraph [] [ E.text <| "value: " ++ Value.toString model.state.value ]
+        , E.paragraph [] [ E.text <| "value: " ++ Value.toString model.state.currentValue ]
         , E.paragraph [] [ E.text <| "values: " ++ (List.map Value.toString (List.take 10 model.state.values) |> String.join ", ") ]
-        , E.paragraph [] [ E.text <| "f: " ++ model.state.expression ]
-        , E.paragraph [] [ E.text <| "bindings: " ++ (model.state.bindings |> String.join "\n ") ]
+        , E.paragraph [] [ E.text <| "expr: " ++ model.state.expression ]
+        , E.paragraph [] [ E.text <| "defs: " ++ (model.state.bindings |> String.join "\n ") ]
         ]
 
 
@@ -93,20 +94,18 @@ viewNotebookList model user =
         , E.scrollbarY
         , E.paddingXY 24 12
         ]
-        (notebookControls model
-            :: (case model.showNotebooks of
-                    Types.ShowUserNotebooks ->
-                        viewMyNotebookList model user
+        (case model.showNotebooks of
+            Types.ShowUserNotebooks ->
+                viewMyNotebookList model user
 
-                    Types.ShowPublicNotebooks ->
-                        viewPublicNotebookList model user
-               )
+            Types.ShowPublicNotebooks ->
+                viewPublicNotebookList model user
         )
 
 
 notebookControls : FrontendModel -> Element FrontendMsg
 notebookControls model =
-    E.row [ E.spacing 12, E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 } ] [ View.Button.resetClock, View.Button.setClock model ]
+    E.row [ E.spacing 12, E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 } ] [ View.Button.resetClock, View.Button.setClock model ]
 
 
 viewMyNotebookList : FrontendModel -> User.User -> List (Element FrontendMsg)

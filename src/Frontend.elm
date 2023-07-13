@@ -603,8 +603,15 @@ update msg model =
                 _ ->
                     ( { model | appMode = mode }, Cmd.none )
 
-        ResetClock ->
-            ( { model | clockState = ClockStopped, tickCount = 0 }, Cmd.none )
+        Reset ->
+            let
+                oldState =
+                    model.state
+
+                newState =
+                    { oldState | values = [ oldState.currentValue ] }
+            in
+            ( { model | clockState = ClockStopped, tickCount = 0, state = newState }, Cmd.none )
 
         SetClock state ->
             ( { model | clockState = state }, Cmd.none )

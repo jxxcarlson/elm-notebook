@@ -35,7 +35,9 @@ import Value exposing (Value(..))
 
     NOTE: evalCell makes one of two possible calls:
     (a) to evaluateWithCumulativeBindings or
-    (b) to executeCell.  Branch (b) is taken when the cell contains a command.
+    (b) to executeCell.  Branch (b) is taken when
+    there is an alternate evaluation strategy (and also if the
+    cell contains a command).
 
 -}
 evalCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
@@ -58,6 +60,63 @@ evalCell index model =
 
             else
                 ( evaluateWithCumulativeBindings model cell_, Cmd.none )
+
+
+{-|
+
+    This is the "normal" evaluation strategy.  Elm code in the cell is evaluated,
+    the result is stored in the cell, and the current notebook is updated.
+
+-}
+evaluateWithCumulativeBindings : FrontendModel -> Cell -> FrontendModel
+evaluateWithCumulativeBindings model cell_ =
+    let
+        updatedCell =
+            LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
+                |> Debug.log "@@@ evaluateWithCumulativeBindings (UDCELL)"
+    in
+    { model | currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
+
+
+{-|
+
+    Function executeCell is called when the user presses enter in a cell.
+    As a result, the contents of that cell are updated and (optionally)
+    a command is run.  The FrontendModel is updated only insofar as
+    the given cell is affected or the command is run.
+
+-}
+executeCell : Cell -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
+executeCell cell_ model =
+    let
+        ( stringToEvaluate, bindings ) =
+            LiveBook.Eval.evaluateWithCumulativeBindingsCore model.state model.valueDict model.kvDict model.currentBook.cells cell_
+
+        updatedCell =
+            -- Update the cell according to
+            -- (a) the expression (if any) in the cell
+            -- (b) the command (if any) in the cell
+            --
+            -- Regarding (b), it may happen that the command
+            -- is executed as the result of
+            -- (c) running an Elm command (see 'cmd' below)
+            updateCell model commandWords cell_
+
+        cmd =
+            getCommand cell_ commandWords
+
+        commandWords =
+            -- run a the command defined in the cell
+            getCommandWords cell_
+
+        newBook =
+            LiveBook.CellHelper.updateBook updatedCell model.currentBook
+    in
+    ( { model | currentBook = newBook } |> setValue { cell_ | bindings = bindings } commandWords, cmd )
+
+
+
+--- BEGIN HANDLERS ---
 
 
 handleUseCmd model cell_ =
@@ -104,52 +163,6 @@ commandFromCell cell =
         |> List.head
 
 
-evaluateWithCumulativeBindings : FrontendModel -> Cell -> FrontendModel
-evaluateWithCumulativeBindings model cell_ =
-    let
-        updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
-    in
-    { model | currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
-
-
-{-|
-
-    Function executeCell is called when the user presses enter in a cell.
-    As a result, the contents of that cell are updated and (optionally)
-    a command is run.  The FrontendModel is updated only insofar as
-    the given cell is affected or the command is run.
-
--}
-executeCell : Cell -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
-executeCell cell_ model =
-    let
-        ( stringToEvaluate, bindings ) =
-            LiveBook.Eval.evaluateWithCumulativeBindingsCore model.state model.valueDict model.kvDict model.currentBook.cells cell_
-
-        updatedCell =
-            -- Update the cell according to
-            -- (a) the expression (if any) in the cell
-            -- (b) the command (if any) in the cell
-            --
-            -- Regarding (b), it may happen that the command
-            -- is executed as the result of
-            -- (c) running an Elm command (see 'cmd' below)
-            updateCell model commandWords cell_
-
-        cmd =
-            getCommand cell_ commandWords
-
-        commandWords =
-            -- run a the command defined in the cell
-            getCommandWords cell_
-
-        newBook =
-            LiveBook.CellHelper.updateBook updatedCell model.currentBook
-    in
-    ( { model | currentBook = newBook } |> setValue { cell_ | bindings = bindings } commandWords, cmd )
-
-
 commands =
     [ "chart"
     , "readinto"
@@ -160,6 +173,7 @@ commands =
     , "info"
     , "head"
     , "plot2D"
+    , "timeSeries"
     , "use:"
     , "svg"
     , "evalSvg"
@@ -215,12 +229,6 @@ getCommandWords cell_ =
         |> String.words
 
 
-
--- > plot2D line [(0, 10), (1, 9), (2, 10), (3, 9), (4, 8), (5, 7)]
---@@dataVariable: "7)]"
---(index):260 @@args_: ["line","[(0,","10),","(1,","9),","(2,","10),","(3,","9),","(4,","8),","(5,"]
-
-
 updateCell : FrontendModel -> List String -> Cell -> Cell
 updateCell model commandWords cell_ =
     case List.head commandWords of
@@ -248,8 +256,59 @@ updateCell model commandWords cell_ =
         Just "chart" ->
             { cell_ | cellState = CSView, value = CVVisual VTChart (List.drop 1 commandWords) }
 
+        Just "timeSeries" ->
+            let
+                maybeValue : Maybe Value.Value
+                maybeValue =
+                    LiveBook.Eval.getPriorBindings cell_.index model.currentBook.cells
+                        |> List.map (String.split "=" >> List.map String.trim)
+                        |> List.map twoListToPair
+                        |> List.filterMap identity
+                        |> List.Extra.find (\( a, b ) -> a == "data")
+                        |> Maybe.map Tuple.second
+                        |> Maybe.withDefault ""
+                        |> LiveBook.Eval.evaluateWordsWithState model.state
+                        |> unquote
+                        |> Eval.eval
+                        |> Result.toMaybe
+                        |> Debug.log "@@MAYBEVALUE"
+
+                valueList : List ( Float, Float )
+                valueList =
+                    case maybeValue of
+                        Nothing ->
+                            []
+
+                        Just (List floatList) ->
+                            floatList |> LiveBook.Parser.unwrapListTupleFloat
+
+                        Just _ ->
+                            []
+
+                unquote str =
+                    String.replace "\"" "" str
+
+                twoListToPair : List a -> Maybe ( a, a )
+                twoListToPair list =
+                    case list of
+                        [ x, y ] ->
+                            Just ( x, y )
+
+                        _ ->
+                            Nothing
+            in
+            { cell_ | cellState = CSView, value = CVPlot2D commandWords valueList }
+
         Just "plot2D" ->
             let
+                updatedCell =
+                    LiveBook.Eval.evaluateWithCumulativeBindings model.state
+                        model.valueDict
+                        model.kvDict
+                        (model.currentBook.cells |> List.drop 1)
+                        { cell_ | expression = "data", text = [ "> data" ] }
+                        |> Debug.log "@@@ evaluateWithCumulativeBindings (UDCELL)"
+
                 --bindingPair : String
                 -- bindingPair : Result Error Value.Value
                 maybeValue : Maybe Value.Value
@@ -265,6 +324,30 @@ updateCell model commandWords cell_ =
                         |> unquote
                         |> Eval.eval
                         |> Result.toMaybe
+                        |> Debug.log "@@MAYBEVALUE"
+
+                bindings =
+                    LiveBook.Eval.getPriorBindings cell_.index model.currentBook.cells
+                        |> Debug.log "@@BINDINGS"
+
+                foobar =
+                    case List.Extra.unconsLast bindings of
+                        Nothing ->
+                            Nothing
+
+                        Just ( lastBinding, bindings_ ) ->
+                            case String.split "=" lastBinding of
+                                var :: expr :: _ ->
+                                    let
+                                        _ =
+                                            expr |> Debug.log "@@EXPR"
+                                    in
+                                    LiveBook.Eval.evaluateWithBindings model.kvDict model.valueDict bindings (var |> String.trim)
+                                        |> Result.toMaybe
+                                        |> Debug.log "@@FOOBAR"
+
+                                _ ->
+                                    Nothing
 
                 valueList =
                     case maybeValue of
