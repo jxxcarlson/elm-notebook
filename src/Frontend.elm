@@ -253,6 +253,13 @@ update msg model =
                     else
                         ( { model | popupState = NewNotebookPopup }, Cmd.none )
 
+                StateEditorPopup ->
+                    if model.popupState == StateEditorPopup then
+                        ( { model | popupState = NoPopup }, Cmd.none )
+
+                    else
+                        ( { model | popupState = StateEditorPopup }, Cmd.none )
+
                 ManualPopup ->
                     if model.popupState == ManualPopup then
                         ( { model | popupState = NoPopup }, Cmd.none )

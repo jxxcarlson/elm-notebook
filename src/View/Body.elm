@@ -38,9 +38,10 @@ monitor model =
         , E.height (E.px monitorHeight)
         , Font.color Color.white
         ]
-        [ E.el [ Font.size 16, Font.underline, E.paddingEach { top = 12, bottom = 0, left = 0, right = 0 } ] <| E.text <| "Monitor"
+        [ E.row [ Font.size 16, E.spacing 24, E.paddingEach { top = 12, bottom = 0, left = 0, right = 0 } ]
+            [ E.el [ Font.underline ] (E.text <| "Monitor"), View.Button.stateEditor ]
         , notebookControls model
-        , E.text <| "ticks: " ++ String.fromInt model.state.ticks
+        , E.row [ E.spacing 12 ] [ E.text <| "ticks: " ++ String.fromInt model.state.ticks ]
         , E.paragraph [] [ E.text <| "probabilities: " ++ (model.state.probabilities |> List.map (\( name, p ) -> name ++ ":" ++ String.fromFloat (Util.roundTo 3 p) |> String.padRight 8 '0') |> String.join ", ") ]
         , E.paragraph [] [ E.text <| "value: " ++ Value.toString model.state.currentValue ]
         , E.paragraph [] [ E.text <| "values: " ++ (List.map Value.toString (List.take 10 model.state.values) |> String.join ", ") ]

@@ -14,6 +14,7 @@ import View.Popup.Manual
 import View.Popup.NewDataSet
 import View.Popup.NewNotebook
 import View.Popup.SignUp
+import View.Popup.StateEditor
 import View.Popup.ViewPrivateDataSets
 import View.Popup.ViewPublicDataSets
 import View.Style
@@ -34,6 +35,7 @@ view model =
         , E.inFront (View.Popup.ViewPublicDataSets.view model)
         , E.inFront (View.Popup.ViewPrivateDataSets.view model)
         , E.inFront (View.Popup.EditDataSet.view model)
+        , E.inFront (View.Popup.StateEditor.view model)
         , View.Style.bgGray 0.0
         , E.spacing 12
         ]

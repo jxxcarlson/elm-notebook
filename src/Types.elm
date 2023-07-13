@@ -213,6 +213,7 @@ type PopupState
     | EditDataSetPopup LiveBook.DataSet.DataSetMetaData
     | SignUpPopup
     | NewNotebookPopup
+    | StateEditorPopup
     | ViewPublicDataSetsPopup
     | ViewPrivateDataSetsPopup
 

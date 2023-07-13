@@ -29,6 +29,7 @@ module View.Button exposing
     , signIn
     , signOut
     , signUp
+    , stateEditor
     , toggleViewPrivateDataSets
     , toggleViewPublicDataSets
     , viewNotebookEntry
@@ -207,6 +208,11 @@ cloneNotebook =
 pullNotebook : Element FrontendMsg
 pullNotebook =
     Button.smallPrimary { msg = PullNotebook, status = Button.Active, label = Button.Text "Update", tooltipText = Nothing }
+
+
+stateEditor : Element FrontendMsg
+stateEditor =
+    Button.smallPrimary { msg = ChangePopup StateEditorPopup, status = Button.Active, label = Button.Text "State Editor", tooltipText = Nothing }
 
 
 manual : Element FrontendMsg
