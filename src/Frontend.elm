@@ -18,6 +18,7 @@ import List.Extra
 import LiveBook.Action
 import LiveBook.Book
 import LiveBook.Cell
+import LiveBook.Codec
 import LiveBook.DataSet
 import LiveBook.Eval
 import LiveBook.Parser
@@ -539,6 +540,10 @@ update msg model =
                             model.currentBook.id
                         )
                     )
+
+        -- File.Download.string (String.replace "." "-" dataSet.identifier ++ ".csv") "text/csv" dataSet.data
+        ExportNotebook ->
+            ( model, File.Download.string model.currentBook.title "text/json" (LiveBook.Codec.exportBook model.currentBook) )
 
         SetCurrentNotebook book ->
             case model.currentUser of

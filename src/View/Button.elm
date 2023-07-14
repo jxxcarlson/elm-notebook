@@ -10,6 +10,7 @@ module View.Button exposing
     , dismissPopupSmall
     , editDataSet
     , editTitle
+    , exportNotebook
     , getRandomProbabilities
     , lockCell
     , manual
@@ -214,6 +215,11 @@ cloneNotebook =
 pullNotebook : Element FrontendMsg
 pullNotebook =
     Button.smallPrimary { msg = PullNotebook, status = Button.Active, label = Button.Text "Update", tooltipText = Nothing }
+
+
+exportNotebook : Element FrontendMsg
+exportNotebook =
+    Button.smallPrimary { msg = ExportNotebook, status = Button.Active, label = Button.Text "Export", tooltipText = Nothing }
 
 
 stateEditor : Element FrontendMsg

@@ -174,6 +174,7 @@ type FrontendMsg
     | SetCurrentNotebook Book
     | CloneNotebook
     | PullNotebook
+    | ExportNotebook
     | SetShowNotebooksState ShowNotebooks
       -- UI
     | ChangePopup PopupState

@@ -51,6 +51,7 @@ view model =
                 , View.Utility.showIfIsAdmin model Button.runTask
                 , messageRow model
                 , E.el [ Font.color (E.rgb 1 1 1) ] (E.text (String.fromInt <| List.length model.pressedKeys))
+                , Button.exportNotebook
                 , Button.newDataSet
                 , Button.toggleViewPublicDataSets
                 , Button.toggleViewPrivateDataSets
