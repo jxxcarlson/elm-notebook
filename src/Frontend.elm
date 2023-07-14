@@ -676,7 +676,7 @@ update msg model =
                         , stateBindings = model.inputStateBindings |> String.split ";" |> List.map String.trim
                     }
             in
-            ( { model | state = newState, popupState = NoPopup }, Cmd.none )
+            ( { model | state = newState, currentBook = newNotebook, popupState = NoPopup }, sendToBackend (SaveNotebook newNotebook) )
 
         UpdateNotebookTitle ->
             if not (Predicate.canSave model) then
