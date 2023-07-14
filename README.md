@@ -4,14 +4,14 @@ The aim of [Elm Notebook](https://elm-notebook.lamdera.app) is to provide someth
 tool, but such an app could also be good for code demonstrations, experimentation,
  just playing around, etc.
 
-I'd like Elm Notebook to be something fun, useful, and as versatile as we can make it.  You can reach me on the Elm Slack or
-on [github.com/jxxcarlson/elm-notebook](https://github.com/jxxcarlson/elm-notebook) with suggestions and bug reports. 
+I'd like Elm Notebook to be something fun, useful, and as versatile as we can make it.  The project is, 
+of course, open source: [github.com/jxxcarlson/elm-notebook](https://github.com/jxxcarlson/elm-notebook). 
 
 
 
 ## A Work-In-Progress
 
-The project is very much a work-in-progress and I'd like to keep this experimental status in mind for a good while so that the project can adopt good ideas without
+Elm Notebook is very much a work-in-progress and I'd like to keep this experimental status in mind for a good while so that the project can adopt good ideas without
 undue friction.  
 
 Elm Notebook is based on [elm-interpreter](https://github.com/miniBill/elm-interpreter) by @minibill (Leonardo Taglialegne).
@@ -74,3 +74,7 @@ In addition to access to a clock, the runtime provides
 access to a vector of random numbers in the range [0,1]:
 on each tick of the clock.  This is illustrated by 
 the next animation, a simulation of [gambler's ruin](https://youtu.be/JE0Fz9YGh8Q).
+
+## About notebooks
+
+Notebooks can be public or private.  
