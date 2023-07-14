@@ -77,4 +77,27 @@ the next animation, a simulation of [gambler's ruin](https://youtu.be/JE0Fz9YGh8
 
 ## About notebooks
 
-Notebooks can be public or private.  
+### Public versus Private notebooks
+
+Notebooks can be public or private.  In the 
+screenshot below, I'm signed in as myself,
+looking at my notebooks.  Italicized
+titles are public, non-italicized (like 
+"Data Sources") are private. If you click on
+the **Public** tab, you will see a list 
+of *other users's* public notebooks. The examples
+discussed above are takend from the public
+notebooks listed here.
+
+![Notebook Menu](image/elm-notebook-menu.png)
+
+### Clones
+
+Public notebooks can be cloned using the **Clone** button. 
+This button, located in the footer, bottom right,
+is displayed whenever another user's public
+notebook is selected.  A cloned notebook
+belongs to you and can be used as  you like.
+Cloned notebooks are useful in a classroom setting.
+This way the instructor can deliver material to the 
+students.
