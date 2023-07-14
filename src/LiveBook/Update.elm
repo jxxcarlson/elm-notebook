@@ -77,21 +77,16 @@ deleteCell index model =
             { model | currentCellIndex = 0, currentBook = newBook }
 
 
-editCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
-editCell model index =
-    case List.Extra.getAt index model.currentBook.cells of
-        Nothing ->
-            ( model, Cmd.none )
+editCell : FrontendModel -> Cell -> ( FrontendModel, Cmd FrontendMsg )
+editCell model cell =
+    let
+        updatedCell =
+            { cell | cellState = CSEdit }
 
-        Just cell_ ->
-            let
-                updatedCell =
-                    { cell_ | cellState = CSEdit }
-
-                newBook =
-                    LiveBook.CellHelper.updateBook updatedCell model.currentBook
-            in
-            ( { model | currentCellIndex = cell_.index, cellContent = cell_.text |> String.join "\n", currentBook = newBook }, Cmd.none )
+        newBook =
+            LiveBook.CellHelper.updateBook updatedCell model.currentBook
+    in
+    ( { model | currentCellIndex = cell.index, cellContent = cell.text |> String.join "\n", currentBook = newBook }, Cmd.none )
 
 
 clearCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )

@@ -721,8 +721,8 @@ update msg model =
             else
                 ( LiveBook.Update.deleteCell index model, Cmd.none )
 
-        EditCell index ->
-            LiveBook.Update.editCell model index
+        EditCell cell ->
+            LiveBook.Update.editCell model cell
 
         ClearCell index ->
             LiveBook.Update.clearCell model index

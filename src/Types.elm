@@ -157,7 +157,7 @@ type FrontendMsg
     | ToggleCellLock Cell
     | NewCell Int
     | DeleteCell Int
-    | EditCell Int
+    | EditCell Cell
     | ClearCell Int
     | EvalCell Int
     | InputElmCode Int String

@@ -237,10 +237,10 @@ viewSource_ width cell =
     E.column
         [ E.spacing 8
         , if not cell.locked then
-            Element.Events.onMouseDown (EditCell cell.index)
+            Element.Events.onMouseDown (EditCell cell)
 
           else
-            Element.Events.onMouseDown (EditCell -1)
+            Element.Events.onMouseDown NoOpFrontendMsg
         , E.paddingEach { top = 8, right = 0, bottom = 8, left = 0 }
         , E.width (E.px width)
         , Font.size 14
