@@ -44,17 +44,33 @@ and gave the first experimental evidence for the expansion of the universe.*
 
 ### Simulations and Animations
 
-A cell may render an animation as illustrated below.
+A cell may render an
+[animation](https://www.youtube.com/watch?v=XWM-mEgJA9s):
 The red dot moves in an ellipse around the 
 yellow dot at the center of the ellipse.
-This is *not* a simulatin of planetary motion:
+This is *not* a simulation of planetary motion:
 for that the motion has to obey Kepler's laws.
 More work to do!
 
+In this case the relevant code comes in two cells. 
+The first defines a function `k `:
 
-[Animation](https://www.youtube.com/watch?v=XWM-mEgJA9s)
-
-
-
-
+```elm
+> k t = circle (400 + (370 * cos t)) (200 + (170 * sin t)) 10 "red"
 ```
+
+The second renders the animation:
+
+```elm
+> evalSvg [k (ticks / 30), circle 400 200 20 "yellow"]
+```
+
+Here `ticks` is part of the runtime that gives access
+to a discrete series of clock ticks.
+
+### Random numbers
+
+In addition to access to a clock, the runtime provides
+access to a vector of random numbers in the range [0,1]:
+on each tick of the clock.  This is illustrated by 
+the next animation, a simulation of [gambler's ruin](https://en.wikipedia.org/wiki/Gambler%27s_ruin).
