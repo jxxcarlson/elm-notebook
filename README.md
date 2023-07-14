@@ -45,8 +45,14 @@ and gave the first experimental evidence for the expansion of the universe.*
 ### Simulations and Animations
 
 A cell may render an animation as illustrated below.
+The red dot moves in an ellipse around the 
+yellow dot at the center of the ellipse.
+This is *not* a simulatin of planetary motion:
+for that the motion has to obey Kepler's laws.
+More work to do!
 
-[Animation](image/planet.mov)
+
+[Animation](https://www.youtube.com/watch?v=XWM-mEgJA9s)
 
 
 
