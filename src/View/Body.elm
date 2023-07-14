@@ -36,6 +36,9 @@ monitor model =
         , E.spacing 18
         , Font.size 14
         , E.height (E.px monitorHeight)
+        , Element.Border.widthEach { left = 1, right = 0, top = 0, bottom = 0 }
+        , Element.Border.color Color.darkGray
+        , E.scrollbarY
         , Font.color Color.white
         ]
         [ E.row [ Font.size 16, E.spacing 24, E.paddingEach { top = 12, bottom = 0, left = 0, right = 0 } ]
@@ -61,7 +64,7 @@ valueDictToString dict =
 
 
 monitorHeight =
-    400
+    300
 
 
 viewNotebookList : FrontendModel -> User.User -> Element FrontendMsg
