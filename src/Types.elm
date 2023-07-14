@@ -176,6 +176,9 @@ type FrontendMsg
     | PullNotebook
     | ExportNotebook
     | SetShowNotebooksState ShowNotebooks
+    | ImportRequested
+    | ImportSelected File
+    | ImportLoaded String
       -- UI
     | ChangePopup PopupState
     | GotViewport Browser.Dom.Viewport
@@ -246,6 +249,7 @@ type ToBackend
     | GetDataSetForDownload String -- Int is the index of the requesting cell,
       -- NOTEBOOK
     | CreateNotebook String String -- authorname title
+    | ImportNewBook String Book
     | SaveNotebook Book
     | DeleteNotebook Book
     | GetClonedNotebook String String -- username slug

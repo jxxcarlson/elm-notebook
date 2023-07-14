@@ -12,6 +12,7 @@ module View.Button exposing
     , editTitle
     , exportNotebook
     , getRandomProbabilities
+    , importNotebook
     , lockCell
     , manual
     , manualLarge
@@ -220,6 +221,11 @@ pullNotebook =
 exportNotebook : Element FrontendMsg
 exportNotebook =
     Button.smallPrimary { msg = ExportNotebook, status = Button.Active, label = Button.Text "Export", tooltipText = Nothing }
+
+
+importNotebook : Element FrontendMsg
+importNotebook =
+    Button.smallPrimary { msg = ImportRequested, status = Button.Active, label = Button.Text "Import", tooltipText = Nothing }
 
 
 stateEditor : Element FrontendMsg

@@ -347,6 +347,25 @@ updateFromFrontend sessionId clientId msg model =
             in
             ( { newModel | userToNoteBookDict = newNotebookDict }, sendToFrontend clientId (GotNotebook newBook) )
 
+        ImportNewBook username book ->
+            let
+                newModel =
+                    BackendHelper.getUUID model
+
+                newBook =
+                    { book
+                        | id = newModel.uuid
+                        , author = username
+                        , slug = BackendHelper.compress (username ++ ":" ++ book.title)
+                        , createdAt = model.currentTime
+                        , updatedAt = model.currentTime
+                    }
+
+                newNotebookDict =
+                    NotebookDict.insert newBook.author newBook.id newBook model.userToNoteBookDict
+            in
+            ( { newModel | userToNoteBookDict = newNotebookDict }, sendToFrontend clientId (GotNotebook newBook) )
+
         DeleteNotebook book ->
             let
                 newNotebookDict =

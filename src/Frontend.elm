@@ -545,6 +545,29 @@ update msg model =
         ExportNotebook ->
             ( model, File.Download.string model.currentBook.title "text/json" (LiveBook.Codec.exportBook model.currentBook) )
 
+        ImportRequested ->
+            ( model, File.Select.file [ "text/json" ] ImportSelected )
+
+        ImportSelected file ->
+            ( model, Task.perform ImportLoaded (File.toString file) )
+
+        ImportLoaded dataString ->
+            let
+                cmd =
+                    case LiveBook.Codec.importBook dataString of
+                        Err _ ->
+                            Cmd.none
+
+                        Ok newBook ->
+                            case model.currentUser of
+                                Nothing ->
+                                    Cmd.none
+
+                                Just user ->
+                                    sendToBackend (ImportNewBook user.username newBook)
+            in
+            ( model, cmd )
+
         SetCurrentNotebook book ->
             case model.currentUser of
                 Nothing ->
