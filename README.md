@@ -1,37 +1,21 @@
-# elm-notebook
+# Announcing Elm Notebook
 
-The intent of elm-notebook is an app like Jupyter notebook or Elixir
-livebooks — that is, an app which presents a sequence of cells in which
-you can write both code and text.  These cells, when evaluated, can
-produce either text output, as in the Elm repl, or "visual type,"
-e.g., an image, a chart, an animation, etc. This accomplished via
-the following types for the value field of a cell (to be expanded).
+The aim of [Elm Notebook](https://elm-notebook.lamdera.app) is to provide something akin to  Jupyter Notebooks, but for Elm: an app with cells in which you can put both text and code, and where code in a cell can be executed, producing output of various kinds — text, image, chart, animation, etc. I've thought of it mostly as a teaching
+tool, but such an app could also be good for code demonstrations, experimentation,
+and just playing around.
 
-```
-type CellValue
-    = CVNone
-    | CVString String
-    | CVVisual VisualType (List String)
+I'd like Elm Notebook to be something both fun and useful, and so invite suggestions, bug reports, and collaboration.  You can reach me on the Elm Slack where I am jxxcarlson.  The project is open source (of course!) with code at
+[github.com/jxxcarlson/elm-notebook](https://github.com/jxxcarlson/elm-notebook).
 
 
-type VisualType
-    = VTChart
-    | VTImage
-```
 
-In the `CVVisual` variant, the `List String` component is data that will
-be processed to Html by, for example, a chart function.  We are using
-[elm-charts-alpha](https://package.elm-lang.org/packages/terezka/charts/latest/).
+## A Work-In-Progress
 
-The project began as [livebook.lamdera.app](https://livebook.lamdera.app), but
-I realized that [elm-notebook.lamdera.app](https://elm-notebook.lamdera.app)
-is more descriptive.  
+The project is very much a work-in-progress and I'd like to keep this experimental status in mind for a good while so that the project can adopt good ideas without
+undue friction.
 
-The project is still in its infancy, and still in an exploratory phase, 
-with first commit on June 20, 2023.  I welcome
-comments and suggestions.
+Elm Notebook is based on [elm-interpreter](https://github.com/miniBill/elm-interpreter) by @minibill (Leonardo Taglialegne).
 
-**Note.** For people who have made notebooks using [livebook.lamdera.app](https://livebook.lamdera.app),
-in a day or two I will have a tool for exporting and importing notebooks.  You will be able
-to use this tool to transfer notebooks between apps (or accounts).
+You edit a cell by clicking on it, and you execute the code in it with control-RETURN, at which point the code is passed to elm-interpreter, with the result of the computation displayed below the cell:
 
+![Cell](image/cell.png)
