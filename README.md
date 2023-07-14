@@ -2,7 +2,7 @@
 
 The aim of [Elm Notebook](https://elm-notebook.lamdera.app) is to provide something akin to  Jupyter Notebooks, but for Elm: an app with cells in which you can put both text and code, and where code in a cell can be executed, producing output of various kinds — text, image, chart, animation, etc. I've thought of it mostly as a teaching
 tool, but such an app could also be good for code demonstrations, experimentation,
-and just playing around.
+ just playing around, etc.
 
 I'd like Elm Notebook to be something both fun and useful, and so invite suggestions, bug reports, and collaboration.  You can reach me on the Elm Slack where I am jxxcarlson.  The project is open source (of course!) with code at
 [github.com/jxxcarlson/elm-notebook](https://github.com/jxxcarlson/elm-notebook).
