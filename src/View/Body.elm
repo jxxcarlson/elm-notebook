@@ -44,7 +44,7 @@ monitor model =
         , E.row [ E.spacing 12 ] [ E.text <| "ticks: " ++ String.fromInt model.state.ticks ]
         , E.paragraph [] [ E.text <| "probabilities: " ++ (model.state.probabilities |> List.map (\( name, p ) -> name ++ ":" ++ String.fromFloat (Util.roundTo 3 p) |> String.padRight 8 '0') |> String.join ", ") ]
         , E.paragraph [] [ E.text <| "value: " ++ Value.toString model.state.currentValue ]
-        , E.paragraph [] [ E.text <| "values: " ++ (List.map Value.toString (List.take 10 model.state.values) |> String.join ", ") ]
+        , E.paragraph [] [ E.text <| "values: " ++ (List.length model.state.values |> String.fromInt) ]
         , E.paragraph [] [ E.text <| "expr: " ++ model.state.expression ]
         , E.paragraph [] [ E.text <| "defs: " ++ (model.state.bindings |> String.join "\n ") ]
         ]
