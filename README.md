@@ -4,7 +4,7 @@ The aim of [Elm Notebook](https://elm-notebook.lamdera.app) is to provide someth
 tool, but such an app could also be good for code demonstrations, experimentation,
  just playing around, etc.
 
-I'd like Elm Notebook to be something fun, useful, and as versatile as we can make it.  The project is, 
+I'd like Elm Notebook to be something as fun, useful, and as versatile as we can make it.  The project is, 
 of course, open source: [github.com/jxxcarlson/elm-notebook](https://github.com/jxxcarlson/elm-notebook). 
 
 
@@ -35,12 +35,16 @@ app:
 
 ![Cell](image/hubble-chart.png)
 
-*This is a chart of the recession velocity of galaxies
+Here the `chart` command is an interface to 
+[terezka/charts](https://package.elm-lang.org/packages/terezka/charts/latest/)
+
+*The above a chart of the recession velocity of galaxies
 versus their distance from the earth.  The data
 is from Edwin Hubble's 1929 paper, 
 "A Relation Between Distance and Radial Velocity Among Extra-Galactic Nebulae."
 This is the paper that launched the field of observational cosmology
 and gave the first experimental evidence for the expansion of the universe.*
+
 
 ### Simulations and Animations
 

@@ -1,23 +1,8 @@
 module LiveBook.Codec exposing (exportBook, importBook)
 
 import Codec exposing (Codec, Error, Value)
+import LiveBook.Types exposing (Book, Cell, CellState(..), CellValue(..), VisualType(..))
 import Time
-import Types exposing (Cell, CellState(..), CellValue(..), VisualType(..))
-
-
-type alias Book =
-    { id : String
-    , dirty : Bool
-    , slug : String
-    , origin : Maybe String
-    , author : String
-    , createdAt : Time.Posix
-    , updatedAt : Time.Posix
-    , public : Bool
-    , title : String
-    , cells : List Cell
-    , currentIndex : Int
-    }
 
 
 exportBook : Book -> String
@@ -44,6 +29,9 @@ bookCodec =
         |> Codec.field "title" .title Codec.string
         |> Codec.field "cells" .cells (Codec.list cellCodec)
         |> Codec.field "currentIndex" .currentIndex Codec.int
+        |> Codec.field "initialStateString" .initialStateString Codec.string
+        |> Codec.field "stateExpression" .stateExpression Codec.string
+        |> Codec.field "stateBindings" .stateBindings (Codec.list Codec.string)
         |> Codec.buildObject
 
 
@@ -57,8 +45,11 @@ cellCodec =
     Codec.object Cell
         |> Codec.field "index" .index Codec.int
         |> Codec.field "text" .text (Codec.list Codec.string)
+        |> Codec.field "bindings" .bindings (Codec.list Codec.string)
+        |> Codec.field "expression" .expression Codec.string
         |> Codec.field "value" .value cellValueCodec
         |> Codec.field "cellState" .cellState cellStateCodec
+        |> Codec.field "locked" .locked Codec.bool
         |> Codec.buildObject
 
 
@@ -69,7 +60,7 @@ cellCodec =
 cellValueCodec : Codec CellValue
 cellValueCodec =
     Codec.custom
-        (\fcvnone cvstring cvvisual value ->
+        (\fcvnone cvstring cvvisual cvplot2d value ->
             case value of
                 CVNone ->
                     fcvnone
@@ -79,26 +70,38 @@ cellValueCodec =
 
                 CVVisual s ls ->
                     cvvisual s ls
+
+                CVPlot2D s lfp ->
+                    cvplot2d s lfp
         )
         |> Codec.variant0 "CVNone" CVNone
         |> Codec.variant1 "CVString" CVString Codec.string
         |> Codec.variant2 "CVVisual" CVVisual visualTypeCodec (Codec.list Codec.string)
+        |> Codec.variant2 "CVPlot2D" CVPlot2D (Codec.list Codec.string) (Codec.list (Codec.tuple Codec.float Codec.float))
         |> Codec.buildCustom
+
+
+
+-- | CVPlot2D (List String) (List ( Float, Float ))
 
 
 visualTypeCodec : Codec VisualType
 visualTypeCodec =
     Codec.custom
-        (\fvtchart fvtimage value ->
+        (\fvtchart fvtimage fvtsvg value ->
             case value of
                 VTChart ->
                     fvtchart
 
                 VTImage ->
                     fvtimage
+
+                VTSvg ->
+                    fvtsvg
         )
         |> Codec.variant0 "VTChart" VTChart
         |> Codec.variant0 "VTImage" VTImage
+        |> Codec.variant0 "VTSvg" VTSvg
         |> Codec.buildCustom
 
 
