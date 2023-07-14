@@ -117,13 +117,13 @@ setClock : FrontendModel -> Element FrontendMsg
 setClock model =
     case model.clockState of
         ClockRunning ->
-            Button.smallPrimary { msg = SetClock ClockPaused, status = Button.ActiveTransparent, label = Button.Text "Clock Running", tooltipText = Nothing }
+            Button.smallPrimary { msg = SetClock ClockPaused, status = Button.Highlighted, label = Button.Text "Clock Running", tooltipText = Nothing }
 
         ClockPaused ->
-            Button.smallPrimary { msg = SetClock ClockRunning, status = Button.ActiveTransparent, label = Button.Text "Clock Paused", tooltipText = Nothing }
+            Button.smallPrimary { msg = SetClock ClockRunning, status = Button.Active, label = Button.Text "Clock Paused", tooltipText = Nothing }
 
         ClockStopped ->
-            Button.smallPrimary { msg = SetClock ClockRunning, status = Button.ActiveTransparent, label = Button.Text "Clock Stopped", tooltipText = Nothing }
+            Button.smallPrimary { msg = SetClock ClockRunning, status = Button.Active, label = Button.Text "Clock Stopped", tooltipText = Nothing }
 
 
 resetClock : Element FrontendMsg
@@ -218,7 +218,7 @@ pullNotebook =
 
 stateEditor : Element FrontendMsg
 stateEditor =
-    Button.smallPrimary { msg = ChangePopup StateEditorPopup, status = Button.Active, label = Button.Text "State Editor", tooltipText = Nothing }
+    Button.smallPrimary { msg = ChangePopup StateEditorPopup, status = Button.Active, label = Button.Text "Edit", tooltipText = Nothing }
 
 
 manual : Element FrontendMsg
