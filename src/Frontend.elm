@@ -696,7 +696,7 @@ update msg model =
                     { state_ | bindings = model.inputStateBindings |> String.split ";" |> List.map String.trim }
 
                 newFastTickInterval =
-                    model.inputFastTickInterval |> String.toFloat |> Maybe.withDefault 60.0 |> (\x -> max 60 x) |> Debug.log "@@FAST TICK"
+                    model.inputFastTickInterval |> String.toFloat |> Maybe.withDefault 60.0 |> (\x -> max 60 x)
 
                 setFastTickInterval state_ =
                     { state_ | fastTickInterval = newFastTickInterval }
