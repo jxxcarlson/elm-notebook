@@ -27,8 +27,8 @@ scratchPad username =
         ]
     , currentIndex = 0
     , initialStateString = initialStateString
-    , initialStateExpression = initialStateExpression
-    , initialStateBindings = initialStateBindings
+    , stateExpression = initialStateExpression
+    , stateBindings = initialStateBindings
     }
 
 
@@ -55,8 +55,8 @@ new author title =
         ]
     , currentIndex = 0
     , initialStateString = initialStateString
-    , initialStateExpression = initialStateExpression
-    , initialStateBindings = initialStateBindings
+    , stateExpression = initialStateExpression
+    , stateBindings = initialStateBindings
     }
 
 
@@ -74,8 +74,8 @@ newBook author title =
     , cells = []
     , currentIndex = 0
     , initialStateString = initialStateString
-    , initialStateExpression = initialStateExpression
-    , initialStateBindings = initialStateBindings
+    , stateExpression = initialStateExpression
+    , stateBindings = initialStateBindings
     }
 
 

@@ -664,6 +664,17 @@ update msg model =
 
                 newState =
                     oldState |> setValue |> setExpression |> setBindings
+
+                oldNotebook =
+                    model.currentBook
+
+                newNotebook =
+                    { oldNotebook
+                        | dirty = True
+                        , initialStateString = model.inputInitialStateValue
+                        , stateExpression = model.inputStateExpression
+                        , stateBindings = model.inputStateBindings |> String.split ";" |> List.map String.trim
+                    }
             in
             ( { model | state = newState, popupState = NoPopup }, Cmd.none )
 
@@ -802,7 +813,7 @@ updateFromBackend msg model =
                             { oldState | values = [ value ], currentValue = value, initialValue = value }
 
                 newState2 =
-                    { newState1 | expression = book_.initialStateExpression, bindings = book_.initialStateBindings }
+                    { newState1 | expression = book_.stateExpression, bindings = book_.stateBindings }
 
                 showNotebooks =
                     if book.public then

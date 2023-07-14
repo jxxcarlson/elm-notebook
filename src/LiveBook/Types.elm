@@ -17,8 +17,8 @@ type alias Book =
     , cells : List Cell
     , currentIndex : Int
     , initialStateString : String
-    , initialStateExpression : String
-    , initialStateBindings : List String
+    , stateExpression : String
+    , stateBindings : List String
     }
 
 
