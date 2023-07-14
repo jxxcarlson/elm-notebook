@@ -73,4 +73,4 @@ to a discrete series of clock ticks.
 In addition to access to a clock, the runtime provides
 access to a vector of random numbers in the range [0,1]:
 on each tick of the clock.  This is illustrated by 
-the next animation, a simulation of [gambler's ruin](https://en.wikipedia.org/wiki/Gambler%27s_ruin).
+the next animation, a simulation of [gambler's ruin](https://youtu.be/JE0Fz9YGh8Q).
