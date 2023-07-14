@@ -1,5 +1,6 @@
 module LiveBook.Book exposing (initializeCellState, new, scratchPad)
 
+import LiveBook.Config
 import LiveBook.Types exposing (Book, Cell, CellState(..), CellValue(..))
 import Time
 
@@ -29,6 +30,7 @@ scratchPad username =
     , initialStateString = initialStateString
     , stateExpression = initialStateExpression
     , stateBindings = initialStateBindings
+    , fastTickInterval = LiveBook.Config.fastTickInterval
     }
 
 
@@ -57,6 +59,7 @@ new author title =
     , initialStateString = initialStateString
     , stateExpression = initialStateExpression
     , stateBindings = initialStateBindings
+    , fastTickInterval = LiveBook.Config.fastTickInterval
     }
 
 
@@ -76,6 +79,7 @@ newBook author title =
     , initialStateString = initialStateString
     , stateExpression = initialStateExpression
     , stateBindings = initialStateBindings
+    , fastTickInterval = LiveBook.Config.fastTickInterval
     }
 
 

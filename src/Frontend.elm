@@ -1,6 +1,7 @@
 module Frontend exposing (app)
 
 import Authentication
+import BackendHelper
 import Browser exposing (UrlRequest(..))
 import Browser.Dom
 import Browser.Events
@@ -19,6 +20,7 @@ import LiveBook.Action
 import LiveBook.Book
 import LiveBook.Cell
 import LiveBook.Codec
+import LiveBook.Config
 import LiveBook.DataSet
 import LiveBook.Eval
 import LiveBook.Parser
@@ -57,7 +59,7 @@ subscriptions model =
     Sub.batch
         [ Browser.Events.onResize GotNewWindowDimensions
         , Time.every 3000 FETick
-        , Time.every 60 FastTick
+        , Time.every model.fastTickInterval FastTick
         , Sub.map KeyboardMsg Keyboard.subscriptions
         ]
 
@@ -73,6 +75,7 @@ init url key =
       , currentTime = Time.millisToPosix 0
       , tickCount = 0
       , clockState = ClockStopped
+      , fastTickInterval = LiveBook.Config.fastTickInterval
       , pressedKeys = []
       , randomSeed = Random.initialSeed 1234
       , randomProbabilities = []
@@ -89,6 +92,7 @@ init url key =
       , inputComments = ""
       , inputData = ""
       , inputInitialStateValue = ""
+      , inputFastTickInterval = ""
       , inputStateBindings = ""
       , inputStateExpression = ""
 
@@ -268,6 +272,7 @@ update msg model =
                             , inputInitialStateValue = model.state.initialValue |> Value.toString
                             , inputStateExpression = model.state.expression
                             , inputStateBindings = model.state.bindings |> String.join "; "
+                            , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
                           }
                         , Cmd.none
                         )
@@ -404,6 +409,9 @@ update msg model =
 
         InputInitialStateValue str ->
             ( { model | inputInitialStateValue = str }, Cmd.none )
+
+        InputFastTickInterval str ->
+            ( { model | inputFastTickInterval = str }, Cmd.none )
 
         InputStateExpression str ->
             ( { model | inputStateExpression = str }, Cmd.none )
@@ -543,7 +551,7 @@ update msg model =
 
         -- File.Download.string (String.replace "." "-" dataSet.identifier ++ ".csv") "text/csv" dataSet.data
         ExportNotebook ->
-            ( model, File.Download.string model.currentBook.title "text/json" (LiveBook.Codec.exportBook model.currentBook) )
+            ( model, File.Download.string (BackendHelper.compress model.currentBook.title ++ ".json") "text/json" (LiveBook.Codec.exportBook model.currentBook) )
 
         ImportRequested ->
             ( model, File.Select.file [ "text/json" ] ImportSelected )
@@ -687,11 +695,17 @@ update msg model =
                 setBindings state_ =
                     { state_ | bindings = model.inputStateBindings |> String.split ";" |> List.map String.trim }
 
+                newFastTickInterval =
+                    model.inputFastTickInterval |> String.toFloat |> Maybe.withDefault 60.0 |> (\x -> max 60 x) |> Debug.log "@@FAST TICK"
+
+                setFastTickInterval state_ =
+                    { state_ | fastTickInterval = newFastTickInterval }
+
                 oldState =
                     model.state
 
                 newState =
-                    oldState |> setValue |> setExpression |> setBindings
+                    oldState |> setValue |> setExpression |> setBindings |> setFastTickInterval
 
                 oldNotebook =
                     model.currentBook
@@ -704,7 +718,14 @@ update msg model =
                         , stateBindings = model.inputStateBindings |> String.split ";" |> List.map String.trim
                     }
             in
-            ( { model | state = newState, currentBook = newNotebook, popupState = NoPopup }, sendToBackend (SaveNotebook newNotebook) )
+            ( { model
+                | state = newState
+                , fastTickInterval = newFastTickInterval
+                , currentBook = newNotebook
+                , popupState = NoPopup
+              }
+            , sendToBackend (SaveNotebook newNotebook)
+            )
 
         UpdateNotebookTitle ->
             if not (Predicate.canSave model) then

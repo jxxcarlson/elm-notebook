@@ -27,6 +27,7 @@ type alias FrontendModel =
     , appMode : AppMode
     , currentTime : Time.Posix
     , tickCount : Int
+    , fastTickInterval : Float
     , clockState : ClockState
     , pressedKeys : List Keyboard.Key
     , randomSeed : Random.Seed
@@ -44,6 +45,7 @@ type alias FrontendModel =
     , inputComments : String
     , inputData : String
     , inputInitialStateValue : String
+    , inputFastTickInterval : String
     , inputStateExpression : String
     , inputStateBindings : String
 
@@ -146,6 +148,7 @@ type FrontendMsg
     | InputData String
     | InputAuthor String
     | InputInitialStateValue String
+    | InputFastTickInterval String
     | InputStateExpression String
     | InputStateBindings String
       -- DATA

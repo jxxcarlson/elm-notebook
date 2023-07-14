@@ -19,6 +19,7 @@ type alias Book =
     , initialStateString : String
     , stateExpression : String
     , stateBindings : List String
+    , fastTickInterval : Float
     }
 
 

@@ -27,6 +27,7 @@ view model =
                 ]
                 [ E.text "Model Editor" -- View.Input.title model
                 , View.Input.initialStateValue model
+                , View.Input.fastTickInterval model
                 , View.Input.stateExpr model
                 , View.Input.stateBindings model
                 , View.Button.setState

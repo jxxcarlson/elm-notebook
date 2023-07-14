@@ -5,6 +5,7 @@ module View.Input exposing
     , data
     , description
     , email
+    , fastTickInterval
     , identifier
     , initialStateValue
     , name
@@ -48,6 +49,10 @@ inputFieldTemplate2 attr width_ default msg text =
 
 initialStateValue model =
     inputFieldTemplate (E.px 300) "Initial Value" InputInitialStateValue model.inputInitialStateValue
+
+
+fastTickInterval model =
+    inputFieldTemplate (E.px 150) "Fast Tick Interval" InputFastTickInterval model.inputFastTickInterval
 
 
 name model =

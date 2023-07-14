@@ -10,6 +10,7 @@ module LiveBook.State exposing
 
 import Eval
 import Eval.Types
+import LiveBook.Config
 import Value exposing (Value(..))
 
 
@@ -21,6 +22,7 @@ type alias MState =
     , ticks : Int
     , expression : String
     , bindings : List String
+    , fastTickInterval : Float
     }
 
 
@@ -41,6 +43,7 @@ initialState =
     , ticks = 0
     , expression = "if state <= 0 then 0 else state + ds p0"
     , bindings = [ "ds p = if p < 0.5 then -1 else 1" ]
+    , fastTickInterval = LiveBook.Config.fastTickInterval
     }
 
 
