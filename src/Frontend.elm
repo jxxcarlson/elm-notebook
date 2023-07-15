@@ -960,4 +960,3 @@ setInitialState book state_ =
                     { state_ | values = [ value ], currentValue = value, initialValue = value }
     in
     { state1_ | expression = book.stateExpression, bindings = book.stateBindings }
-        |> Debug.log "@@ STATE"
