@@ -180,9 +180,6 @@ update msg model =
                         h m =
                             LiveBook.State.updateInModel m
 
-                        _ =
-                            Debug.log "(value, stopValues) " ( LiveBook.Parser.toFloatValue model.state.currentValue, model.state.stopValues )
-
                         clockState =
                             if List.member (LiveBook.Parser.toFloatValue model.state.currentValue) model.state.stopValues then
                                 ClockStopped
@@ -722,7 +719,7 @@ update msg model =
                         stopValues =
                             case model.inputStopValues |> LiveBook.Parser.parse of
                                 Just (Value.List list) ->
-                                    list |> Debug.log "@@ STOP VALUES"
+                                    list
 
                                 _ ->
                                     []
