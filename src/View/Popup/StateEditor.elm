@@ -25,7 +25,7 @@ view model =
                 , E.height (E.px 600)
                 , E.moveUp (View.Geometry.appHeight model - 100 |> toFloat)
                 ]
-                [ E.el [ Font.size 18, Font.bold, E.paddingEach { bottom = 16, top = 0, left = 0, right = 0 } ] (E.text "State Editor")
+                [ E.el [ Font.size 24, E.paddingEach { bottom = 16, top = 0, left = 0, right = 0 } ] (E.text "State Editor")
                 , View.Input.initialStateValue model
                 , View.Input.fastTickInterval model
                 , View.Input.stateExpr model

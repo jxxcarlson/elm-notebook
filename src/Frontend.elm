@@ -968,7 +968,12 @@ setInitialState book state_ =
                 Just value ->
                     { state_ | values = [ value ], currentValue = value, initialValue = value }
     in
-    { state1_ | expression = book.stateExpression, bindings = book.stateBindings, stopExpressionString = book.stopExpressionString }
+    { state1_
+        | expression = book.stateExpression
+        , bindings = book.stateBindings
+        , stopExpressionString = book.stopExpressionString
+        , fastTickInterval = book.fastTickInterval
+    }
 
 
 getStopExpression model =
