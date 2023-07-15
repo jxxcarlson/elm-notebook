@@ -48,7 +48,7 @@ type alias FrontendModel =
     , inputFastTickInterval : String
     , inputStateExpression : String
     , inputStateBindings : String
-    , inputStopValues : String
+    , inputStopExpression : String
 
     -- DATA
     , publicDataSetMetaDataList : List LiveBook.DataSet.DataSetMetaData
@@ -152,7 +152,7 @@ type FrontendMsg
     | InputFastTickInterval String
     | InputStateExpression String
     | InputStateBindings String
-    | InputStopValue String
+    | InputStopExpression String
       -- DATA
     | AskToListDataSets DataSetDescription
     | AskToSaveDataSet LiveBook.DataSet.DataSetMetaData

@@ -31,7 +31,7 @@ scratchPad username =
     , stateExpression = initialStateExpression
     , stateBindings = initialStateBindings
     , fastTickInterval = LiveBook.Config.fastTickInterval
-    , stopValues = ""
+    , stopExpressionString = ""
     }
 
 
@@ -61,7 +61,7 @@ new author title =
     , stateExpression = initialStateExpression
     , stateBindings = initialStateBindings
     , fastTickInterval = LiveBook.Config.fastTickInterval
-    , stopValues = ""
+    , stopExpressionString = ""
     }
 
 
@@ -82,7 +82,7 @@ newBook author title =
     , stateExpression = initialStateExpression
     , stateBindings = initialStateBindings
     , fastTickInterval = LiveBook.Config.fastTickInterval
-    , stopValues = ""
+    , stopExpressionString = ""
     }
 
 

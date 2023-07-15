@@ -96,7 +96,7 @@ init url key =
       , inputFastTickInterval = ""
       , inputStateBindings = ""
       , inputStateExpression = ""
-      , inputStopValues = ""
+      , inputStopExpression = ""
 
       -- DATASETS
       , publicDataSetMetaDataList = []
@@ -181,13 +181,22 @@ update msg model =
                             LiveBook.State.updateInModel m
 
                         clockState =
-                            if List.member (LiveBook.Parser.toFloatValue model.state.currentValue) model.state.stopValues then
-                                ClockStopped
+                            case getStopExpression model of
+                                Nothing ->
+                                    ClockRunning
 
-                            else
-                                ClockRunning
+                                Just stopExpression ->
+                                    if stopExpression == Value.Bool True then
+                                        ClockStopped
+
+                                    else
+                                        ClockRunning
                     in
-                    glueUpdate f g (h { model | clockState = clockState })
+                    if clockState == ClockRunning then
+                        glueUpdate f g (h model)
+
+                    else
+                        ( { model | clockState = ClockStopped }, Cmd.none )
 
                 _ ->
                     ( model, Cmd.none )
@@ -282,6 +291,7 @@ update msg model =
                             , inputStateExpression = model.state.expression
                             , inputStateBindings = model.state.bindings |> String.join "; "
                             , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
+                            , inputStopExpression = model.state.stopExpressionString
                           }
                         , Cmd.none
                         )
@@ -428,8 +438,8 @@ update msg model =
         InputStateBindings str ->
             ( { model | inputStateBindings = str }, Cmd.none )
 
-        InputStopValue str ->
-            ( { model | inputStopValues = str }, Cmd.none )
+        InputStopExpression str ->
+            ( { model | inputStopExpression = str }, Cmd.none )
 
         -- DATA
         AskToDeleteDataSet dataSetMetaData ->
@@ -714,24 +724,14 @@ update msg model =
                 setFastTickInterval state_ =
                     { state_ | fastTickInterval = newFastTickInterval }
 
-                setStopValues state_ =
-                    let
-                        stopValues : List Value.Value
-                        stopValues =
-                            case model.inputStopValues |> LiveBook.Parser.parse of
-                                Just (Value.List list) ->
-                                    list
-
-                                _ ->
-                                    []
-                    in
-                    { state_ | stopValues = stopValues }
+                setStopValue state_ =
+                    { state_ | stopExpressionString = model.inputStopExpression }
 
                 oldState =
                     model.state
 
                 newState =
-                    oldState |> setValue |> setExpression |> setBindings |> setFastTickInterval |> setStopValues
+                    oldState |> setValue |> setExpression |> setBindings |> setFastTickInterval |> setStopValue
 
                 oldNotebook =
                     model.currentBook
@@ -742,7 +742,7 @@ update msg model =
                         , initialStateString = model.inputInitialStateValue
                         , stateExpression = model.inputStateExpression
                         , stateBindings = model.inputStateBindings |> String.split ";" |> List.map String.trim
-                        , stopValues = model.inputStopValues
+                        , stopExpressionString = model.inputStopExpression
                         , fastTickInterval = newFastTickInterval
                     }
             in
@@ -953,7 +953,7 @@ setInitialState book state_ =
     let
         stopValues : List Value.Value
         stopValues =
-            case book.stopValues |> LiveBook.Parser.parse of
+            case book.stopExpressionString |> LiveBook.Parser.parse of
                 Just (Value.List list) ->
                     list
 
@@ -968,4 +968,11 @@ setInitialState book state_ =
                 Just value ->
                     { state_ | values = [ value ], currentValue = value, initialValue = value }
     in
-    { state1_ | expression = book.stateExpression, bindings = book.stateBindings, stopValues = stopValues }
+    { state1_ | expression = book.stateExpression, bindings = book.stateBindings, stopExpressionString = book.stopExpressionString }
+
+
+getStopExpression model =
+    model.inputStopExpression
+        |> LiveBook.Eval.evaluateExpressionStringWithState model.state
+        |> Eval.eval
+        |> Result.toMaybe

@@ -14,7 +14,7 @@ module View.Input exposing
     , signupUsername
     , stateBindings
     , stateExpr
-    , stopValue
+    , stopExpressin
     , title
     , username
     )
@@ -76,8 +76,8 @@ stateBindings model =
     multiLineTemplate 500 80 "Definitions" InputStateBindings model.inputStateBindings
 
 
-stopValue model =
-    inputFieldTemplate (E.px 300) "Stop Value" InputStopValue model.inputStopValues
+stopExpressin model =
+    inputFieldTemplate (E.px 300) "Stop Expressin" InputStopExpression model.inputStopExpression
 
 
 description model =

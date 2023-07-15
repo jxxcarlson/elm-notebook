@@ -23,7 +23,7 @@ type alias MState =
     , expression : String
     , bindings : List String
     , fastTickInterval : Float
-    , stopValues : List Value
+    , stopExpressionString : String
     }
 
 
@@ -45,7 +45,7 @@ initialState =
     , expression = "if state <= 0 then 0 else state + ds p0"
     , bindings = [ "ds p = if p < 0.5 then -1 else 1" ]
     , fastTickInterval = LiveBook.Config.fastTickInterval
-    , stopValues = []
+    , stopExpressionString = "state.value"
     }
 
 

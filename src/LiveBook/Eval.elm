@@ -1,5 +1,6 @@
 module LiveBook.Eval exposing
-    ( evaluateString
+    ( evaluateExpressionStringWithState
+    , evaluateString
     , evaluateStringWithBindings
     , evaluateWithBindings
     , evaluateWithCumulativeBindings
@@ -478,3 +479,10 @@ unwrapListFloat value =
 
         _ ->
             Nothing
+
+
+evaluateExpressionStringWithState state str =
+    str
+        |> String.words
+        |> List.map (evaluateWordsWithState state)
+        |> String.join " "
