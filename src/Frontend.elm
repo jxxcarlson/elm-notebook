@@ -612,6 +612,7 @@ update msg model =
                     ( { model
                         | currentUser = Just user
                         , currentBook = currentBook
+                        , state = setInitialState currentBook model.state
                         , books = books
                       }
                     , Cmd.batch [ sendToBackend (UpdateUserWith user), sendToBackend (SaveNotebook previousBook) ]
@@ -872,36 +873,18 @@ updateFromBackend msg model =
 
                     else
                         xbook :: books
-
-                initialStateValue : Maybe Value.Value
-                initialStateValue =
-                    LiveBook.Parser.parse book_.initialStateString
-
-                oldState =
-                    model.state
-
-                newState1 =
-                    case initialStateValue of
-                        Nothing ->
-                            oldState
-
-                        Just value ->
-                            { oldState | values = [ value ], currentValue = value, initialValue = value }
-
-                newState2 =
-                    { newState1 | expression = book_.stateExpression, bindings = book_.stateBindings }
-
-                showNotebooks =
-                    if book.public then
-                        ShowUserNotebooks
-
-                    else
-                        ShowUserNotebooks
             in
-            ( { model | state = newState2, currentBook = book, books = addOrReplaceBook book model.books }, Cmd.none )
+            ( { model | state = setInitialState book model.state, currentBook = book, books = addOrReplaceBook book model.books }, Cmd.none )
 
         GotNotebooks books ->
-            ( { model | books = books, currentBook = List.head books |> Maybe.withDefault model.currentBook }, Cmd.none )
+            let
+                currentBook =
+                    List.head books |> Maybe.withDefault model.currentBook
+
+                state =
+                    setInitialState currentBook model.state
+            in
+            ( { model | books = books, currentBook = currentBook, state = state }, Cmd.none )
 
 
 view : Model -> { title : String, body : List (Html.Html FrontendMsg) }
@@ -963,3 +946,18 @@ updateWithViewport vp model =
 setupWindow : Cmd FrontendMsg
 setupWindow =
     Task.perform GotViewport Browser.Dom.getViewport
+
+
+setInitialState : LiveBook.Types.Book -> LiveBook.State.MState -> LiveBook.State.MState
+setInitialState book state_ =
+    let
+        state1_ =
+            case LiveBook.Parser.parse book.initialStateString of
+                Nothing ->
+                    state_
+
+                Just value ->
+                    { state_ | values = [ value ], currentValue = value, initialValue = value }
+    in
+    { state1_ | expression = book.stateExpression, bindings = book.stateBindings }
+        |> Debug.log "@@ STATE"
