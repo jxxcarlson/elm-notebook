@@ -7,6 +7,7 @@ import Browser.Dom
 import Browser.Events
 import Browser.Navigation as Nav
 import Dict
+import Eval
 import File
 import File.Download
 import File.Select
@@ -95,6 +96,7 @@ init url key =
       , inputFastTickInterval = ""
       , inputStateBindings = ""
       , inputStateExpression = ""
+      , inputStopValues = ""
 
       -- DATASETS
       , publicDataSetMetaDataList = []
@@ -177,8 +179,18 @@ update msg model =
 
                         h m =
                             LiveBook.State.updateInModel m
+
+                        _ =
+                            Debug.log "(value, stopValues) " ( LiveBook.Parser.toFloatValue model.state.currentValue, model.state.stopValues )
+
+                        clockState =
+                            if List.member (LiveBook.Parser.toFloatValue model.state.currentValue) model.state.stopValues then
+                                ClockStopped
+
+                            else
+                                ClockRunning
                     in
-                    glueUpdate f g (h model)
+                    glueUpdate f g (h { model | clockState = clockState })
 
                 _ ->
                     ( model, Cmd.none )
@@ -418,6 +430,9 @@ update msg model =
 
         InputStateBindings str ->
             ( { model | inputStateBindings = str }, Cmd.none )
+
+        InputStopValue str ->
+            ( { model | inputStopValues = str }, Cmd.none )
 
         -- DATA
         AskToDeleteDataSet dataSetMetaData ->
@@ -701,11 +716,24 @@ update msg model =
                 setFastTickInterval state_ =
                     { state_ | fastTickInterval = newFastTickInterval }
 
+                setStopValues state_ =
+                    let
+                        stopValues : List Value.Value
+                        stopValues =
+                            case model.inputStopValues |> LiveBook.Parser.parse of
+                                Just (Value.List list) ->
+                                    list |> Debug.log "@@ STOP VALUES"
+
+                                _ ->
+                                    []
+                    in
+                    { state_ | stopValues = stopValues }
+
                 oldState =
                     model.state
 
                 newState =
-                    oldState |> setValue |> setExpression |> setBindings |> setFastTickInterval
+                    oldState |> setValue |> setExpression |> setBindings |> setFastTickInterval |> setStopValues
 
                 oldNotebook =
                     model.currentBook
@@ -716,6 +744,8 @@ update msg model =
                         , initialStateString = model.inputInitialStateValue
                         , stateExpression = model.inputStateExpression
                         , stateBindings = model.inputStateBindings |> String.split ";" |> List.map String.trim
+                        , stopValues = model.inputStopValues
+                        , fastTickInterval = newFastTickInterval
                     }
             in
             ( { model

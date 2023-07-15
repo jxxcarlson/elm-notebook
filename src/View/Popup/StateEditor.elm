@@ -30,6 +30,7 @@ view model =
                 , View.Input.fastTickInterval model
                 , View.Input.stateExpr model
                 , View.Input.stateBindings model
+                , View.Input.stopValue model
                 , View.Button.setState
                 ]
 

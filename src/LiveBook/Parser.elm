@@ -1,4 +1,4 @@
-module LiveBook.Parser exposing (parse, unwrapFloat, unwrapListTupleFloat)
+module LiveBook.Parser exposing (parse, toFloatValue, unwrapFloat, unwrapListTupleFloat)
 
 import Parser exposing ((|.), (|=), Parser)
 import Value exposing (Value(..))
@@ -241,6 +241,19 @@ unwrapListTupleFloat : List Value -> List ( Float, Float )
 unwrapListTupleFloat list =
     List.map unwrapTupleFloat list
         |> List.filterMap identity
+
+
+toFloatValue : Value -> Value
+toFloatValue value =
+    case value of
+        Int i ->
+            Float (toFloat i)
+
+        List values ->
+            List (List.map toFloatValue values)
+
+        _ ->
+            value
 
 
 unwrapFloat : Value -> Maybe Float
