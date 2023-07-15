@@ -951,6 +951,15 @@ setupWindow =
 setInitialState : LiveBook.Types.Book -> LiveBook.State.MState -> LiveBook.State.MState
 setInitialState book state_ =
     let
+        stopValues : List Value.Value
+        stopValues =
+            case book.stopValues |> LiveBook.Parser.parse of
+                Just (Value.List list) ->
+                    list
+
+                _ ->
+                    []
+
         state1_ =
             case LiveBook.Parser.parse book.initialStateString of
                 Nothing ->
@@ -959,4 +968,4 @@ setInitialState book state_ =
                 Just value ->
                     { state_ | values = [ value ], currentValue = value, initialValue = value }
     in
-    { state1_ | expression = book.stateExpression, bindings = book.stateBindings }
+    { state1_ | expression = book.stateExpression, bindings = book.stateBindings, stopValues = stopValues }
