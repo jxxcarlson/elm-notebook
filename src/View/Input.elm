@@ -14,7 +14,7 @@ module View.Input exposing
     , signupUsername
     , stateBindings
     , stateExpr
-    , stopExpressin
+    , stopExpression
     , title
     , username
     )
@@ -38,6 +38,17 @@ multiLineTemplate width_ height_ default msg text =
         }
 
 
+multiLineTemplate2 : Int -> Int -> String -> (String -> msg) -> String -> Element msg
+multiLineTemplate2 width_ height_ default msg text =
+    Input.multiline [ E.moveUp 5, Font.size 16, E.width (E.px width_), E.height (E.px height_) ]
+        { onChange = msg
+        , text = text
+        , label = Input.labelAbove [ Font.size 13 ] (E.text default)
+        , placeholder = Just <| Input.placeholder [ E.moveUp 5 ] (E.text default)
+        , spellcheck = False
+        }
+
+
 inputFieldTemplate2 : List (E.Attr () msg) -> E.Length -> String -> (String -> msg) -> String -> Element msg
 inputFieldTemplate2 attr width_ default msg text =
     Input.text ([ E.moveUp 5, Font.size 16, E.height (px 33), E.width width_ ] ++ attr)
@@ -48,12 +59,22 @@ inputFieldTemplate2 attr width_ default msg text =
         }
 
 
+inputFieldTemplate3 : List (E.Attr () msg) -> E.Length -> String -> (String -> msg) -> String -> Element msg
+inputFieldTemplate3 attr width_ default msg text =
+    Input.text ([ E.moveUp 5, Font.size 16, E.height (px 33), E.width width_ ] ++ attr)
+        { onChange = msg
+        , text = text
+        , label = Input.labelAbove [ Font.size 13 ] (E.text default)
+        , placeholder = Just <| Input.placeholder [ E.moveUp 6 ] (E.text default)
+        }
+
+
 initialStateValue model =
-    inputFieldTemplate (E.px 300) "Initial Value" InputInitialStateValue model.inputInitialStateValue
+    inputFieldTemplate3 [] (E.px 500) "Initial Value" InputInitialStateValue model.inputInitialStateValue
 
 
 fastTickInterval model =
-    inputFieldTemplate (E.px 150) "Fast Tick Interval" InputFastTickInterval model.inputFastTickInterval
+    inputFieldTemplate3 [] (E.px 150) "Fast Tick Interval" InputFastTickInterval model.inputFastTickInterval
 
 
 name model =
@@ -69,15 +90,15 @@ author model =
 
 
 stateExpr model =
-    multiLineTemplate 500 80 "Expression" InputStateExpression model.inputStateExpression
+    multiLineTemplate2 500 80 "State Expression" InputStateExpression model.inputStateExpression
 
 
 stateBindings model =
-    multiLineTemplate 500 80 "Definitions" InputStateBindings model.inputStateBindings
+    multiLineTemplate2 500 80 "Definitions" InputStateBindings model.inputStateBindings
 
 
-stopExpressin model =
-    inputFieldTemplate (E.px 300) "Stop Expressin" InputStopExpression model.inputStopExpression
+stopExpression model =
+    inputFieldTemplate3 [] (E.px 500) "Stop Expression" InputStopExpression model.inputStopExpression
 
 
 description model =

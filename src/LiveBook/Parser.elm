@@ -1,5 +1,12 @@
-module LiveBook.Parser exposing (parse, toFloatValue, unwrapFloat, unwrapListTupleFloat)
+module LiveBook.Parser exposing
+    ( parse
+    , roundToFloatValue
+    , toFloatValue
+    , unwrapFloat
+    , unwrapListTupleFloat
+    )
 
+import LiveBook.Function
 import Parser exposing ((|.), (|=), Parser)
 import Value exposing (Value(..))
 
@@ -248,6 +255,22 @@ toFloatValue value =
     case value of
         Int i ->
             Float (toFloat i)
+
+        List values ->
+            List (List.map toFloatValue values)
+
+        _ ->
+            value
+
+
+roundToFloatValue : Int -> Value -> Value
+roundToFloatValue n value =
+    case value of
+        Int i ->
+            Float (toFloat i |> LiveBook.Function.roundTo n)
+
+        Float f ->
+            Float (LiveBook.Function.roundTo n f)
 
         List values ->
             List (List.map toFloatValue values)

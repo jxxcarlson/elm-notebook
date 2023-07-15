@@ -22,16 +22,16 @@ view model =
                 , E.padding 24
                 , E.centerX
                 , E.width (E.px 550)
-                , E.height (E.px 500)
+                , E.height (E.px 600)
                 , E.moveUp (View.Geometry.appHeight model - 100 |> toFloat)
                 ]
-                [ E.text "Model Editor" -- View.Input.title model
+                [ E.el [ Font.size 18, Font.bold, E.paddingEach { bottom = 16, top = 0, left = 0, right = 0 } ] (E.text "State Editor")
                 , View.Input.initialStateValue model
                 , View.Input.fastTickInterval model
                 , View.Input.stateExpr model
                 , View.Input.stateBindings model
-                , View.Input.stopExpressin model
-                , View.Button.setState
+                , View.Input.stopExpression model
+                , E.el [ E.paddingEach { top = 24, bottom = 0, left = 0, right = 0 } ] View.Button.setState
                 ]
 
         _ ->

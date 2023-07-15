@@ -135,7 +135,7 @@ resetClock =
 
 setState : Element FrontendMsg
 setState =
-    Button.smallPrimary { msg = SetState, status = Button.Active, label = Button.Text "Set state", tooltipText = Nothing }
+    Button.largePrimary { msg = SetState, status = Button.Active, label = Button.Text "Set state", tooltipText = Nothing }
 
 
 clearValues : Element FrontendMsg

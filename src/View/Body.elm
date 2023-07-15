@@ -5,6 +5,7 @@ import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Border
 import Element.Font as Font
+import LiveBook.Parser
 import LiveBook.Types exposing (Book)
 import LiveBook.View
 import Types exposing (FrontendModel, FrontendMsg)
@@ -44,9 +45,9 @@ monitor model =
         [ E.row [ Font.size 16, E.spacing 24, E.paddingEach { top = 12, bottom = 0, left = 0, right = 0 } ]
             [ E.el [ Font.underline ] (E.text <| "Monitor") ]
         , notebookControls model
-        , E.row [ E.spacing 24 ] [ E.text <| "ticks: " ++ String.fromInt model.state.ticks, E.text <| String.fromFloat model.fastTickInterval ]
+        , E.row [ E.spacing 24 ] [ E.text <| "ticks: " ++ String.fromInt model.state.ticks, E.text <| "Tick interval: " ++ String.fromFloat model.fastTickInterval ]
         , E.paragraph [] [ E.text <| "probabilities: " ++ (model.state.probabilities |> List.map (\( name, p ) -> name ++ ":" ++ String.fromFloat (Util.roundTo 3 p) |> String.padRight 8 '0') |> String.join ", ") ]
-        , E.paragraph [] [ E.text <| "value: " ++ Value.toString model.state.currentValue ]
+        , E.paragraph [] [ E.text <| "value: " ++ Value.toString (model.state.currentValue |> LiveBook.Parser.roundToFloatValue 3) ]
         , E.paragraph [] [ E.text <| "stopExpression: " ++ model.state.stopExpressionString ]
         , E.paragraph [] [ E.text <| "values: " ++ (List.length model.state.values |> String.fromInt) ]
         , E.paragraph [] [ E.text <| "expr: " ++ model.state.expression ]
