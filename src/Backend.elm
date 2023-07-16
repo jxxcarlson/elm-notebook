@@ -145,7 +145,7 @@ updateFromFrontend sessionId clientId msg model =
                             , curentBookCmd
                             , getListOfDataSets clientId model PublicDatasets
                             , getListOfDataSets clientId model (UserDatasets user.username)
-                            , sendToFrontend clientId (GotNotebooks (NotebookDict.allForUser username model.userToNoteBookDict))
+                            , sendToFrontend clientId (GotNotebooks Nothing (NotebookDict.allForUser username model.userToNoteBookDict))
                             ]
                         )
 
@@ -242,7 +242,7 @@ updateFromFrontend sessionId clientId msg model =
 
         -- NOTEBOOKS
         GetUsersNotebooks username ->
-            ( model, sendToFrontend clientId (GotNotebooks (NotebookDict.allForUser username model.userToNoteBookDict)) )
+            ( model, sendToFrontend clientId (GotNotebooks Nothing (NotebookDict.allForUser username model.userToNoteBookDict)) )
 
         GetPublicNotebook slug ->
             let
@@ -267,8 +267,8 @@ updateFromFrontend sessionId clientId msg model =
         --
         --    Nothing ->
         --        ( model, sendToFrontend clientId (SendMessage <| "Sorry, that notebook does not exist") )
-        GetPublicNotebooks username ->
-            ( model, sendToFrontend clientId (GotNotebooks (NotebookDict.allPublicWithAuthor username model.userToNoteBookDict)) )
+        GetPublicNotebooks maybeBook username ->
+            ( model, sendToFrontend clientId (GotNotebooks maybeBook (NotebookDict.allPublicWithAuthor username model.userToNoteBookDict)) )
 
         UpdateSlugDict book ->
             case String.split "." book.slug of

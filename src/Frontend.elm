@@ -532,7 +532,7 @@ update msg model =
                             sendToBackend (GetUsersNotebooks (model.currentUser |> Maybe.map .username |> Maybe.withDefault "--@@--"))
 
                         ShowPublicNotebooks ->
-                            sendToBackend (GetPublicNotebooks (model.currentUser |> Maybe.map .username |> Maybe.withDefault "--@@--"))
+                            sendToBackend (GetPublicNotebooks Nothing (model.currentUser |> Maybe.map .username |> Maybe.withDefault "--@@--"))
             in
             ( { model | showNotebooks = state }, cmd )
 
@@ -904,13 +904,18 @@ updateFromBackend msg model =
                 , currentBook = book
                 , books = addOrReplaceBook book model.books
               }
-            , sendToBackend (GetPublicNotebooks currentUser.username)
+            , sendToBackend (GetPublicNotebooks (Just book) currentUser.username)
             )
 
-        GotNotebooks books ->
+        GotNotebooks maybeNotebook books ->
             let
                 currentBook =
-                    List.head books |> Maybe.withDefault model.currentBook
+                    case maybeNotebook of
+                        Nothing ->
+                            List.head books |> Maybe.withDefault model.currentBook
+
+                        Just book ->
+                            book
 
                 state =
                     setInitialState currentBook model.state

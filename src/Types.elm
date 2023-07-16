@@ -262,7 +262,7 @@ type ToBackend
     | GetPulledNotebook String String String String -- username origin slug id
     | UpdateSlugDict Book
     | GetUsersNotebooks String -- username
-    | GetPublicNotebooks String --
+    | GetPublicNotebooks (Maybe Book) String --
       -- USER
     | SignUpBE String String String
     | SignInBEDev
@@ -290,7 +290,7 @@ type ToFrontend
       -- NOTEBOOK
     | GotNotebook Book
     | GotPublicNotebook Book
-    | GotNotebooks (List Book)
+    | GotNotebooks (Maybe Book) (List Book)
       -- USER
     | SendMessage String
     | UserSignedIn User ClientId
