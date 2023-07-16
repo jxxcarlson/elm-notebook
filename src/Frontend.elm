@@ -29,6 +29,7 @@ import LiveBook.State
 import LiveBook.Types exposing (Book)
 import LiveBook.Update
 import Loading
+import Navigation
 import Predicate
 import Random
 import Task
@@ -132,7 +133,7 @@ init url key =
       , inputEmail = ""
       , inputTitle = ""
       }
-    , Cmd.batch [ setupWindow, sendToBackend GetRandomSeed ]
+    , Cmd.batch [ setupWindow, sendToBackend GetRandomSeed, Navigation.urlAction url.path ]
     )
 
 
@@ -875,6 +876,35 @@ updateFromBackend msg model =
                         xbook :: books
             in
             ( { model | state = setInitialState book model.state, currentBook = book, books = addOrReplaceBook book model.books }, Cmd.none )
+
+        GotPublicNotebook book_ ->
+            let
+                currentUser =
+                    case model.currentUser of
+                        Just user ->
+                            user
+
+                        Nothing ->
+                            User.guest
+
+                book =
+                    LiveBook.Book.initializeCellState book_
+
+                addOrReplaceBook xbook books =
+                    if List.any (\b -> b.id == xbook.id) books then
+                        List.Extra.setIf (\b -> b.id == xbook.id) xbook books
+
+                    else
+                        xbook :: books
+            in
+            ( { model
+                | currentUser = Just currentUser
+                , state = setInitialState book model.state
+                , currentBook = book
+                , books = addOrReplaceBook book model.books
+              }
+            , Cmd.none
+            )
 
         GotNotebooks books ->
             let

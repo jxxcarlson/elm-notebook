@@ -257,6 +257,7 @@ type ToBackend
     | ImportNewBook String Book
     | SaveNotebook Book
     | DeleteNotebook Book
+    | GetPublicNotebook String
     | GetClonedNotebook String String -- username slug
     | GetPulledNotebook String String String String -- username origin slug id
     | UpdateSlugDict Book
@@ -288,6 +289,7 @@ type ToFrontend
     | GotDataForDownload LiveBook.DataSet.DataSet
       -- NOTEBOOK
     | GotNotebook Book
+    | GotPublicNotebook Book
     | GotNotebooks (List Book)
       -- USER
     | SendMessage String

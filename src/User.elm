@@ -23,6 +23,7 @@ defaultUser =
     , created = Time.millisToPosix 0
     , modified = Time.millisToPosix 0
     , locked = False
+    , currentNotebookId = Nothing
     }
 
 
@@ -34,4 +35,5 @@ guest =
     , created = Time.millisToPosix 0
     , modified = Time.millisToPosix 0
     , locked = True
+    , currentNotebookId = Nothing
     }

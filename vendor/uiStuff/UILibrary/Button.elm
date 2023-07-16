@@ -56,8 +56,8 @@ type Status
     | Inactive
     | Waiting
     | Highlighted
-    | HighlightedSpecial
-    | ActivePale
+    | ActiveRunning
+    | ActiveSpecial
     | ActiveTransparentSpecial
     | ActiveTransparent
 
@@ -158,7 +158,7 @@ smallPrimaryStyle status =
 
 
 specialStyle status =
-    if status == ActiveTransparentSpecial || status == HighlightedSpecial then
+    if status == ActiveTransparentSpecial || status == ActiveRunning then
         [ Font.italic ]
 
     else
@@ -206,10 +206,10 @@ fgListColor status =
         Highlighted ->
             UILibrary.Color.darkRed
 
-        HighlightedSpecial ->
+        ActiveRunning ->
             UILibrary.Color.darkRed
 
-        ActivePale ->
+        ActiveSpecial ->
             UILibrary.Color.paleBlue
 
         ActiveTransparentSpecial ->
@@ -234,11 +234,11 @@ bgColor status =
         Highlighted ->
             UILibrary.Color.darkRed
 
-        HighlightedSpecial ->
-            UILibrary.Color.darkRed
+        ActiveRunning ->
+            UILibrary.Color.darkGreen
 
-        ActivePale ->
-            UILibrary.Color.paleBlue
+        ActiveSpecial ->
+            UILibrary.Color.darkBlue
 
         ActiveTransparentSpecial ->
             UILibrary.Color.transparent
@@ -262,10 +262,10 @@ bgSecondaryColor status =
         Highlighted ->
             UILibrary.Color.darkRed
 
-        HighlightedSpecial ->
+        ActiveRunning ->
             UILibrary.Color.darkBlue
 
-        ActivePale ->
+        ActiveSpecial ->
             UILibrary.Color.paleBlue
 
         ActiveTransparentSpecial ->
@@ -290,10 +290,10 @@ fgColor status =
         Highlighted ->
             UILibrary.Color.white
 
-        HighlightedSpecial ->
+        ActiveRunning ->
             UILibrary.Color.white
 
-        ActivePale ->
+        ActiveSpecial ->
             UILibrary.Color.black
 
         ActiveTransparentSpecial ->

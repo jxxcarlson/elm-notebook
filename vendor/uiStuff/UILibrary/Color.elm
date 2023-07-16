@@ -3,6 +3,7 @@ module UILibrary.Color exposing
     , blueExample
     , darkBlue
     , darkGray
+    , darkGreen
     , darkRed
     , darkSteelGray
     , darkerSteelGray
@@ -122,6 +123,11 @@ darkRed =
     Element.rgb255 110 0 0
 
 
+darkGreen : Element.Color
+darkGreen =
+    Element.rgb255 0 110 0
+
+
 red : Element.Color
 red =
     Element.rgb 1 0 0
@@ -148,11 +154,6 @@ greenExample =
         , Element.el [ Font.size 14, Element.padding 12, Font.color black, Background.color mediumGreen ] (Element.text "black on mediumGreen")
         , Element.el [ Font.size 14, Element.padding 12, Font.color black, Background.color paleGreen ] (Element.text "black on paleGreen")
         ]
-
-
-darkGreen : Element.Color
-darkGreen =
-    Element.rgb255 0 140 0
 
 
 green : Element.Color

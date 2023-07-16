@@ -119,13 +119,13 @@ setClock : FrontendModel -> Element FrontendMsg
 setClock model =
     case model.clockState of
         ClockRunning ->
-            Button.smallPrimary { msg = SetClock ClockPaused, status = Button.Highlighted, label = Button.Text "Clock Running", tooltipText = Nothing }
+            Button.smallPrimary { msg = SetClock ClockPaused, status = Button.ActiveRunning, label = Button.Text "Clock Running", tooltipText = Nothing }
 
         ClockPaused ->
-            Button.smallPrimary { msg = SetClock ClockRunning, status = Button.Active, label = Button.Text "Clock Paused", tooltipText = Nothing }
+            Button.smallPrimary { msg = SetClock ClockRunning, status = Button.ActiveSpecial, label = Button.Text "Clock Paused", tooltipText = Nothing }
 
         ClockStopped ->
-            Button.smallPrimary { msg = SetClock ClockRunning, status = Button.Active, label = Button.Text "Clock Stopped", tooltipText = Nothing }
+            Button.smallPrimary { msg = SetClock ClockRunning, status = Button.Highlighted, label = Button.Text "Clock Stopped", tooltipText = Nothing }
 
 
 resetClock : Element FrontendMsg
@@ -196,7 +196,7 @@ viewNotebookEntry : Book -> Book -> Element FrontendMsg
 viewNotebookEntry currentBook book =
     if currentBook.id == book.id then
         if book.public then
-            Button.smallPrimary { msg = NoOpFrontendMsg, status = Button.HighlightedSpecial, label = Button.Text book.title, tooltipText = Nothing }
+            Button.smallPrimary { msg = NoOpFrontendMsg, status = Button.Highlighted, label = Button.Text book.title, tooltipText = Nothing }
 
         else
             Button.smallPrimary { msg = NoOpFrontendMsg, status = Button.Highlighted, label = Button.Text book.title, tooltipText = Nothing }

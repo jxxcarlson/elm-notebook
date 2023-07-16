@@ -2,6 +2,7 @@ module NotebookDict exposing
     ( NotebookDataError(..)
     , allForUser
     , allPublic
+    , allPublicWithAuthor
     , insert
     , lookup
     , remove
@@ -77,13 +78,21 @@ allForUser username_ dict =
             Dict.values notebookDict
 
 
-allPublic : Types.Username -> Types.UserToNoteBookDict -> List Book
-allPublic username dict =
+allPublicWithAuthor : Types.Username -> Types.UserToNoteBookDict -> List Book
+allPublicWithAuthor username dict =
     dict
         |> Dict.values
         |> List.map Dict.values
         |> List.concat
         |> List.filter (\book -> book.public && book.author /= username)
+
+
+allPublic : Types.UserToNoteBookDict -> List Book
+allPublic dict =
+    dict
+        |> Dict.values
+        |> List.map Dict.values
+        |> List.concat
 
 
 {-|

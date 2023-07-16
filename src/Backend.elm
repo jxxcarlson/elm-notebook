@@ -244,8 +244,31 @@ updateFromFrontend sessionId clientId msg model =
         GetUsersNotebooks username ->
             ( model, sendToFrontend clientId (GotNotebooks (NotebookDict.allForUser username model.userToNoteBookDict)) )
 
+        GetPublicNotebook slug ->
+            let
+                notebooks =
+                    NotebookDict.allPublic model.userToNoteBookDict |> List.filter (\b -> String.contains slug b.slug)
+            in
+            case List.head notebooks of
+                Nothing ->
+                    ( model, sendToFrontend clientId (SendMessage <| "Sorry, that notebook does not exist") )
+
+                Just notebook ->
+                    ( model, Cmd.batch [ sendToFrontend clientId (GotPublicNotebook notebook), sendToFrontend clientId (SendMessage <| "Found that notebook!") ] )
+
+        --case Dict.get slug model.slugDict of
+        --    Just notebookRecord ->
+        --        case NotebookDict.lookup notebookRecord.author notebookRecord.id model.userToNoteBookDict of
+        --            Ok book ->
+        --                ( model, sendToFrontend clientId (GotNotebook book) )
+        --
+        --            Err _ ->
+        --                ( model, sendToFrontend clientId (SendMessage <| "Sorry, that notebook is private") )
+        --
+        --    Nothing ->
+        --        ( model, sendToFrontend clientId (SendMessage <| "Sorry, that notebook does not exist") )
         GetPublicNotebooks username ->
-            ( model, sendToFrontend clientId (GotNotebooks (NotebookDict.allPublic username model.userToNoteBookDict)) )
+            ( model, sendToFrontend clientId (GotNotebooks (NotebookDict.allPublicWithAuthor username model.userToNoteBookDict)) )
 
         UpdateSlugDict book ->
             case String.split "." book.slug of
