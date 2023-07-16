@@ -145,7 +145,7 @@ largePrimaryStyle status =
 
 smallPrimaryStyle : Status -> Style msg
 smallPrimaryStyle status =
-    { tooltipPlacement = Element.above
+    { tooltipPlacement = Element.onLeft
     , attributes =
         [ Background.color (bgColor status)
         , Element.paddingXY 8 5

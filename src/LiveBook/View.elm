@@ -17,7 +17,7 @@ import LiveBook.Utility
 import Types exposing (FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
-import View.Button
+import View.Button exposing (runCell)
 import View.CellThemed as MarkdownThemed
 
 
@@ -54,6 +54,7 @@ controls cell =
         , Background.color Color.darkSteelGray
         ]
         [ viewIndex cell
+        , runCell cell.index
         , newCellAt cell.cellState cell.index
         , deleteCellAt cell.cellState cell.index
         , clearCellAt cell.cellState cell.index
@@ -296,7 +297,7 @@ deleteCellAt : CellState -> Int -> Element FrontendMsg
 deleteCellAt cellState index =
     --case cellState of
     --    CSView ->
-    Button.smallPrimary { msg = DeleteCell index, status = Button.ActiveTransparent, label = Button.Text "Delete", tooltipText = Just "Insert  new cell" }
+    Button.smallPrimary { msg = DeleteCell index, status = Button.ActiveTransparent, label = Button.Text "Delete", tooltipText = Just "Delete cell" }
 
 
 

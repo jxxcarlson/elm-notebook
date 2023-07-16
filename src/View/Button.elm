@@ -23,6 +23,7 @@ module View.Button exposing
     , publicNotebooks
     , pullNotebook
     , resetClock
+    , runCell
     , runTask
     , saveDataSetAsPrivate
     , saveDataSetAsPublic
@@ -94,6 +95,11 @@ dismissPopupTransparent =
 dismissPopupSmall : Element FrontendMsg
 dismissPopupSmall =
     Button.smallPrimary { msg = ChangePopup NoPopup, status = Button.ActiveTransparent, label = Button.Text "x", tooltipText = Nothing }
+
+
+runCell : Int -> Element FrontendMsg
+runCell index =
+    Button.smallPrimary { msg = EvalCell index, status = Button.Active, label = Button.Text "Run", tooltipText = Just "ctrl-Enter" }
 
 
 dismissPopup : Element FrontendMsg
@@ -257,10 +263,10 @@ lockCell : LiveBook.Types.Cell -> Element FrontendMsg
 lockCell cell =
     case cell.locked of
         True ->
-            Button.smallPrimary { msg = ToggleCellLock cell, status = Button.ActiveTransparent, label = Button.Text "Locked", tooltipText = Nothing }
+            Button.smallPrimary { msg = ToggleCellLock cell, status = Button.ActiveTransparent, label = Button.Text "Locked", tooltipText = Just "Cell can't be edited when locked" }
 
         False ->
-            Button.smallPrimary { msg = ToggleCellLock cell, status = Button.ActiveTransparent, label = Button.Text "Unlocked", tooltipText = Nothing }
+            Button.smallPrimary { msg = ToggleCellLock cell, status = Button.ActiveTransparent, label = Button.Text "Unlocked", tooltipText = Just "Lock to prevent editing" }
 
 
 saveDataSetAsPublic : LiveBook.DataSet.DataSetMetaData -> Element FrontendMsg
