@@ -93,6 +93,7 @@ allPublic dict =
         |> Dict.values
         |> List.map Dict.values
         |> List.concat
+        |> List.filter (\book -> book.public)
 
 
 {-|
