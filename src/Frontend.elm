@@ -904,7 +904,7 @@ updateFromBackend msg model =
                 , currentBook = book
                 , books = addOrReplaceBook book model.books
               }
-            , Cmd.none
+            , sendToBackend (GetPublicNotebooks currentUser.username)
             )
 
         GotNotebooks books ->
