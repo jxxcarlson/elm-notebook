@@ -393,6 +393,7 @@ update msg model =
                 , message = "Signed out"
                 , inputUsername = ""
                 , inputPassword = ""
+                , clockState = Types.ClockStopped
               }
             , Cmd.batch
                 [ Nav.pushUrl model.key "/"
@@ -842,10 +843,10 @@ updateFromBackend msg model =
 
         SendUser user ->
             if user.username == "guest" then
-                ( { model | currentUser = Just user, message = "" }, Cmd.none )
+                ( { model | currentUser = Just user, message = "", clockState = ClockStopped }, Cmd.none )
 
             else
-                ( { model | currentUser = Just user, message = "" }, Cmd.none )
+                ( { model | currentUser = Just user, message = "", clockState = ClockStopped }, Cmd.none )
 
         -- DATA
         GotListOfPublicDataSets dataSetMetaDataList ->
