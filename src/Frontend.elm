@@ -899,6 +899,7 @@ updateFromBackend msg model =
             in
             ( { model
                 | currentUser = Just currentUser
+                , showNotebooks = ShowPublicNotebooks
                 , state = setInitialState book model.state
                 , currentBook = book
                 , books = addOrReplaceBook book model.books

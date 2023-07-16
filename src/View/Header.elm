@@ -5,6 +5,7 @@ import Element.Background as Background
 import Element.Border
 import Element.Font as Font
 import Message
+import Predicate
 import Types exposing (AppMode(..))
 import UILibrary.Color as Color
 import View.Button as Button
@@ -12,6 +13,7 @@ import View.Color
 import View.Geometry
 import View.Input
 import View.Style
+import View.Utility
 
 
 view model =
@@ -63,10 +65,10 @@ signedInHeader model user =
 
           else
             title model.currentBook.title
-        , Button.editTitle model.appMode
-        , Button.newNotebook
-        , Button.deleteNotebook model.deleteNotebookState
-        , Button.cancelDeleteNotebook model.deleteNotebookState
+        , View.Utility.showIf (Predicate.regularUser model) (Button.editTitle model.appMode)
+        , View.Utility.showIf (Predicate.regularUser model) Button.newNotebook
+        , View.Utility.showIf (Predicate.regularUser model) (Button.deleteNotebook model.deleteNotebookState)
+        , View.Utility.showIf (Predicate.regularUser model) (Button.cancelDeleteNotebook model.deleteNotebookState)
         , Button.clearValues
         , Button.manual
 

@@ -51,11 +51,11 @@ view model =
                 , View.Utility.showIfIsAdmin model Button.runTask
                 , messageRow model
                 , E.el [ Font.color (E.rgb 1 1 1) ] (E.text (String.fromInt <| List.length model.pressedKeys))
-                , Button.importNotebook
-                , Button.exportNotebook
-                , Button.newDataSet
+                , View.Utility.showIf (Predicate.regularUser model) Button.importNotebook
+                , View.Utility.showIf (Predicate.regularUser model) Button.exportNotebook
+                , View.Utility.showIf (Predicate.regularUser model) Button.newDataSet
                 , Button.toggleViewPublicDataSets
-                , Button.toggleViewPrivateDataSets
+                , View.Utility.showIf (Predicate.regularUser model) Button.toggleViewPrivateDataSets
                 , case model.currentBook.origin of
                     Just origin ->
                         E.el [ E.alignRight, Font.color Color.lightGray ] (E.text <| origin)
@@ -69,7 +69,7 @@ view model =
                     Nothing ->
                         E.none
                 , E.el [ E.alignRight, Font.color Color.lightGray ] (E.text model.currentBook.slug)
-                , Button.public model.currentBook
+                , View.Utility.showIf (Predicate.regularUser model) (Button.public model.currentBook)
                 , case model.currentBook.origin of
                     Just _ ->
                         E.el [ E.paddingEach { left = 24, right = 0, top = 0, bottom = 0 } ] Button.pullNotebook

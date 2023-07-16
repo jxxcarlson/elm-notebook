@@ -1,6 +1,16 @@
-module Predicate exposing (canClone, canSave)
+module Predicate exposing (canClone, canSave, regularUser)
 
 import Types
+
+
+regularUser : Types.FrontendModel -> Bool
+regularUser model =
+    case model.currentUser of
+        Just user ->
+            user.username /= "guest"
+
+        Nothing ->
+            False
 
 
 canSave : Types.FrontendModel -> Bool
