@@ -29,8 +29,7 @@ urlAction path =
                 Lamdera.sendToBackend (Types.GetPublicNotebook segment)
 
             _ ->
-                l
-                    Cmd.none
+                Cmd.none
 
 
 
