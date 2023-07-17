@@ -519,6 +519,7 @@ evalSvgHandler model cell_ =
             LiveBook.Eval.evaluateString stringToEvaluate
                 |> String.split ","
                 |> List.map (\s -> (String.trim >> unquote >> fix) s)
+                |> Debug.log "@@ VALUE"
 
         fix str =
             str |> String.replace "[" "" |> String.replace "]" ""

@@ -81,13 +81,16 @@ updateWorldInModel ticks ps model =
 update : MState -> MState
 update state =
     let
-        nexState : Result Eval.Types.Error Value
-        nexState =
+        nextValue : Result Eval.Types.Error Value
+        nextValue =
             evaluate state
     in
-    case nexState of
+    case nextValue of
         Ok value ->
-            { state | currentValue = value, values = List.take state.keep (value :: state.values) }
+            { state
+                | currentValue = value |> Debug.log "@@@ currentValue"
+                , values = List.take state.keep (value :: state.values) |> Debug.log "@@@ values"
+            }
 
         _ ->
             state
