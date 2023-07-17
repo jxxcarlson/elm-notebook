@@ -81,7 +81,7 @@ init url key =
       , pressedKeys = []
       , randomSeed = Random.initialSeed 1234
       , randomProbabilities = []
-      , probabilityVectorLength = 2
+      , probabilityVectorLength = 4
 
       -- ADMIN
       , users = []
