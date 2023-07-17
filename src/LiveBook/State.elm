@@ -18,6 +18,7 @@ type alias MState =
     { currentValue : Value
     , values : List Value
     , initialValue : Value
+    , keep : Int
     , probabilities : List ( String, Float )
     , ticks : Int
     , expression : String
@@ -40,6 +41,7 @@ initialState =
     { currentValue = Float 10
     , values = [ Float 10 ]
     , initialValue = Float 10
+    , keep = 2000
     , probabilities = []
     , ticks = 0
     , expression = "if state <= 0 then 0 else state + ds p0"
@@ -85,7 +87,7 @@ update state =
     in
     case nexState of
         Ok value ->
-            { state | currentValue = value, values = List.take 100 (value :: state.values) }
+            { state | currentValue = value, values = List.take state.keep (value :: state.values) }
 
         _ ->
             state
