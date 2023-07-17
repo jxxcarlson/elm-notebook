@@ -98,6 +98,7 @@ init url key =
       , inputStateBindings = ""
       , inputStateExpression = ""
       , inputStopExpression = ""
+      , inputValuesToKeep = ""
 
       -- DATASETS
       , publicDataSetMetaDataList = []
@@ -116,6 +117,7 @@ init url key =
       , nextStateRecord = Nothing
       , state = LiveBook.State.initialState
       , svgList = []
+      , valuesToKeep = 1
 
       -- UI
       , windowWidth = 600
@@ -444,6 +446,9 @@ update msg model =
         InputStopExpression str ->
             ( { model | inputStopExpression = str }, Cmd.none )
 
+        InputValuesToKeep str ->
+            ( { model | inputValuesToKeep = str }, Cmd.none )
+
         -- DATA
         AskToDeleteDataSet dataSetMetaData ->
             let
@@ -724,6 +729,10 @@ update msg model =
                 newFastTickInterval =
                     model.inputFastTickInterval |> String.toFloat |> Maybe.withDefault 60.0 |> (\x -> max 60 x)
 
+                setValuesToKeep : { a | valuesToKeep : Int } -> { a | valuesToKeep : Int }
+                setValuesToKeep state_ =
+                    { state_ | valuesToKeep = model.inputValuesToKeep |> String.toInt |> Maybe.withDefault 1 |> (\x -> max 1 x) }
+
                 setFastTickInterval state_ =
                     { state_ | fastTickInterval = newFastTickInterval }
 
@@ -734,7 +743,13 @@ update msg model =
                     model.state
 
                 newState =
-                    oldState |> setValue |> setExpression |> setBindings |> setFastTickInterval |> setStopValue
+                    oldState
+                        |> setValue
+                        |> setExpression
+                        |> setBindings
+                        |> setFastTickInterval
+                        |> setStopValue
+                        |> setValuesToKeep
 
                 oldNotebook =
                     model.currentBook
@@ -1004,7 +1019,12 @@ setInitialState book state_ =
                     state_
 
                 Just value ->
-                    { state_ | values = [ value ], currentValue = value, initialValue = value }
+                    { state_
+                        | values = [ value ]
+                        , currentValue = value
+                        , valuesToKeep = book.valuesToKeep
+                        , initialValue = value
+                    }
     in
     { state1_
         | expression = book.stateExpression

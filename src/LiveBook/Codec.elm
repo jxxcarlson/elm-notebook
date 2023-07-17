@@ -34,6 +34,7 @@ bookCodec =
         |> Codec.field "stateBindings" .stateBindings (Codec.list Codec.string)
         |> Codec.field "fastTickInterval" .fastTickInterval Codec.float
         |> Codec.field "stopExpressionString" .stopExpressionString Codec.string
+        |> Codec.field "valuesToKeep" .valuesToKeep Codec.int
         |> Codec.buildObject
 
 

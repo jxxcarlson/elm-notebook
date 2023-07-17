@@ -49,6 +49,7 @@ type alias FrontendModel =
     , inputStateExpression : String
     , inputStateBindings : String
     , inputStopExpression : String
+    , inputValuesToKeep : String
 
     -- DATA
     , publicDataSetMetaDataList : List LiveBook.DataSet.DataSetMetaData
@@ -67,6 +68,7 @@ type alias FrontendModel =
     , nextStateRecord : Maybe LiveBook.State.NextStateRecord
     , state : LiveBook.State.MState
     , svgList : List String
+    , valuesToKeep : Int
 
     -- USER
     , signupState : SignupState
@@ -154,6 +156,7 @@ type FrontendMsg
     | InputStateExpression String
     | InputStateBindings String
     | InputStopExpression String
+    | InputValuesToKeep String
       -- DATA
     | AskToListDataSets DataSetDescription
     | AskToSaveDataSet LiveBook.DataSet.DataSetMetaData

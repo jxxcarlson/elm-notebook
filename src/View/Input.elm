@@ -17,6 +17,7 @@ module View.Input exposing
     , stopExpression
     , title
     , username
+    , valuesToKeep
     )
 
 import Element as E exposing (Element, px)
@@ -71,6 +72,10 @@ inputFieldTemplate3 attr width_ default msg text =
 
 initialStateValue model =
     inputFieldTemplate3 [] (E.px 500) "Initial Value" InputInitialStateValue model.inputInitialStateValue
+
+
+valuesToKeep model =
+    inputFieldTemplate3 [] (E.px 300) "Values to Keep" InputInitialStateValue model.inputValuesToKeep
 
 
 fastTickInterval model =
