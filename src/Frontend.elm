@@ -807,7 +807,7 @@ update msg model =
             LiveBook.Update.clearCell model index
 
         EvalCell index ->
-            LiveBook.Cell.evalCell index model
+            LiveBook.Cell.evalCell index { model | pressedKeys = [] }
 
         -- NOTEBOOKS
         -- ADMIN

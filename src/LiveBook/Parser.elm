@@ -272,6 +272,9 @@ roundToFloatValue n value =
         Float f ->
             Float (LiveBook.Function.roundTo n f)
 
+        Tuple x y ->
+            Tuple (roundToFloatValue n x) (roundToFloatValue n y)
+
         List values ->
             List (List.map toFloatValue values)
 
