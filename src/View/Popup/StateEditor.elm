@@ -22,7 +22,7 @@ view model =
                 , E.padding 24
                 , E.centerX
                 , E.width (E.px 550)
-                , E.height (E.px 600)
+                , E.height (E.px 650)
                 , E.moveUp (View.Geometry.appHeight model - 100 |> toFloat)
                 ]
                 [ E.el [ Font.size 24, E.paddingEach { bottom = 16, top = 0, left = 0, right = 0 } ] (E.text "State Editor")

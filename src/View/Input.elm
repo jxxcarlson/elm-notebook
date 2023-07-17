@@ -75,7 +75,7 @@ initialStateValue model =
 
 
 valuesToKeep model =
-    inputFieldTemplate3 [] (E.px 300) "Values to Keep" InputInitialStateValue model.inputValuesToKeep
+    inputFieldTemplate3 [] (E.px 300) "Values to Keep" InputValuesToKeep model.inputValuesToKeep
 
 
 fastTickInterval model =

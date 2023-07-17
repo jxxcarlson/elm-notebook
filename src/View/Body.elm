@@ -48,7 +48,10 @@ monitor model =
         , E.row [ E.spacing 24 ]
             [ E.text <| "ticks: " ++ String.fromInt model.state.ticks
             , E.text <| "interval: " ++ String.fromFloat model.fastTickInterval
-            , E.text <| "values: " ++ (List.length model.state.values |> String.fromInt)
+            ]
+        , E.row [ E.spacing 24 ]
+            [ E.text <| "values: " ++ (List.length model.state.values |> String.fromInt)
+            , E.text <| "values to keep: " ++ String.fromInt model.state.valuesToKeep
             ]
         , E.paragraph [] [ E.text <| "probabilities: " ++ (model.state.probabilities |> List.map (\( name, p ) -> name ++ ":" ++ String.fromFloat (Util.roundTo 3 p) |> String.padRight 8 '0') |> String.join ", ") ]
         , E.paragraph [] []

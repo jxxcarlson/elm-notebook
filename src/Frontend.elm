@@ -712,6 +712,9 @@ update msg model =
 
         SetState ->
             let
+                valuesToKeep =
+                    model.inputValuesToKeep |> String.toInt |> Maybe.withDefault 1 |> (\x -> max 1 x)
+
                 setValue state_ =
                     case LiveBook.Parser.parse model.inputInitialStateValue of
                         Nothing ->
@@ -731,7 +734,7 @@ update msg model =
 
                 setValuesToKeep : { a | valuesToKeep : Int } -> { a | valuesToKeep : Int }
                 setValuesToKeep state_ =
-                    { state_ | valuesToKeep = model.inputValuesToKeep |> String.toInt |> Maybe.withDefault 1 |> (\x -> max 1 x) }
+                    { state_ | valuesToKeep = valuesToKeep }
 
                 setFastTickInterval state_ =
                     { state_ | fastTickInterval = newFastTickInterval }
@@ -762,6 +765,7 @@ update msg model =
                         , stateBindings = model.inputStateBindings |> String.split ";" |> List.map String.trim
                         , stopExpressionString = model.inputStopExpression
                         , fastTickInterval = newFastTickInterval
+                        , valuesToKeep = valuesToKeep
                     }
             in
             ( { model
@@ -769,6 +773,7 @@ update msg model =
                 , fastTickInterval = newFastTickInterval
                 , currentBook = newNotebook
                 , popupState = NoPopup
+                , valuesToKeep = valuesToKeep
               }
             , sendToBackend (SaveNotebook newNotebook)
             )
