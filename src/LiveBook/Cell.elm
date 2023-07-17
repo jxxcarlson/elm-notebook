@@ -539,10 +539,33 @@ evalSvgPlusHandler model cell_ =
         updatedCell =
             LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
 
-        bindingString =
+        bindings_ =
             updatedCell.bindings
+
+        makeBindingDict : List String -> Dict String String
+        makeBindingDict bindings__ =
+            bindings__
+                |> List.map (\s -> String.split "=" s |> List.map String.trim)
+                |> List.map twoListToPair
+                |> List.filterMap identity
+                |> Dict.fromList
+
+        bindingDict =
+            makeBindingDict bindings_
+
+        initialSvg =
+            --Dict.get "initialValue" bindingDict
+            --    |> Maybe.map unquote
+            --    |> Maybe.withDefault "circle 400 200 10 \"red\""
+            "circle 400 200 15 rgba:1:0.2:0.2:0.2"
+
+        bindingString =
+            bindings_
+                |> List.filter (\str -> not <| String.contains "initialValue" str)
+                --|> List.take (List.length bindings_ - 1)
                 |> String.join "\n"
 
+        --|> unquote
         exprString =
             updatedCell.expression
                 |> String.replace "evalSvgPlus " ""
@@ -568,10 +591,14 @@ evalSvgPlusHandler model cell_ =
         svgList =
             case List.head value_ of
                 Nothing ->
-                    model.svgList
+                    initialSvg :: model.svgList
 
                 Just svgElement ->
-                    svgElement :: model.svgList
+                    if List.length model.svgList < 3 then
+                        svgElement :: initialSvg :: model.svgList
+
+                    else
+                        svgElement :: model.svgList
 
         newCell =
             { cell_
