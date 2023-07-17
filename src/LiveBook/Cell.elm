@@ -55,6 +55,9 @@ evalCell index model =
             if command == Just "use:" then
                 handleUseCmd model cell_
 
+            else if command == Just "evalSvgPlus" then
+                ( evalSvgPlusHandler model cell_, Cmd.none )
+
             else if List.member command (List.map Just ("setValue" :: commands)) then
                 executeCell cell_ model
 
@@ -519,7 +522,6 @@ evalSvgHandler model cell_ =
             LiveBook.Eval.evaluateString stringToEvaluate
                 |> String.split ","
                 |> List.map (\s -> (String.trim >> unquote >> fix) s)
-                |> Debug.log "@@ VALUE"
 
         fix str =
             str |> String.replace "[" "" |> String.replace "]" ""
@@ -529,6 +531,62 @@ evalSvgHandler model cell_ =
         , value =
             CVVisual VTSvg value_
     }
+
+
+evalSvgPlusHandler : FrontendModel -> Cell -> FrontendModel
+evalSvgPlusHandler model cell_ =
+    let
+        updatedCell =
+            LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
+
+        bindingString =
+            updatedCell.bindings
+                |> String.join "\n"
+
+        exprString =
+            updatedCell.expression
+                |> String.replace "evalSvgPlus " ""
+
+        stringToEvaluate =
+            [ "let", bindingString, "in", exprString ]
+                |> String.join "\n"
+                |> String.replace "ticks" (String.fromInt model.tickCount)
+                |> String.replace "prob0" (String.fromFloat (List.Extra.getAt 0 model.randomProbabilities |> Maybe.withDefault 0))
+                |> String.replace "prob1" (String.fromFloat (List.Extra.getAt 1 model.randomProbabilities |> Maybe.withDefault 0))
+                |> String.replace "prob2" (String.fromFloat (List.Extra.getAt 2 model.randomProbabilities |> Maybe.withDefault 0))
+                |> String.replace "prob3" (String.fromFloat (List.Extra.getAt 3 model.randomProbabilities |> Maybe.withDefault 0))
+
+        value_ : List String
+        value_ =
+            LiveBook.Eval.evaluateString stringToEvaluate
+                |> String.split ","
+                |> List.map (\s -> (String.trim >> unquote >> fix) s)
+
+        fix str =
+            str |> String.replace "[" "" |> String.replace "]" ""
+
+        svgList =
+            case List.head value_ of
+                Nothing ->
+                    model.svgList
+
+                Just svgElement ->
+                    svgElement :: model.svgList
+
+        newCell =
+            { cell_
+                | cellState = CSView
+                , value =
+                    CVVisual VTSvg svgList
+            }
+
+        oldBook =
+            model.currentBook
+
+        currentBook =
+            LiveBook.CellHelper.updateBook newCell oldBook
+    in
+    { model | currentBook = currentBook, svgList = svgList }
 
 
 exportDataHandler : List String -> Cell -> Cell

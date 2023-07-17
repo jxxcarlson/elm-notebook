@@ -45,7 +45,7 @@ clearNotebookValues book model =
         newBook =
             { book | cells = List.map (\cell -> { cell | value = CVNone, expression = "", bindings = [] }) book.cells }
     in
-    ( { model | currentBook = newBook }, Lamdera.sendToBackend (Types.SaveNotebook newBook) )
+    ( { model | currentBook = newBook, svgList = [] }, Lamdera.sendToBackend (Types.SaveNotebook newBook) )
 
 
 

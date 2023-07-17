@@ -115,6 +115,7 @@ init url key =
       , valueDict = Dict.empty
       , nextStateRecord = Nothing
       , state = LiveBook.State.initialState
+      , svgList = []
 
       -- UI
       , windowWidth = 600

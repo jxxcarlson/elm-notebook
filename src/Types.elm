@@ -66,6 +66,7 @@ type alias FrontendModel =
     , valueDict : Dict String Value
     , nextStateRecord : Maybe LiveBook.State.NextStateRecord
     , state : LiveBook.State.MState
+    , svgList : List String
 
     -- USER
     , signupState : SignupState

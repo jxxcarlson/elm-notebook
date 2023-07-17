@@ -88,8 +88,8 @@ update state =
     case nextValue of
         Ok value ->
             { state
-                | currentValue = value |> Debug.log "@@@ currentValue"
-                , values = List.take state.keep (value :: state.values) |> Debug.log "@@@ values"
+                | currentValue = value
+                , values = List.take 2 (value :: state.values)
             }
 
         _ ->
