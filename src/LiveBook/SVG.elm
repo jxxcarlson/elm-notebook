@@ -3,6 +3,7 @@ module LiveBook.SVG exposing (render)
 import Color exposing (Color)
 import Element exposing (Element)
 import Html exposing (Html)
+import LiveBook.Parser
 import TypedSvg
 import TypedSvg.Attributes exposing (cx, cy, fill, height, r, stroke, strokeWidth, viewBox, width, x, x1, x2, y, y1, y2)
 import TypedSvg.Core exposing (Svg)
@@ -29,27 +30,31 @@ type XSVG
 
 stringToColor : String -> Color
 stringToColor color =
-    case color of
-        "red" ->
-            Color.red
+    if String.left 4 color == "rgba" then
+        LiveBook.Parser.parseRGBA color
 
-        "blue" ->
-            Color.blue
+    else
+        case color of
+            "red" ->
+                Color.red
 
-        "green" ->
-            Color.green
+            "blue" ->
+                Color.blue
 
-        "yellow" ->
-            Color.yellow
+            "green" ->
+                Color.green
 
-        "black" ->
-            Color.black
+            "yellow" ->
+                Color.yellow
 
-        "white" ->
-            Color.white
+            "black" ->
+                Color.black
 
-        _ ->
-            Color.black
+            "white" ->
+                Color.white
+
+            _ ->
+                Color.black
 
 
 circle : String -> String -> String -> String -> Maybe (Svg msg)

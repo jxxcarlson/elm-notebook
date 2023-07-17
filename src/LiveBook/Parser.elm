@@ -1,11 +1,13 @@
 module LiveBook.Parser exposing
     ( parse
+    , parseRGBA
     , roundToFloatValue
     , toFloatValue
     , unwrapFloat
     , unwrapListTupleFloat
     )
 
+import Color
 import LiveBook.Function
 import Parser exposing ((|.), (|=), Parser)
 import Value exposing (Value(..))
@@ -32,6 +34,27 @@ parse : String -> Maybe Value
 parse str =
     Parser.run valueParser str
         |> Result.toMaybe
+
+
+parseRGBA : String -> Color.Color
+parseRGBA str =
+    Parser.run rgbaParser (String.trim str)
+        |> Result.toMaybe
+        |> Maybe.withDefault { r = 1, g = 1, b = 1, a = 1 }
+        |> (\color -> Color.rgba color.r color.g color.b color.a)
+
+
+rgbaParser : Parser { r : Float, g : Float, b : Float, a : Float }
+rgbaParser =
+    Parser.succeed (\r g b a -> { r = r, g = g, b = b, a = a })
+        |. Parser.symbol "rgba:"
+        |= floatParser_
+        |. Parser.symbol ":"
+        |= floatParser_
+        |. Parser.symbol ":"
+        |= floatParser_
+        |. Parser.symbol ":"
+        |= floatParser_
 
 
 valueParser : Parser Value
