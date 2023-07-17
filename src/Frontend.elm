@@ -705,7 +705,7 @@ update msg model =
                 newState =
                     { oldState | ticks = 0, values = [ oldState.initialValue ], currentValue = oldState.initialValue }
             in
-            ( { model | clockState = ClockStopped, tickCount = 0, state = newState }, Cmd.none )
+            ( { model | clockState = ClockStopped, tickCount = 0, state = newState, svgList = [] }, Cmd.none )
 
         SetClock state ->
             ( { model | clockState = state }, Cmd.none )
