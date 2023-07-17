@@ -85,7 +85,7 @@ update state =
     in
     case nexState of
         Ok value ->
-            { state | currentValue = value, values = value :: state.values }
+            { state | currentValue = value, values = List.take 100 (value :: state.values) }
 
         _ ->
             state
