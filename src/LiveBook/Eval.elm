@@ -465,7 +465,7 @@ showParseError source parseError =
             "Parse error: " ++ foo ++ "::" ++ getErrorText 4 19 source
 
         _ ->
-            "I don't know how to show this error.
+            "I don't know how to show this error."
 
 
 getErrorText : Int -> Int -> String -> String
