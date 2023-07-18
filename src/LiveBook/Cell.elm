@@ -569,15 +569,21 @@ evalSvgPlusHandler model cell_ =
         exprString =
             updatedCell.expression
                 |> String.replace "evalSvgPlus " ""
+                |> makeSubstitutions model
 
         stringToEvaluate =
             [ "let", bindingString, "in", exprString ]
                 |> String.join "\n"
-                |> String.replace "ticks" (String.fromInt model.tickCount)
-                |> String.replace "prob0" (String.fromFloat (List.Extra.getAt 0 model.randomProbabilities |> Maybe.withDefault 0))
-                |> String.replace "prob1" (String.fromFloat (List.Extra.getAt 1 model.randomProbabilities |> Maybe.withDefault 0))
-                |> String.replace "prob2" (String.fromFloat (List.Extra.getAt 2 model.randomProbabilities |> Maybe.withDefault 0))
-                |> String.replace "prob3" (String.fromFloat (List.Extra.getAt 3 model.randomProbabilities |> Maybe.withDefault 0))
+                |> makeSubstitutions model
+
+        makeSubstitutions : FrontendModel -> String -> String
+        makeSubstitutions m str =
+            str
+                |> String.replace "ticks" (String.fromInt m.tickCount)
+                |> String.replace "p0" (String.fromFloat (List.Extra.getAt 0 m.randomProbabilities |> Maybe.withDefault 0))
+                |> String.replace "p1" (String.fromFloat (List.Extra.getAt 1 m.randomProbabilities |> Maybe.withDefault 0))
+                |> String.replace "p2" (String.fromFloat (List.Extra.getAt 2 m.randomProbabilities |> Maybe.withDefault 0))
+                |> String.replace "p3" (String.fromFloat (List.Extra.getAt 3 m.randomProbabilities |> Maybe.withDefault 0))
 
         value_ : List String
         value_ =
