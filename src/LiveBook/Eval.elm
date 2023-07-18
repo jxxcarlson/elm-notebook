@@ -16,11 +16,13 @@ module LiveBook.Eval exposing
 import Dict exposing (Dict)
 import Eval
 import Eval.Types
+import List.Extra
 import LiveBook.State
 import LiveBook.Types exposing (Cell, CellState(..), CellValue(..))
 import LiveBook.Utility
 import Maybe.Extra
-import Value exposing (Value(..))
+import Parser exposing (Problem(..))
+import Value exposing (EvalErrorKind(..), Value(..))
 
 
 evaluate : Cell -> Cell
@@ -402,11 +404,83 @@ evaluateString input =
 
         Err err ->
             case err of
-                Eval.Types.ParsingError deadEnds ->
-                    "Parse error"
+                Eval.Types.ParsingError errors ->
+                    showParseError input (Eval.Types.ParsingError errors)
 
                 Eval.Types.EvalError evalError ->
-                    "Evaluation error"
+                    showEvalError evalError
+
+
+showParseError source parseError =
+    case parseError of
+        Eval.Types.ParsingError errors ->
+            let
+                foo =
+                    List.map (.problem >> toString) errors |> String.join "; "
+
+                toString yuk =
+                    case yuk of
+                        Expecting str ->
+                            "Expecting String: \"" ++ str ++ "\""
+
+                        ExpectingInt ->
+                            "Expecting Int"
+
+                        ExpectingHex ->
+                            "Expecting Hex"
+
+                        ExpectingOctal ->
+                            "Expecting Octal"
+
+                        ExpectingBinary ->
+                            "Expecting Binary"
+
+                        ExpectingFloat ->
+                            "Expecting Float"
+
+                        ExpectingNumber ->
+                            "Expecting Number"
+
+                        ExpectingVariable ->
+                            "Expecting Variable"
+
+                        ExpectingKeyword str ->
+                            "Expecting Keyword: \"" ++ str ++ "\""
+
+                        UnexpectedChar ->
+                            "Unexpected Char"
+
+                        Problem str ->
+                            "Problem: \"" ++ str ++ "\""
+
+                        BadRepeat ->
+                            "Bad Repeat"
+
+                        ExpectingSymbol symbol ->
+                            "Expecting symbol: \"" ++ symbol ++ "\""
+
+                        ExpectingEnd ->
+                            "Expecting end; there may be a missing parenthesis or some such."
+            in
+            "Parse error: " ++ foo ++ "::" ++ getErrorText 4 19 source
+
+        _ ->
+            "I don't know how to show this error.
+
+
+getErrorText : Int -> Int -> String -> String
+getErrorText row column str =
+    str |> String.lines |> List.Extra.getAt (row - 1) |> Maybe.withDefault "" |> String.dropLeft (column - 1)
+
+
+showEvalError : { a | error : EvalErrorKind } -> String
+showEvalError evalError =
+    case evalError.error of
+        TypeError str ->
+            "type error: " ++ str
+
+        _ ->
+            "I don't know how to show this EVAL error."
 
 
 toListFloatPair : Value -> Maybe (List ( Float, Float ))

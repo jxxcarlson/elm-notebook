@@ -420,14 +420,56 @@ handleHeadCmd model commandWords cell_ =
 
 handleInfoCmd : FrontendModel -> List String -> Cell -> Cell
 handleInfoCmd model commandWords cell_ =
+    -- TODO: Augment functionality
     let
         identifier : String
         identifier =
-            List.Extra.getAt 1 commandWords |> Maybe.withDefault "---"
+            List.Extra.getAt 2 commandWords |> Maybe.withDefault "---"
+
+        separator : String
+        separator =
+            List.Extra.getAt 1 commandWords
+                |> Maybe.withDefault "---"
+                |> (\s ->
+                        if s == "tab" then
+                            "\t"
+
+                        else if s == "blank" then
+                            " "
+
+                        else
+                            s
+                   )
 
         maybeDataSetMetadata =
             List.Extra.find (\dataSet -> String.contains identifier dataSet.identifier)
                 (model.publicDataSetMetaDataList ++ model.privateDataSetMetaDataList)
+
+        n : Maybe Int
+        n =
+            List.Extra.getAt 1 commandWords |> Maybe.andThen String.toInt
+
+        data =
+            Dict.get identifier model.kvDict |> Maybe.withDefault ""
+
+        lines : List String
+        lines =
+            data |> String.lines
+
+        columns : List (List String)
+        columns =
+            List.map (String.split separator) lines
+
+        columnInfo : List ( Int, Int )
+        columnInfo =
+            --columns |> List.map List.length |> List.sort |> List.Extra.unique
+            columns |> List.map List.length |> List.sort |> List.Extra.groupWhile (==) |> List.map (\( a, b ) -> ( a, List.length b + 1 ))
+
+        columnInfoReport : String
+        columnInfoReport =
+            columnInfo
+                |> List.map (\( a, b ) -> "(" ++ String.fromInt a ++ ": " ++ String.fromInt b ++ ")")
+                |> String.join ", "
     in
     case maybeDataSetMetadata of
         Nothing ->
@@ -436,13 +478,16 @@ handleInfoCmd model commandWords cell_ =
         Just dataSetMetadata ->
             let
                 text =
-                    dataSetMetadata.name
-                        ++ "\n"
-                        ++ dataSetMetadata.identifier
-                        ++ "\n\n"
-                        ++ dataSetMetadata.description
-                        ++ "\n\n"
-                        ++ dataSetMetadata.comments
+                    [ dataSetMetadata.name
+                    , dataSetMetadata.identifier
+                    , dataSetMetadata.description
+                    , "Chars: " ++ String.fromInt (String.length data)
+                    , "Lines: " ++ String.fromInt (List.length lines)
+                    , "Columns: " ++ String.fromInt (List.length (String.split "," (List.head lines |> Maybe.withDefault "")))
+                    , "Column widths: " ++ columnInfoReport
+                    , "@"
+                    ]
+                        |> String.join "\\\n"
             in
             { cell_ | cellState = CSView, value = CVString text }
 
