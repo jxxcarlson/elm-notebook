@@ -26,6 +26,7 @@ type alias Options =
     , filter : Maybe String
     , columns : Maybe (List Int)
     , rows : Maybe ( Int, Int )
+    , separator : Maybe String
     , lowest : Maybe Float
     , caption : Maybe String
     , label : Maybe String
@@ -56,6 +57,7 @@ plot2D kind properties_ xyData =
             { direction = Dict.get "direction" properties
             , columns = Dict.get "columns" properties |> Maybe.map (String.split "," >> List.map String.trim >> List.map String.toInt >> Maybe.Extra.values)
             , rows = Dict.get "rows" properties |> Maybe.map (String.split "," >> List.map String.trim >> twoListToIntPair)
+            , separator = Dict.get "separator" properties
             , reverse = Dict.get "reverse" properties |> toBool
             , header = Dict.get "header" properties |> Maybe.andThen String.toInt
             , filter = Dict.get "filter" properties
@@ -102,6 +104,7 @@ chart kind properties_ data_ =
             { direction = Dict.get "direction" properties
             , columns = Dict.get "columns" properties |> Maybe.map (String.split "," >> List.map String.trim >> List.map String.toInt >> Maybe.Extra.values)
             , rows = Dict.get "rows" properties |> Maybe.map (String.split "," >> List.map String.trim >> twoListToIntPair)
+            , separator = Dict.get "separator" properties
             , reverse = Dict.get "reverse" properties |> toBool
             , header = Dict.get "header" properties |> Maybe.andThen String.toInt
             , filter = Dict.get "filter" properties
@@ -278,6 +281,30 @@ csvToChartData options inputLines_ =
                 Just filter ->
                     List.filter (\line -> String.contains filter line) lines
 
+        separator =
+            case options.separator of
+                Just sep ->
+                    if sep == "tab" then
+                        "\t"
+
+                    else if sep == "blank" then
+                        " "
+
+                    else if sep == "comma" then
+                        ","
+
+                    else if sep == "semicolon" then
+                        ";"
+
+                    else if sep == "colon" then
+                        ":"
+
+                    else
+                        sep
+
+                Nothing ->
+                    ","
+
         data_ : Maybe (List (List String))
         data_ =
             case options.kind of
@@ -288,7 +315,7 @@ csvToChartData options inputLines_ =
                         |> Maybe.map makeTimeseries
 
                 _ ->
-                    List.map (String.split "," >> List.map String.trim) filteredInputLines
+                    List.map (String.split separator >> List.map String.trim) filteredInputLines
                         |> selectColumns options.columns
 
         dimension : Maybe Int
