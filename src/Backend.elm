@@ -246,8 +246,14 @@ updateFromFrontend sessionId clientId msg model =
 
         GetPublicNotebook slug ->
             let
+                _ =
+                    Debug.log "@@ SLUG" slug
+
                 notebooks =
                     NotebookDict.allPublic model.userToNoteBookDict |> List.filter (\b -> String.contains slug b.slug)
+
+                _ =
+                    Debug.log "@@ SLUGSSSS" (List.map .slug notebooks)
             in
             case List.head notebooks of
                 Nothing ->
@@ -256,17 +262,6 @@ updateFromFrontend sessionId clientId msg model =
                 Just notebook ->
                     ( model, Cmd.batch [ sendToFrontend clientId (GotPublicNotebook notebook), sendToFrontend clientId (SendMessage <| "Found that notebook!") ] )
 
-        --case Dict.get slug model.slugDict of
-        --    Just notebookRecord ->
-        --        case NotebookDict.lookup notebookRecord.author notebookRecord.id model.userToNoteBookDict of
-        --            Ok book ->
-        --                ( model, sendToFrontend clientId (GotNotebook book) )
-        --
-        --            Err _ ->
-        --                ( model, sendToFrontend clientId (SendMessage <| "Sorry, that notebook is private") )
-        --
-        --    Nothing ->
-        --        ( model, sendToFrontend clientId (SendMessage <| "Sorry, that notebook does not exist") )
         GetPublicNotebooks maybeBook username ->
             ( model, sendToFrontend clientId (GotNotebooks maybeBook (NotebookDict.allPublicWithAuthor username model.userToNoteBookDict)) )
 
@@ -304,7 +299,7 @@ updateFromFrontend sessionId clientId msg model =
                                         { book
                                             | author = username
                                             , id = newModel.uuid
-                                            , slug = BackendHelper.compress (username ++ "." ++ book.title)
+                                            , slug = BackendHelper.compress (username ++ "-" ++ book.title)
                                             , origin = Just slug
                                             , public = False
                                             , dirty = True
@@ -328,7 +323,7 @@ updateFromFrontend sessionId clientId msg model =
                                 (GotNotebook
                                     { book
                                         | author = username
-                                        , slug = BackendHelper.compress (username ++ "." ++ book.title)
+                                        , slug = BackendHelper.compress (username ++ "-" ++ book.title)
                                         , origin = Just origin
                                         , id = id
                                     }
@@ -360,7 +355,7 @@ updateFromFrontend sessionId clientId msg model =
                     { newBook_
                         | id = newModel.uuid
                         , author = author
-                        , slug = BackendHelper.compress (author ++ ":" ++ title)
+                        , slug = BackendHelper.compress (author ++ "-" ++ title)
                         , createdAt = model.currentTime
                         , updatedAt = model.currentTime
                     }
@@ -379,7 +374,7 @@ updateFromFrontend sessionId clientId msg model =
                     { book
                         | id = newModel.uuid
                         , author = username
-                        , slug = BackendHelper.compress (username ++ ":" ++ book.title)
+                        , slug = BackendHelper.compress (username ++ "-" ++ book.title)
                         , createdAt = model.currentTime
                         , updatedAt = model.currentTime
                     }

@@ -58,23 +58,23 @@ Click on the **Manual** button to show or hide the manual.
 
 ## Cells
 
-Here is a typical cell:
+A cell consists of Elm declarations, Elm expressions, and comments.  Here is an example:
 
 ```
-  # A cell consists of text and Elm code
+  # This is some Elm code:
 
-  > a = 2   # definition
-  > b = 5   # definition
+  > a = 2   # declaration
+  > b = 5   # declaration
   > a * b   # expression
 ```
-Text is prefixed by `#` and code is prefixed by `>`.  Code consists of (i) a sequence of
-definitions followed by (ii) an expression.  Either of these elements may be omitted.
 
-The result of evaluating the code is shown below the code.
+Comments are prefixed by `#` and code is prefixed by `>`.
 
+The result of evaluating the code is shown below the code. A cell
+may contain more than one expression, but each must begin with "`>`".
 Click in a cell to edit it, then type ctrl-Enter to evaluate it.
 
-For examples and a discussion of cell format, take a look at
+For examples, take a look at
 the public notebook **Welcome to Elm Notebook.** For this you
 need to be signed in.  Then click on the **Public** button at the top
 of the notebook list, right-hand column.

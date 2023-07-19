@@ -794,7 +794,7 @@ update msg model =
                         { oldBook
                             | dirty = False
                             , title = model.inputTitle
-                            , slug = compress (oldBook.author ++ "." ++ model.inputTitle)
+                            , slug = compress (oldBook.author ++ "-" ++ model.inputTitle)
                         }
                 in
                 ( { model
