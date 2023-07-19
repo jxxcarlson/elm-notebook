@@ -478,16 +478,19 @@ handleInfoCmd model commandWords cell_ =
         Just dataSetMetadata ->
             let
                 text =
-                    [ dataSetMetadata.name
-                    , dataSetMetadata.identifier
-                    , dataSetMetadata.description
-                    , "Chars: " ++ String.fromInt (String.length data)
-                    , "Lines: " ++ String.fromInt (List.length lines)
-                    , "Columns: " ++ String.fromInt (List.length (String.split "," (List.head lines |> Maybe.withDefault "")))
-                    , "Column widths: " ++ columnInfoReport
-                    , "@"
-                    ]
-                        |> String.join "\\\n"
+                    if String.length data == 0 then
+                        "No data found"
+
+                    else
+                        [ dataSetMetadata.name
+                        , dataSetMetadata.identifier
+                        , dataSetMetadata.description
+                        , "Chars: " ++ String.fromInt (String.length data)
+                        , "Lines: " ++ String.fromInt (List.length lines)
+                        , "Columns: " ++ String.fromInt (List.length (String.split "," (List.head lines |> Maybe.withDefault "")))
+                        , "Column widths: " ++ columnInfoReport
+                        ]
+                            |> String.join "\\\n"
             in
             { cell_ | cellState = CSView, value = CVString text }
 
