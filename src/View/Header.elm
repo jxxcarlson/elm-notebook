@@ -1,5 +1,6 @@
 module View.Header exposing (view)
 
+import Color
 import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Border
@@ -44,8 +45,16 @@ notSignedInHeader model =
             , Button.signIn
             ]
         , Button.manualLarge
+        , welcomeLink
         , E.el [ E.alignRight ] Button.signUp
         ]
+
+
+welcomeLink =
+    E.newTabLink []
+        { url = "https://elm-notebook.lamdera.app/p/jxxcarlson-welcome-to-elm-notebooks"
+        , label = E.el [ Font.color (E.rgb 0.65 0.65 1), Font.size 16 ] (E.text "Welcome Notebook")
+        }
 
 
 signedInHeader model user =
@@ -71,8 +80,7 @@ signedInHeader model user =
         , View.Utility.showIf (Predicate.regularUser model) (Button.cancelDeleteNotebook model.deleteNotebookState)
         , Button.clearValues
         , Button.manual
-
-        --, E.el [ E.width E.fill, E.paddingXY 12 0 ] (Message.viewSmall 400 model)
+        , welcomeLink
         , E.el [ E.alignRight ] (Button.signOut user.username)
         ]
 
