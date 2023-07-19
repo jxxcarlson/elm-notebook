@@ -75,9 +75,10 @@ may contain more than one expression, but each must begin with "`>`".
 Click in a cell to edit it, then type ctrl-Enter to evaluate it.
 
 For examples, take a look at
-the public notebook **Welcome to Elm Notebook.** For this you
-need to be signed in.  Then click on the **Public** button at the top
-of the notebook list, right-hand column.
+the public notebook [Welcome to Elm Notebook](https://elm-notebook.lamdera.app/p/jxxcarlson-welcome-to-elm-notebooks).
+You can follow this link as a guest, or sign in, click on the **Public** button (upper right), and
+then select *Welcome to Elm Notebook* from the list of public notebooks.
+
 
 ## Public versus private notebooks
 
@@ -108,7 +109,7 @@ However this operation will overwrite any changes you have made to the clone.
 ## Working with data
 
 Data can
-be imported from a `.csv` file and stored in a varialbe using the command `readinto`.
+be imported from a `.csv` file and stored in a variable using the command `readinto`.
 The command `readinto foo` will store the file contents in the variable `foo`.
 To visualize imported data, use the `chart` command, e.g.,
 `chart timeseries columns:1 foo` to display a time series of the data in column 1
