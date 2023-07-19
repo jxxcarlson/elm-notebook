@@ -53,7 +53,7 @@ notSignedInHeader model =
 welcomeLink =
     E.newTabLink []
         { url = "https://elm-notebook.lamdera.app/p/jxxcarlson-welcome-to-elm-notebooks"
-        , label = E.el [ Font.color (E.rgb 0.65 0.65 1), Font.size 16 ] (E.text "Welcome Notebook")
+        , label = E.el [ Font.underline, Font.color (E.rgb 0.65 0.65 1), Font.size 16 ] (E.text "Welcome Notebook")
         }
 
 
