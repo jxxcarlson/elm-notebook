@@ -37,24 +37,6 @@ evaluate cell =
     }
 
 
-evaluateWithCumulativeBindings : LiveBook.State.MState -> Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
-evaluateWithCumulativeBindings state valueDict kvDict cells cell =
-    let
-        ( stringToEvaluate, bindings ) =
-            evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell
-    in
-    if stringToEvaluate == "()" then
-        { cell | value = CVNone, cellState = CSView }
-
-    else
-        { cell
-            | value = CVString (evaluateString stringToEvaluate)
-            , bindings = bindings
-            , expression = stringToEvaluate
-            , cellState = CSView
-        }
-
-
 evaluateWithContext : LiveBook.State.MState -> Dict String Value -> Dict String String -> List Cell -> Cell -> Cell
 evaluateWithContext state valueDict kvDict cells cell =
     let
@@ -92,94 +74,46 @@ evaluateWithContextCore state valueDict kvDict cells cell =
                 |> List.map (List.map (evaluateWordsWithState state))
                 |> List.concat
 
-        expressionString__ : String
-        expressionString__ =
+        expressionStrings__ : List String
+        expressionStrings__ =
             getCellExprRecord cell
-                |> .expression
+                |> .expressions
 
-        expressionString_ =
-            expressionString__
+        processExpressionString : String -> String
+        processExpressionString str =
+            str
                 --|> normalize
                 |> String.words
                 |> List.map (transformWordsWithKVDict kvDict)
                 |> List.map (transformWordWithValueDict valueDict)
                 |> List.map (evaluateWordsWithState state)
                 |> String.join " "
+                |> (\str_ ->
+                        if str_ == "" then
+                            "()"
+
+                        else
+                            str_
+                   )
+
+        expressionStrings =
+            List.map processExpressionString expressionStrings__
 
         expressionString =
-            if expressionString_ == "" then
-                "()"
+            case expressionStrings of
+                [] ->
+                    "()"
 
-            else
-                expressionString_
+                [ str ] ->
+                    str
+
+                _ ->
+                    "[ " ++ (expressionStrings |> String.join ", ") ++ " ]"
 
         bindingString =
             String.join "\n" bindings
     in
-    if expressionString__ == "state" then
-        ( expressionString, [] )
-
-    else if bindingString == "" then
-        ( expressionString, bindings )
-
-    else
-        let
-            letExpression =
-                "let\n"
-                    ++ bindingString
-                    ++ "\nin\n"
-                    ++ expressionString
-        in
-        ( letExpression, bindings )
-
-
-evaluateWithCumulativeBindingsCore : LiveBook.State.MState -> Dict String Value -> Dict String String -> List Cell -> Cell -> ( String, List String )
-evaluateWithCumulativeBindingsCore state valueDict kvDict cells cell =
-    let
-        exprRecords =
-            cells
-                |> List.take (cell.index + 1)
-                |> List.map getCellExprRecord
-
-        nRecords =
-            List.length exprRecords
-
-        bindings : List String
-        bindings =
-            exprRecords
-                |> List.map .bindings
-                |> List.map (List.map (transformWordsWithKVDict kvDict))
-                |> List.map (List.map (transformWordWithValueDict valueDict))
-                |> List.map (List.map (evaluateWordsWithState state))
-                |> List.concat
-
-        --|> String.join "\n"
-        expressionString__ =
-            exprRecords
-                |> List.drop (nRecords - 1)
-                |> List.map .expression
-                |> String.join "\n"
-
-        expressionString_ =
-            expressionString__
-                --|> normalize
-                |> String.words
-                |> List.map (transformWordsWithKVDict kvDict)
-                |> List.map (transformWordWithValueDict valueDict)
-                |> List.map (evaluateWordsWithState state)
-                |> String.join " "
-
-        expressionString =
-            if expressionString_ == "" then
-                "()"
-
-            else
-                expressionString_
-
-        bindingString =
-            String.join "\n" bindings
-    in
-    if expressionString__ == "state" then
+    if expressionString == "state" then
         ( expressionString, [] )
 
     else if bindingString == "" then
@@ -396,7 +330,7 @@ getBlocks cell =
 
 
 type alias CellExpressionRecord =
-    { bindings : List String, expression : String }
+    { bindings : List String, expressions : List String }
 
 
 {-|
@@ -418,10 +352,11 @@ getCellExprRecord cell =
         bindings_ =
             List.filter (\chunk_ -> isBinding_ chunk_) blocks
 
-        expression =
-            List.drop (List.length bindings_) blocks |> List.concat |> String.join "\n"
+        expressions : List (List String)
+        expressions =
+            List.filter (\chunk_ -> not <| isBinding_ chunk_) blocks
     in
-    { bindings = List.concat bindings_, expression = expression }
+    { bindings = List.concat bindings_, expressions = List.concat expressions }
 
 
 isBinding_ : List String -> Bool
