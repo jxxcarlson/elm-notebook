@@ -75,7 +75,8 @@ evaluateWithCumulativeBindings : FrontendModel -> Cell -> FrontendModel
 evaluateWithCumulativeBindings model cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
+            -- LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithContext model.state model.valueDict model.kvDict model.currentBook.cells cell_
     in
     { model | currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
 
@@ -92,7 +93,7 @@ executeCell : Cell -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 executeCell cell_ model =
     let
         ( stringToEvaluate, bindings ) =
-            LiveBook.Eval.evaluateWithCumulativeBindingsCore model.state model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithContextCore model.state model.valueDict model.kvDict model.currentBook.cells cell_
 
         updatedCell =
             -- Update the cell according to
@@ -293,7 +294,7 @@ updateCell model commandWords cell_ =
         Just "plot2D" ->
             let
                 ( exprString, bindings ) =
-                    LiveBook.Eval.evaluateWithCumulativeBindingsCore model.state
+                    LiveBook.Eval.evaluateWithContextCore model.state
                         model.valueDict
                         model.kvDict
                         model.currentBook.cells
@@ -499,7 +500,7 @@ svgHandler : FrontendModel -> Cell -> Cell
 svgHandler model cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithContext model.state model.valueDict model.kvDict model.currentBook.cells cell_
 
         bindingString =
             updatedCell.bindings |> String.join "\n"
@@ -546,7 +547,7 @@ evalSvgHandler : FrontendModel -> Cell -> Cell
 evalSvgHandler model cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithContext model.state model.valueDict model.kvDict model.currentBook.cells cell_
 
         bindingString =
             updatedCell.bindings
@@ -585,7 +586,7 @@ evalSvgPlusHandler : FrontendModel -> Cell -> FrontendModel
 evalSvgPlusHandler model cell_ =
     let
         updatedCell =
-            LiveBook.Eval.evaluateWithCumulativeBindings model.state model.valueDict model.kvDict model.currentBook.cells cell_
+            LiveBook.Eval.evaluateWithContext model.state model.valueDict model.kvDict model.currentBook.cells cell_
 
         bindings_ =
             updatedCell.bindings
