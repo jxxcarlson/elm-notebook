@@ -246,14 +246,8 @@ updateFromFrontend sessionId clientId msg model =
 
         GetPublicNotebook slug ->
             let
-                _ =
-                    Debug.log "@@ SLUG" slug
-
                 notebooks =
                     NotebookDict.allPublic model.userToNoteBookDict |> List.filter (\b -> String.contains slug b.slug)
-
-                _ =
-                    Debug.log "@@ SLUGSSSS" (List.map .slug notebooks)
             in
             case List.head notebooks of
                 Nothing ->
