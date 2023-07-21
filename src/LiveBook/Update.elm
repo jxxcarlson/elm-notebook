@@ -111,7 +111,7 @@ makeNewCell model index =
     let
         newCell =
             { index = index + 1
-            , text = [ "# New cell (" ++ String.fromInt (index + 2) ++ ") ", "-- code --" ]
+            , text = [ "# New cell (" ++ String.fromInt (index + 2) ++ ") ", "()" ]
             , bindings = []
             , expression = ""
             , value = CVNone
