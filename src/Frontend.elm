@@ -295,6 +295,7 @@ update msg model =
                             , inputStateExpression = model.state.expression
                             , inputStateBindings = model.state.bindings |> String.join "; "
                             , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
+                            , inputValuesToKeep = model.state.valuesToKeep |> String.fromInt
                             , inputStopExpression = model.state.stopExpressionString
                           }
                         , Cmd.none
@@ -631,6 +632,7 @@ update msg model =
                         | currentUser = Just user
                         , currentBook = currentBook
                         , state = setInitialState currentBook model.state
+                        , valuesToKeep = (setInitialState currentBook model.state).valuesToKeep
                         , books = books
                       }
                     , Cmd.batch [ sendToBackend (UpdateUserWith user), sendToBackend (SaveNotebook previousBook) ]
