@@ -19,7 +19,7 @@ import Types exposing (FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
 import View.Button exposing (runCell)
-import View.CellThemed as MarkdownThemed
+import View.CellThemed
 
 
 view : ViewData -> String -> Cell -> Element FrontendMsg
@@ -27,44 +27,48 @@ view viewData cellContents cell =
     E.column
         [ E.paddingEach { top = 0, right = 0, bottom = 0, left = 0 }
         , E.width (E.px viewData.width)
-       -- , Background.color (E.rgb 0.1 0.1 0.8)
+        , Background.color (E.rgb 0.1 0.1 0.1)
         ]
         [ E.row
             [ E.width (E.px viewData.width) ]
             [ viewSourceAndValue viewData cellContents cell
-            --, controls cell
             ]
         ]
 
 
 viewSourceAndValue : ViewData -> String -> Cell -> Element FrontendMsg
 viewSourceAndValue viewData cellContents cell =
-    E.column [  ]
+    E.column [ E.inFront (E.el [ E.alignRight ] (controls cell)) ]
         [ viewSource (viewData.width - controlWidth) cell cellContents
         , viewValue viewData cell
         ]
 
 
 controls cell =
-    E.column
-        [ E.spacing 2
-        , E.width (E.px controlWidth)
-        , E.alignTop
-        , E.height E.fill
-        , E.paddingEach { top = 0, bottom = 8, left = 12, right = 0 }
-        , Background.color Color.darkSteelGray
-        ]
-        [ viewIndex cell
-        , runCell cell.index
-        , newCellAt cell.cellState cell.index
-        , deleteCellAt cell.cellState cell.index
-        , clearCellAt cell.cellState cell.index
-        , View.Button.lockCell cell
-        ]
+    case cell.cellState of
+        CSView ->
+            --E.el [ E.moveDown 24] (viewIndex cell)
+            E.el [ E.moveUp 4 ] (viewIndex cell)
+
+        CSEdit ->
+            E.column
+                [ E.spacing 2
+                , E.width (E.px 90)
+                , E.height (E.px 180)
+                , E.paddingEach { top = 0, bottom = 8, left = 12, right = 0 }
+                , Background.color Color.darkSteelGray
+                ]
+                [ E.el [ E.paddingXY 4 8 ] (viewIndex cell)
+                , runCell cell.index
+                , newCellAt cell.cellState cell.index
+                , deleteCellAt cell.cellState cell.index
+                , clearCellAt cell.cellState cell.index
+                , View.Button.lockCell cell
+                ]
 
 
 controlWidth =
-    86
+    0
 
 
 viewSource : Int -> Cell -> String -> Element FrontendMsg
@@ -93,7 +97,7 @@ viewValue viewData cell =
                     List.length (String.lines str) |> (\x -> scale 14.5 x + 35)
             in
             par realWidth
-                [ MarkdownThemed.renderFull (scale 1.0 realWidth) cellHeight_ str ]
+                [ View.CellThemed.renderFull (scale 1.0 realWidth) cellHeight_ str ]
 
         CVPlot2D args data ->
             case List.Extra.unconsLast args of
@@ -130,9 +134,10 @@ par width =
     E.paragraph
         [ E.spacing 8
         , Font.color Color.black
+
         --, E.paddingEach { top = 8, right = 0, bottom = 12, left = 8 }
         , E.width (E.px width)
-        -- Background.color (E.rgb 0.85 0.85 0.95)
+        , Background.color (E.rgb 0.85 0.85 0.95)
         ]
 
 
@@ -202,9 +207,30 @@ getArg k args =
     List.Extra.getAt k args |> Maybe.withDefault "--"
 
 
-viewIndex : Cell -> Element msg
+viewIndex : Cell -> Element FrontendMsg
 viewIndex cell =
-    E.el [ E.paddingEach { top = 8, bottom = 0, left = 8, right = 0 } ] (E.text <| String.fromInt (cell.index + 1))
+    let
+        action =
+            case cell.cellState of
+                CSView ->
+                    Element.Events.onMouseDown (EditCell cell)
+
+                CSEdit ->
+                    Element.Events.onMouseDown (EvalCell cell.index)
+
+        padding =
+            case cell.cellState of
+                CSView ->
+                    E.paddingEach { top = 16, bottom = 16, left = 0, right = 16 }
+
+                CSEdit ->
+                    E.paddingEach { top = 8, bottom = 0, left = 0, right = 0 }
+    in
+    E.el
+        [ action
+        , padding
+        ]
+        (E.text <| "Cell " ++ String.fromInt (cell.index + 1))
 
 
 viewSource_ width cell =
@@ -243,16 +269,13 @@ viewSource_ width cell =
 
           else
             Element.Events.onMouseDown NoOpFrontendMsg
-        --, E.paddingEach { top = 8, right = 0, bottom = 0, left = 0 }
         , E.width (E.px width)
         , Font.size 14
-       -- , Background.color (E.rgb 0.95 0.95 1.00)
         ]
-        [ MarkdownThemed.renderFull (scale 1.0 width)
+        [ View.CellThemed.renderFull (scale 1.0 width)
             cellHeight_
-          source
+            source
         ]
-
 
 
 stepFunction : List ( number, number ) -> number -> number
@@ -267,27 +290,26 @@ scale factor x =
 
 editCell : Int -> Cell -> String -> Element FrontendMsg
 editCell width cell cellContent =
-    E.el [E.paddingXY 8 4  , Background.color (E.rgb 0.85 0.85 1.00)] (E.column
-        [ E.spacing 8
-
-        , E.paddingEach { top = 1, right = 1, bottom = 1, left = 1 }
-        , E.width (E.px <| width - 16)
-        --, Background.color (E.rgb 0.1 0.1 0.8)
-        ]
-        [ Element.Input.multiline
-            [ Background.color (E.rgb 0.8 0.8 1.0)
-            , Element.Border.width 2
-            , Element.Border.color (E.rgb 0.6 0.6 1.0)
-            , Font.color Color.black
-            --, E.paddingXY 0 2
+    E.el [ E.paddingXY 8 4, Background.color (E.rgb 0.85 0.85 1.0) ]
+        (E.column
+            [ E.spacing 8
+            , E.paddingEach { top = 1, right = 1, bottom = 1, left = 1 }
+            , E.width (E.px <| width - 16)
             ]
-            { onChange = InputElmCode cell.index
-            , text = cellContent
-            , placeholder = Nothing
-            , label = Element.Input.labelHidden ""
-            , spellcheck = False
-            }
-        ])
+            [ Element.Input.multiline
+                [ Background.color (E.rgb 0.8 0.8 1.0)
+                , Element.Border.width 2
+                , Element.Border.color (E.rgb 0.6 0.6 1.0)
+                , Font.color Color.black
+                ]
+                { onChange = InputElmCode cell.index
+                , text = cellContent
+                , placeholder = Nothing
+                , label = Element.Input.labelHidden ""
+                , spellcheck = False
+                }
+            ]
+        )
 
 
 newCellAt : CellState -> Int -> Element FrontendMsg

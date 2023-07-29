@@ -34,7 +34,8 @@ lightTheme =
     , link = Element.rgb255 12 82 109
     , lightGrey = Element.rgb255 220 240 255
     , codeBackground = Element.rgb255 200 200 240
-   --, codeColor = Element.rgb255 255 180 50
+
+    --, codeColor = Element.rgb255 255 180 50
     , codeColor = Element.rgb255 20 20 20
     , codeSpanColor = Element.rgb255 180 50 255
     , grey = Element.rgb255 200 220 240
@@ -69,11 +70,14 @@ render chosenRenderer width_ height_ markdownBody =
                     |> Element.column
                         [ Element.width (Element.px width_)
                         , Element.Background.color lightTheme.background
-                        , Element.height (Element.px <| height_)
-                        , Element.paddingEach { left = 12, right = 12, top = 18, bottom = 0 }
-                        , Element.scrollbarY
+                        , Element.height (Element.px <| height_ - 2)
+                        , Element.paddingEach { left = 12, right = 12, top = 0, bottom = 0 }
                         ]
            )
+
+
+pinkColor =
+    Element.rgb 1.0 0.9 0.9
 
 
 bulletPoint : List (Element msg) -> Element msg

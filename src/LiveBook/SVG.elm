@@ -2,6 +2,7 @@ module LiveBook.SVG exposing (render)
 
 import Color exposing (Color)
 import Element exposing (Element)
+import Element.Background as Background
 import Html exposing (Html)
 import LiveBook.Parser
 import TypedSvg
@@ -21,7 +22,8 @@ render svgList =
             List.map stringToSvg svgList
                 |> List.filterMap identity
     in
-    TypedSvg.svg [ viewBox 0 0 800 400 ] foo |> Element.html
+    --Element.el [Background.color (Element.rgb 0.1 0.1 0.1)] (TypedSvg.svg [ viewBox 0 0 800 400 ] foo |> Element.html)
+     (TypedSvg.svg [ viewBox 0 0 800 400 ] foo |> Element.html)
 
 
 type XSVG

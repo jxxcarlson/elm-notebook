@@ -11,8 +11,20 @@ various changes:
 
 -}
 cellContents cell =
-    cell.text |> List.Extra.dropWhileRight (\line -> String.trim line == "") |> runMachine
+    cell.text |> List.Extra.dropWhileRight (\line -> String.trim line == "") |>  runMachine
 
+prependBlankIf : List String -> List String
+prependBlankIf lines =
+   case List.head lines of
+       Nothing ->
+           []
+
+       Just line ->
+           if String.left 1 line /= "#" then
+               "# " :: lines
+
+           else
+                lines
 
 runMachine : List String -> List String
 runMachine input =

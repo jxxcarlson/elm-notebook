@@ -17,11 +17,14 @@ updateBook cell book =
         let
             prefix =
                 List.filter (\currentCell -> currentCell.index < cell.index) book.cells
+                |> List.map (\c -> { c | cellState = LiveBook.Types.CSView })
 
             suffix =
                 List.filter (\currentCell -> currentCell.index > cell.index) book.cells
+                |> List.map (\c -> { c | cellState = LiveBook.Types.CSView })
         in
         { book | cells = prefix ++ (cell :: suffix), dirty = True }
+
 
 
 addCellToBook : Cell -> Book -> Book
