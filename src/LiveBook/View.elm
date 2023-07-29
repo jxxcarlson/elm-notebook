@@ -3,6 +3,7 @@ module LiveBook.View exposing (view)
 import Dict exposing (Dict)
 import Element as E exposing (Element)
 import Element.Background as Background
+import Element.Border
 import Element.Events
 import Element.Font as Font
 import Element.Input
@@ -26,19 +27,19 @@ view viewData cellContents cell =
     E.column
         [ E.paddingEach { top = 0, right = 0, bottom = 0, left = 0 }
         , E.width (E.px viewData.width)
-        , Background.color (E.rgb 0.1 0.1 0.1)
+       -- , Background.color (E.rgb 0.1 0.1 0.8)
         ]
         [ E.row
             [ E.width (E.px viewData.width) ]
             [ viewSourceAndValue viewData cellContents cell
-            , controls cell
+            --, controls cell
             ]
         ]
 
 
 viewSourceAndValue : ViewData -> String -> Cell -> Element FrontendMsg
 viewSourceAndValue viewData cellContents cell =
-    E.column [ E.alignBottom ]
+    E.column [  ]
         [ viewSource (viewData.width - controlWidth) cell cellContents
         , viewValue viewData cell
         ]
@@ -129,9 +130,9 @@ par width =
     E.paragraph
         [ E.spacing 8
         , Font.color Color.black
-        , E.paddingEach { top = 8, right = 0, bottom = 12, left = 8 }
+        --, E.paddingEach { top = 8, right = 0, bottom = 12, left = 8 }
         , E.width (E.px width)
-        , Background.color (E.rgb 0.85 0.85 0.95)
+        -- Background.color (E.rgb 0.85 0.85 0.95)
         ]
 
 
@@ -236,20 +237,22 @@ viewSource_ width cell =
             processedLines |> String.join "\n"
     in
     E.column
-        [ E.spacing 8
+        [ E.spacing 0
         , if not cell.locked then
             Element.Events.onMouseDown (EditCell cell)
 
           else
             Element.Events.onMouseDown NoOpFrontendMsg
-        , E.paddingEach { top = 8, right = 0, bottom = 8, left = 0 }
+        --, E.paddingEach { top = 8, right = 0, bottom = 0, left = 0 }
         , E.width (E.px width)
         , Font.size 14
+       -- , Background.color (E.rgb 0.95 0.95 1.00)
         ]
         [ MarkdownThemed.renderFull (scale 1.0 width)
             cellHeight_
-            source
+          source
         ]
+
 
 
 stepFunction : List ( number, number ) -> number -> number
@@ -264,15 +267,19 @@ scale factor x =
 
 editCell : Int -> Cell -> String -> Element FrontendMsg
 editCell width cell cellContent =
-    E.column
+    E.el [E.paddingXY 8 4  , Background.color (E.rgb 0.85 0.85 1.00)] (E.column
         [ E.spacing 8
+
         , E.paddingEach { top = 1, right = 1, bottom = 1, left = 1 }
-        , E.width (E.px width)
-        , Background.color (E.rgb 0.1 0.1 0.8)
+        , E.width (E.px <| width - 16)
+        --, Background.color (E.rgb 0.1 0.1 0.8)
         ]
         [ Element.Input.multiline
             [ Background.color (E.rgb 0.8 0.8 1.0)
+            , Element.Border.width 2
+            , Element.Border.color (E.rgb 0.6 0.6 1.0)
             , Font.color Color.black
+            --, E.paddingXY 0 2
             ]
             { onChange = InputElmCode cell.index
             , text = cellContent
@@ -280,7 +287,7 @@ editCell width cell cellContent =
             , label = Element.Input.labelHidden ""
             , spellcheck = False
             }
-        ]
+        ])
 
 
 newCellAt : CellState -> Int -> Element FrontendMsg

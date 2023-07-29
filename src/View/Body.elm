@@ -170,8 +170,8 @@ viewNotebook model user =
             }
     in
     E.column
-        [ E.paddingEach { left = 24, right = 24, top = 20, bottom = 0 }
-        , E.spacing 18
+        [ E.paddingEach { left = 24, right = 24, top = 0, bottom = 0 }
+        --, E.spacing 18
         ]
         [ E.column
             [ View.Style.fgGray 0.6
@@ -180,8 +180,8 @@ viewNotebook model user =
             , E.width (E.px (View.Geometry.notebookWidth model))
             , E.scrollbarY
             , E.clipX
-            , E.spacing 24
-            , E.paddingEach { top = 19, bottom = 48, left = 0, right = 0 }
+          --  , E.spacing 24
+           -- , E.paddingEach { top = 19, bottom = 48, left = 0, right = 0 }
             ]
             (List.map
                 (LiveBook.View.view viewData model.cellContent)

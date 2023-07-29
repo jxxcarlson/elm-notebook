@@ -37,6 +37,7 @@ lightTheme =
     , background = Element.rgb255 220 220 255
     }
 
+pinkColor = Element.rgb255 255 220 220
 
 renderFull : Int -> Int -> String -> Element msg
 renderFull width_ height_ markdownBody =
@@ -81,11 +82,12 @@ bulletPoint children =
             (Element.text " • " :: children)
         ]
 
+pink =  Element.Background.color (Element.rgb 1 0.5 0.5)
 
 renderer : Theme -> Markdown.Renderer.Renderer (Element msg)
 renderer theme =
     { heading = \data -> Element.row [] [ heading theme data ]
-    , paragraph = Element.paragraph [ Element.paddingEach { left = 0, right = 0, top = 0, bottom = 20 } ]
+    , paragraph = Element.paragraph [Element.paddingEach { left = 0, right = 0, top = 0, bottom = 20 } ]
     , blockQuote =
         \children ->
             Element.column
@@ -113,7 +115,7 @@ renderer theme =
                                     ]
 
                                 Nothing ->
-                                    [ width_
+                                    [   width_
                                         |> Maybe.andThen String.toInt
                                         |> Maybe.map (\w -> width (px w))
                                         |> Maybe.withDefault (width fill)
@@ -123,6 +125,7 @@ renderer theme =
                         Just bg ->
                             el [ Element.Border.rounded 10, padding 20 ] <| image attrs { src = src, description = "" }
 
+
                         Nothing ->
                             image attrs { src = src, description = "" }
                 )
@@ -131,7 +134,7 @@ renderer theme =
                 |> Markdown.Html.withOptionalAttribute "maxwidth"
                 |> Markdown.Html.withOptionalAttribute "bg"
             ]
-    , text = \s -> Element.el [] (Element.text s)
+    , text = \s -> Element.el [ ] (Element.text s)
     , codeSpan =
         \content -> Element.html (Html.code [] [ Html.text content ])
     , strong = \list -> Element.paragraph [ Element.Font.bold ] list
