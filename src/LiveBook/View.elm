@@ -62,6 +62,11 @@ controls cell =
                     , Background.color Color.darkSteelGray
                     ]
                     [ runCell cell.index
+                    , if isSimulation cell then
+                        View.Button.start
+
+                      else
+                        E.none
                     , newCellAt cell.cellState cell.index
                     , deleteCellAt cell.cellState cell.index
                     , clearCellAt cell.cellState cell.index
@@ -73,6 +78,14 @@ controls cell =
 
 controlWidth =
     0
+
+
+isSimulation cell =
+    let
+        source =
+            cell.text |> String.join "\n"
+    in
+    String.contains "timeSeries" source || String.contains "evalSvg" source
 
 
 viewSource : Int -> Cell -> String -> Element FrontendMsg

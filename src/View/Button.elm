@@ -33,6 +33,7 @@ module View.Button exposing
     , signIn
     , signOut
     , signUp
+    , start
     , stateEditor
     , toggleViewPrivateDataSets
     , toggleViewPublicDataSets
@@ -137,6 +138,11 @@ setClock model =
 resetClock : Element FrontendMsg
 resetClock =
     Button.smallPrimary { msg = Reset, status = Button.Active, label = Button.Text "Reset", tooltipText = Nothing }
+
+
+start : Element FrontendMsg
+start =
+    Button.smallPrimary { msg = Start, status = Button.Active, label = Button.Text "Start", tooltipText = Nothing }
 
 
 setState : Element FrontendMsg

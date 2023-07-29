@@ -105,6 +105,7 @@ notebookControls : FrontendModel -> Element FrontendMsg
 notebookControls model =
     E.row [ E.spacing 12, E.paddingEach { top = 0, bottom = 12, left = 0, right = 0 } ]
         [ View.Button.stateEditor
+        , View.Button.start
         , View.Button.resetClock
         , View.Button.setClock model
         ]
@@ -171,6 +172,7 @@ viewNotebook model user =
     in
     E.column
         [ E.paddingEach { left = 24, right = 24, top = 0, bottom = 0 }
+
         --, E.spacing 18
         ]
         [ E.column
@@ -180,8 +182,9 @@ viewNotebook model user =
             , E.width (E.px (View.Geometry.notebookWidth model))
             , E.scrollbarY
             , E.clipX
-          --  , E.spacing 24
-           -- , E.paddingEach { top = 19, bottom = 48, left = 0, right = 0 }
+
+            --  , E.spacing 24
+            -- , E.paddingEach { top = 19, bottom = 48, left = 0, right = 0 }
             ]
             (List.map
                 (LiveBook.View.view viewData model.cellContent)

@@ -706,79 +706,52 @@ update msg model =
 
                 newState =
                     { oldState | ticks = 0, values = [ oldState.initialValue ], currentValue = oldState.initialValue }
+
+                newModel =
+                    { model
+                        | inputInitialStateValue = model.state.initialValue |> Value.toString
+                        , inputStateExpression = model.state.expression
+                        , inputStateBindings = model.state.bindings |> String.join "; "
+                        , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
+                        , inputValuesToKeep = model.state.valuesToKeep |> String.fromInt
+                        , inputStopExpression = model.state.stopExpressionString
+                        , clockState = ClockStopped
+                        , tickCount = 0
+                        , state = newState
+                        , svgList = []
+                    }
             in
-            ( { model | clockState = ClockStopped, tickCount = 0, state = newState, svgList = [] }, Cmd.none )
+            ( newModel, Cmd.none )
+
+        Start ->
+            let
+                oldState =
+                    model.state
+
+                newState =
+                    { oldState | ticks = 0, values = [ oldState.initialValue ], currentValue = oldState.initialValue }
+
+                newModel =
+                    { model
+                        | inputInitialStateValue = model.state.initialValue |> Value.toString
+                        , inputStateExpression = model.state.expression
+                        , inputStateBindings = model.state.bindings |> String.join "; "
+                        , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
+                        , inputValuesToKeep = model.state.valuesToKeep |> String.fromInt
+                        , inputStopExpression = model.state.stopExpressionString
+                        , clockState = ClockRunning
+                        , tickCount = 0
+                        , state = newState
+                        , svgList = []
+                    }
+            in
+            ( newModel, Cmd.none )
 
         SetClock state ->
             ( { model | clockState = state }, Cmd.none )
 
         SetState ->
-            let
-                valuesToKeep =
-                    model.inputValuesToKeep |> String.toInt |> Maybe.withDefault 1 |> (\x -> max 1 x)
-
-                setValue state_ =
-                    case LiveBook.Parser.parse model.inputInitialStateValue of
-                        Nothing ->
-                            state_
-
-                        Just value ->
-                            { state_ | values = [ value ], currentValue = value, initialValue = value }
-
-                setExpression state_ =
-                    { state_ | expression = model.inputStateExpression }
-
-                setBindings state_ =
-                    { state_ | bindings = model.inputStateBindings |> String.split ";" |> List.map String.trim }
-
-                newFastTickInterval =
-                    model.inputFastTickInterval |> String.toFloat |> Maybe.withDefault 60.0 |> (\x -> max 60 x)
-
-                setValuesToKeep : { a | valuesToKeep : Int } -> { a | valuesToKeep : Int }
-                setValuesToKeep state_ =
-                    { state_ | valuesToKeep = valuesToKeep }
-
-                setFastTickInterval state_ =
-                    { state_ | fastTickInterval = newFastTickInterval }
-
-                setStopValue state_ =
-                    { state_ | stopExpressionString = model.inputStopExpression }
-
-                oldState =
-                    model.state
-
-                newState =
-                    oldState
-                        |> setValue
-                        |> setExpression
-                        |> setBindings
-                        |> setFastTickInterval
-                        |> setStopValue
-                        |> setValuesToKeep
-
-                oldNotebook =
-                    model.currentBook
-
-                newNotebook =
-                    { oldNotebook
-                        | dirty = True
-                        , initialStateString = model.inputInitialStateValue
-                        , stateExpression = model.inputStateExpression
-                        , stateBindings = model.inputStateBindings |> String.split ";" |> List.map String.trim
-                        , stopExpressionString = model.inputStopExpression
-                        , fastTickInterval = newFastTickInterval
-                        , valuesToKeep = valuesToKeep
-                    }
-            in
-            ( { model
-                | state = newState
-                , fastTickInterval = newFastTickInterval
-                , currentBook = newNotebook
-                , popupState = NoPopup
-                , valuesToKeep = valuesToKeep
-              }
-            , sendToBackend (SaveNotebook newNotebook)
-            )
+            setState model
 
         UpdateNotebookTitle ->
             if not (Predicate.canSave model) then
@@ -1046,3 +1019,72 @@ getStopExpression model =
         |> LiveBook.Eval.evaluateExpressionStringWithState model.state
         |> Eval.eval
         |> Result.toMaybe
+
+
+setState model =
+    let
+        valuesToKeep =
+            model.inputValuesToKeep |> String.toInt |> Maybe.withDefault 1 |> (\x -> max 1 x)
+
+        setValue state_ =
+            case LiveBook.Parser.parse model.inputInitialStateValue of
+                Nothing ->
+                    state_
+
+                Just value ->
+                    { state_ | values = [ value ], currentValue = value, initialValue = value }
+
+        setExpression state_ =
+            { state_ | expression = model.inputStateExpression }
+
+        setBindings state_ =
+            { state_ | bindings = model.inputStateBindings |> String.split ";" |> List.map String.trim }
+
+        newFastTickInterval =
+            model.inputFastTickInterval |> String.toFloat |> Maybe.withDefault 60.0 |> (\x -> max 60 x)
+
+        setValuesToKeep : { a | valuesToKeep : Int } -> { a | valuesToKeep : Int }
+        setValuesToKeep state_ =
+            { state_ | valuesToKeep = valuesToKeep }
+
+        setFastTickInterval state_ =
+            { state_ | fastTickInterval = newFastTickInterval }
+
+        setStopValue state_ =
+            { state_ | stopExpressionString = model.inputStopExpression }
+
+        oldState =
+            model.state
+
+        newState =
+            oldState
+                |> setValue
+                |> setExpression
+                |> setBindings
+                |> setFastTickInterval
+                |> setStopValue
+                |> setValuesToKeep
+
+        oldNotebook =
+            model.currentBook
+
+        newNotebook =
+            { oldNotebook
+                | dirty = True
+                , initialStateString = model.inputInitialStateValue
+                , stateExpression = model.inputStateExpression
+                , stateBindings = model.inputStateBindings |> String.split ";" |> List.map String.trim
+                , stopExpressionString = model.inputStopExpression
+                , fastTickInterval = newFastTickInterval
+                , valuesToKeep = valuesToKeep
+            }
+    in
+    ( { model
+        | state = newState
+        , fastTickInterval = newFastTickInterval
+        , currentBook = newNotebook
+        , popupState = NoPopup
+        , valuesToKeep = valuesToKeep
+      }
+    , sendToBackend (SaveNotebook newNotebook)
+    )

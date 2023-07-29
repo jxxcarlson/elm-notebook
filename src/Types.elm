@@ -178,6 +178,7 @@ type FrontendMsg
     | SetClock ClockState
     | SetState
     | Reset
+    | Start
     | TogglePublic
     | ClearNotebookValues
     | SetCurrentNotebook Book
