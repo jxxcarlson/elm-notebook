@@ -15,7 +15,7 @@ view model =
         [ E.el [ Font.color (E.rgb 0.8 0.8 0.8), Font.size 24, E.centerX, E.paddingEach { left = 0, right = 0, top = 24, bottom = 8 } ] (E.text "Elm Notebook")
         , E.column [ E.spacing 4 ]
             [ E.image [ E.width (E.px 600), E.centerX, E.centerY ]
-                { src = "https://imagedelivery.net/9U-0Y4sEzXlO6BXzTnQnYQ/178391ec-39e8-43cc-a712-a23aae4a4f00/public"
+                { src = "https://imagedelivery.net/9U-0Y4sEzXlO6BXzTnQnYQ/7cdb9fb5-7383-4dc8-5831-1ad36a4dbf00/public"
                 , description = "Cells in Elm Notebook"
                 }
             , E.el [ Font.size 12, Font.color UILibrary.Color.lightGray ] (E.text "Screenshot of Elm Notebook")
