@@ -48,23 +48,27 @@ controls cell =
     case cell.cellState of
         CSView ->
             --E.el [ E.moveDown 24] (viewIndex cell)
-            E.el [ E.moveUp 4 ] (viewIndex cell)
+            E.el [] (viewIndex cell)
 
         CSEdit ->
-            E.column
-                [ E.spacing 2
-                , E.width (E.px 90)
-                , E.height (E.px 180)
-                , E.paddingEach { top = 0, bottom = 8, left = 12, right = 0 }
-                , Background.color Color.darkSteelGray
-                ]
-                [ E.el [ E.paddingXY 4 8 ] (viewIndex cell)
-                , runCell cell.index
-                , newCellAt cell.cellState cell.index
-                , deleteCellAt cell.cellState cell.index
-                , clearCellAt cell.cellState cell.index
-                , View.Button.lockCell cell
-                ]
+            E.el [ E.paddingEach { left = 0, right = 12, bottom = 0, top = 0 }, E.moveUp 32 ]
+                (E.row
+                    [ E.spacing 2
+                    , E.moveUp 0
+                    , E.width (E.px 300)
+                    , E.height (E.px 32)
+                    , E.spacing 0
+                    , E.paddingEach { top = 2, bottom = 2, left = 8, right = 4 }
+                    , Background.color Color.darkSteelGray
+                    ]
+                    [ runCell cell.index
+                    , newCellAt cell.cellState cell.index
+                    , deleteCellAt cell.cellState cell.index
+                    , clearCellAt cell.cellState cell.index
+                    , View.Button.lockCell cell
+                    , viewIndex cell
+                    ]
+                )
 
 
 controlWidth =
@@ -224,7 +228,7 @@ viewIndex cell =
                     E.paddingEach { top = 16, bottom = 16, left = 0, right = 16 }
 
                 CSEdit ->
-                    E.paddingEach { top = 8, bottom = 0, left = 0, right = 0 }
+                    E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
     in
     E.el
         [ action
@@ -257,7 +261,7 @@ viewSource_ width cell =
                 50
 
         cellHeight_ =
-            List.length processedLines |> (\x -> scale 14.5 x + delta x)
+            List.length processedLines |> (\x -> scale 14.0 x + delta 0)
 
         source =
             processedLines |> String.join "\n"
@@ -319,7 +323,7 @@ newCellAt cellState index =
             Button.smallPrimary { msg = NewCell index, status = Button.ActiveTransparent, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
 
         CSEdit ->
-            E.none
+            Button.smallPrimary { msg = NewCell index, status = Button.ActiveTransparent, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
 
 
 deleteCellAt : CellState -> Int -> Element FrontendMsg
