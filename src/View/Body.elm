@@ -23,7 +23,8 @@ view model user =
     E.row
         [ E.width (E.px (View.Geometry.appWidth model))
         , E.height (E.px (View.Geometry.bodyHeight model))
-        , E.padding 0
+
+        --, E.paddingEach { left = 0, right = 0, top = 18, bottom = 0 }
         ]
         [ viewNotebook model user
         , E.column [] [ viewNotebookList model user, monitor model ]

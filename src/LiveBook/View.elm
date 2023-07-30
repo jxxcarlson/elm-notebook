@@ -38,28 +38,44 @@ view viewData cellContents cell =
 
 viewSourceAndValue : ViewData -> String -> Cell -> Element FrontendMsg
 viewSourceAndValue viewData cellContents cell =
-    E.column [ E.inFront (E.el [ E.alignRight ] (controls cell)) ]
+    E.column []
+        [ E.el [ E.alignRight ] (controls viewData.width cell)
+        , viewSource (viewData.width - controlWidth) cell cellContents
+        , viewValue viewData cell
+        ]
+
+
+viewSourceAndValue1 : ViewData -> String -> Cell -> Element FrontendMsg
+viewSourceAndValue1 viewData cellContents cell =
+    E.column [ E.inFront (E.el [ E.alignRight ] (controls viewData.width cell)) ]
         [ viewSource (viewData.width - controlWidth) cell cellContents
         , viewValue viewData cell
         ]
 
 
-controls cell =
+controlBGView =
+    Background.color (E.rgb255 220 220 255)
+
+
+controlBGEdit =
+    Background.color (E.rgb 0.8 0.8 1.0)
+
+
+controls width_ cell =
     case cell.cellState of
         CSView ->
             --E.el [ E.moveDown 24] (viewIndex cell)
-            E.el [] (viewIndex cell)
+            E.el [ controlBGView, E.width (E.px width_), E.height (E.px 32) ]
+                (E.el [ E.alignRight ] (viewIndex cell))
 
         CSEdit ->
-            E.el [ E.paddingEach { left = 0, right = 12, bottom = 0, top = 0 }, E.moveUp 32 ]
+            E.el [ controlBGEdit, E.width (E.px width_), E.paddingEach { left = 0, right = 12, bottom = 0, top = 0 } ]
                 (E.row
                     [ E.spacing 2
-                    , E.moveUp 0
-                    , E.width (E.px 300)
+                    , E.alignRight
                     , E.height (E.px 32)
-                    , E.spacing 0
+                    , E.spacing 4
                     , E.paddingEach { top = 2, bottom = 2, left = 8, right = 4 }
-                    , Background.color Color.darkSteelGray
                     ]
                     [ runCell cell.index
                     , if isSimulation cell then
@@ -238,7 +254,7 @@ viewIndex cell =
         padding =
             case cell.cellState of
                 CSView ->
-                    E.paddingEach { top = 16, bottom = 16, left = 0, right = 16 }
+                    E.paddingEach { top = 9, bottom = 0, left = 0, right = 16 }
 
                 CSEdit ->
                     E.paddingEach { top = 0, bottom = 0, left = 0, right = 0 }
@@ -333,17 +349,17 @@ newCellAt : CellState -> Int -> Element FrontendMsg
 newCellAt cellState index =
     case cellState of
         CSView ->
-            Button.smallPrimary { msg = NewCell index, status = Button.ActiveTransparent, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
+            Button.smallPrimary { msg = NewCell index, status = Button.Active, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
 
         CSEdit ->
-            Button.smallPrimary { msg = NewCell index, status = Button.ActiveTransparent, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
+            Button.smallPrimary { msg = NewCell index, status = Button.Active, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
 
 
 deleteCellAt : CellState -> Int -> Element FrontendMsg
 deleteCellAt cellState index =
     --case cellState of
     --    CSView ->
-    Button.smallPrimary { msg = DeleteCell index, status = Button.ActiveTransparent, label = Button.Text "Delete", tooltipText = Just "Delete cell" }
+    Button.smallPrimary { msg = DeleteCell index, status = Button.Active, label = Button.Text "Delete", tooltipText = Just "Delete cell" }
 
 
 
@@ -353,4 +369,4 @@ deleteCellAt cellState index =
 
 clearCellAt : CellState -> Int -> Element FrontendMsg
 clearCellAt cellState index =
-    Button.smallPrimary { msg = ClearCell index, status = Button.ActiveTransparent, label = Button.Text "Clear", tooltipText = Just "Edit cell" }
+    Button.smallPrimary { msg = ClearCell index, status = Button.Active, label = Button.Text "Clear", tooltipText = Just "Edit cell" }
