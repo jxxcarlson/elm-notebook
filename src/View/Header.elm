@@ -73,7 +73,7 @@ signedInHeader model user =
             View.Input.title model
 
           else
-            title model.currentBook.title
+            underlinedTitle model.currentBook.title
         , View.Utility.showIf (Predicate.regularUser model) (Button.editTitle model.appMode)
         , View.Utility.showIf (Predicate.regularUser model) Button.newNotebook
         , View.Utility.showIf (Predicate.regularUser model) (Button.deleteNotebook model.deleteNotebookState)
@@ -87,4 +87,9 @@ signedInHeader model user =
 
 title : String -> Element msg
 title str =
+    E.el [ Font.size 18, Font.color View.Color.white ] (E.text str)
+
+
+underlinedTitle : String -> Element msg
+underlinedTitle str =
     E.el [ Font.size 18, Font.color View.Color.white, Font.underline ] (E.text str)
