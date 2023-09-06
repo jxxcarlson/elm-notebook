@@ -44,8 +44,8 @@ notSignedInHeader model =
             , View.Input.password model
             , Button.signIn
             ]
-        , Button.manualLarge
         , welcomeLink
+        , Button.manualLarge
         , E.el [ E.alignRight ] Button.signUp
         ]
 
@@ -53,7 +53,7 @@ notSignedInHeader model =
 welcomeLink =
     E.newTabLink []
         { url = "https://elm-notebook.lamdera.app/p/jxxcarlson-welcome-to-elm-notebooks"
-        , label = E.el [ Font.underline, Font.color (E.rgb 0.65 0.65 1), Font.size 16 ] (E.text "Welcome Notebook")
+        , label = E.el [ Font.underline, Font.color (E.rgb 0.65 0.65 1), Font.size 16 ] (E.text "Sign in as Guest")
         }
 
 
@@ -79,8 +79,8 @@ signedInHeader model user =
         , View.Utility.showIf (Predicate.regularUser model) (Button.deleteNotebook model.deleteNotebookState)
         , View.Utility.showIf (Predicate.regularUser model) (Button.cancelDeleteNotebook model.deleteNotebookState)
         , Button.clearValues
-        , Button.manual
         , welcomeLink
+        , Button.manual
         , E.el [ E.alignRight ] (Button.signOut user.username)
         ]
 

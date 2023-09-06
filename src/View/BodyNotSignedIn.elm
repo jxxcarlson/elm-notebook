@@ -35,11 +35,11 @@ view model =
             ]
             [ E.paragraph [ E.spacing 8 ]
                 [ E.text "An Elm Notebook is made up of cells which contain both text and Elm code. "
-                , E.el [ Font.italic, Font.color (E.rgb 0.65 0.65 1.0) ] (E.text "Click on the \"Welcome Notebook,\" for examples. (See link above center in blue.)")
+                , E.el [ Font.italic, Font.color (E.rgb 0.65 0.65 1.0) ] (E.text "Click on the \"Sign in as Guest,\" button get started and see examples. (See link above center in blue.)")
                 ]
             , E.row [ E.height (E.px 8) ] []
             , E.paragraph [ E.spacing 8, Font.italic ]
-                [ E.text "Quick start: (1) Sign up.  (2) To edit a cell, click on it.  (3) To run the code in a cell, type ctrl-Enter. "
+                [ E.text "To create and save notebooks: (1) Sign up.  (2) To edit a cell, click on it.  (3) To run the code in a cell, type ctrl-Enter or click on \"Run\"."
                 ]
             , E.row [ E.height (E.px 8) ] []
             , E.paragraph [ E.spacing 8 ]
