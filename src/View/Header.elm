@@ -68,7 +68,7 @@ signedInHeader model user =
         , Element.Border.widthEach { left = 0, right = 0, top = 0, bottom = 1 }
         , Element.Border.color Color.stillDarkerSteelGray
         ]
-        [ title "Elm Notebook"
+        [ title "Elm Notebook:"
         , if model.appMode == AMEditTitle then
             View.Input.title model
 
@@ -87,4 +87,4 @@ signedInHeader model user =
 
 title : String -> Element msg
 title str =
-    E.el [ Font.size 18, Font.color View.Color.white ] (E.text str)
+    E.el [ Font.size 18, Font.color View.Color.white, Font.underline ] (E.text str)
