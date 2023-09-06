@@ -68,12 +68,14 @@ signedInHeader model user =
         , Element.Border.widthEach { left = 0, right = 0, top = 0, bottom = 1 }
         , Element.Border.color Color.stillDarkerSteelGray
         ]
-        [ title "Elm Notebook:"
-        , if model.appMode == AMEditTitle then
-            View.Input.title model
+        [ E.row [ E.spacing 8 ]
+            [ title "Elm Notebook:"
+            , if model.appMode == AMEditTitle then
+                View.Input.title model
 
-          else
-            underlinedTitle model.currentBook.title
+              else
+                underlinedTitle model.currentBook.title
+            ]
         , View.Utility.showIf (Predicate.regularUser model) (Button.editTitle model.appMode)
         , View.Utility.showIf (Predicate.regularUser model) Button.newNotebook
         , View.Utility.showIf (Predicate.regularUser model) (Button.deleteNotebook model.deleteNotebookState)
