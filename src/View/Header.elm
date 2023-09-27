@@ -68,7 +68,7 @@ signedInHeader model user =
         , Element.Border.widthEach { left = 0, right = 0, top = 0, bottom = 1 }
         , Element.Border.color Color.stillDarkerSteelGray
         ]
-        [ E.row [ E.spacing 8, E.paddingEach { left = 12, right = 0, top = 0, bottom = 0 } ]
+        [ E.row [ E.spacing 8, E.paddingEach { left = 10, right = 0, top = 0, bottom = 0 } ]
             [ title "Elm Notebook:"
             , if model.appMode == AMEditTitle then
                 View.Input.title model

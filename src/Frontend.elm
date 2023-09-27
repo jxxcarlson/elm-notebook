@@ -7,7 +7,10 @@ import Browser.Dom
 import Browser.Events
 import Browser.Navigation as Nav
 import Dict
-import Eval
+import LiveBook.Eval
+import Notebook.ErrorReporter
+import Notebook.Eval
+import Codec exposing (Codec, Value)
 import File
 import File.Download
 import File.Select
@@ -30,6 +33,7 @@ import LiveBook.Types exposing (Book)
 import LiveBook.Update
 import Loading
 import Navigation
+import Ports
 import Predicate
 import Random
 import Task
@@ -37,7 +41,6 @@ import Time
 import Types exposing (..)
 import Url exposing (Url)
 import User
-import Value
 import View.Main
 
 
@@ -155,6 +158,24 @@ update msg model =
             , Cmd.none
             )
 
+        ReceivedFromJS value ->
+                    case Codec.decodeValue Notebook.Eval.replDataCodec value of
+                        Ok data ->
+                            ( { model | replData = Just data }, Cmd.none )
+
+                        Err _ ->
+                            ( { model | replData = Nothing }, Cmd.none
+        GotReply result ->
+                    case result of
+                        Ok str ->
+                            if Notebook.Eval.hasReplError str then
+                                ( { model | report = Notebook.Eval.reportError str }, Cmd.none )
+
+                            else
+                                ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Ok" ] }, Ports.sendDataToJS str )
+
+                        Err _ ->
+                            ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Error" ] }, Cmd.none )
         KeyboardMsg keyMsg ->
             let
                 pressedKeys =

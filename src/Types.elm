@@ -6,6 +6,8 @@ import Browser.Dom
 import Browser.Navigation exposing (Key)
 import Dict exposing (Dict)
 import File exposing (File)
+import Http
+import Json.Decode exposing (Value)
 import Keyboard
 import Lamdera exposing (ClientId)
 import LiveBook.DataSet
@@ -15,7 +17,6 @@ import Random
 import Time
 import Url exposing (Url)
 import User exposing (User)
-import Value exposing (Value)
 
 
 type alias FrontendModel =
@@ -157,6 +158,9 @@ type FrontendMsg
     | InputStateBindings String
     | InputStopExpression String
     | InputValuesToKeep String
+      -- Notebook
+    | GotReply (Result Http.Error String)
+    | ReceivedFromJS Value
       -- DATA
     | AskToListDataSets DataSetDescription
     | AskToSaveDataSet LiveBook.DataSet.DataSetMetaData

@@ -1,12 +1,11 @@
 module LiveBook.Cell exposing (evalCell)
 
 import Dict exposing (Dict)
-import Eval
 import File.Select
 import Lamdera
 import List.Extra
 import LiveBook.CellHelper
-import LiveBook.Eval
+import LiveBook.Eval as Eval
 import LiveBook.Function
 import LiveBook.Parser
 import LiveBook.State
