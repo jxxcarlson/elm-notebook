@@ -27,12 +27,3 @@ type alias ReplData =
     , value : String
     , tipe : String
     }
-
-
-type Msg
-    = NoOp
-    | InputText String
-    | RequestEval
-    | GotReply (Result Http.Error String)
-    | ReceivedFromJS String
-    | KeyboardMsg Keyboard.Msg

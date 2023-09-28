@@ -22,7 +22,8 @@ import User exposing (User)
 
 
 type alias FrontendModel =
-    { key : Key
+    { -- SYSTEM
+      key : Key
     , url : Url
     , message : String
     , messages : List Message

@@ -84,7 +84,7 @@ editCell model cell =
             { cell | cellState = CSEdit }
 
         newBook =
-            LiveBook.CellHelper.updateBook updatedCell model.currentBook
+            LiveBook.CellHelper.updateBookWithCell updatedCell model.currentBook
     in
     ( { model | currentCellIndex = cell.index, cellContent = cell.text |> String.join "\n", currentBook = newBook }, Cmd.none )
 
@@ -101,7 +101,7 @@ clearCell model index =
                     { cell_ | text = [ "" ], cellState = CSView, value = CVNone }
 
                 newBook =
-                    LiveBook.CellHelper.updateBook updatedCell model.currentBook
+                    LiveBook.CellHelper.updateBookWithCell updatedCell model.currentBook
             in
             ( { model | cellContent = "", currentBook = newBook }, Cmd.none )
 
@@ -141,7 +141,7 @@ setCellValue model index cellValue =
             model
 
         Just cell_ ->
-            { model | currentBook = LiveBook.CellHelper.updateBook { cell_ | value = cellValue } model.currentBook }
+            { model | currentBook = LiveBook.CellHelper.updateBookWithCell { cell_ | value = cellValue } model.currentBook }
 
 
 updateCellText : FrontendModel -> Int -> String -> FrontendModel
@@ -155,7 +155,7 @@ updateCellText model index str =
                 updatedCell =
                     { cell_ | text = str |> String.split "\n" }
             in
-            { model | cellContent = str, currentBook = LiveBook.CellHelper.updateBook updatedCell model.currentBook }
+            { model | cellContent = str, currentBook = LiveBook.CellHelper.updateBookWithCell updatedCell model.currentBook }
 
 
 toggleCellLock : Cell -> FrontendModel -> FrontendModel
@@ -165,7 +165,7 @@ toggleCellLock cell model =
             { cell | locked = not cell.locked }
 
         updatedBook =
-            LiveBook.CellHelper.updateBook updatedCell model.currentBook
+            LiveBook.CellHelper.updateBookWithCell updatedCell model.currentBook
     in
     { model | currentBook = updatedBook }
 

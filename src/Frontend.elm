@@ -20,6 +20,7 @@ import List.Extra
 import LiveBook.Action
 import LiveBook.Book
 import LiveBook.Cell
+import LiveBook.CellHelper
 import LiveBook.Codec
 import LiveBook.Config
 import LiveBook.DataSet
@@ -166,7 +167,11 @@ update msg model =
         ReceivedFromJS str ->
             case Codec.decodeString Notebook.Eval.replDataCodec str of
                 Ok data ->
-                    ( { model | replData = Just data }, Cmd.none )
+                    let
+                        book =
+                            LiveBook.CellHelper.updateBookWithCellIndexAndReplData model.currentCellIndex data model.currentBook
+                    in
+                    ( { model | replData = Just data, currentBook = book }, Cmd.none )
 
                 Err _ ->
                     ( { model | replData = Nothing }, Cmd.none )
@@ -175,7 +180,7 @@ update msg model =
             case result of
                 Ok str ->
                     if Notebook.Eval.hasReplError str then
-                        ( { model | report = Notebook.Eval.reportError str }, Cmd.none )
+                        ( { model | report = Notebook.Eval.reportError (str |> Debug.log "ERROR REPORT") }, Cmd.none )
 
                     else
                         ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Ok" ] }, Ports.sendDataToJS str )

@@ -1,14 +1,26 @@
-module LiveBook.CellHelper exposing (addCellToBook, updateBook)
+module LiveBook.CellHelper exposing (addCellToBook, updateBookWithCell, updateBookWithCellIndexAndReplData)
 
+import List.Extra
 import LiveBook.Types exposing (Book, Cell)
+import Notebook.Types
 
 
 
 -- HELPERS
 
 
-updateBook : Cell -> Book -> Book
-updateBook cell book =
+updateBookWithCellIndexAndReplData : Int -> Notebook.Types.ReplData -> Book -> Book
+updateBookWithCellIndexAndReplData cellIndex replData book =
+    case List.Extra.getAt cellIndex book.cells of
+        Nothing ->
+            book
+
+        Just targetCell ->
+            updateBookWithCell { targetCell | value = LiveBook.Types.CVString replData.value } book
+
+
+updateBookWithCell : Cell -> Book -> Book
+updateBookWithCell cell book =
     if cell.index < 0 || cell.index >= List.length book.cells then
         -- cell is out of bounds, do not update
         book
@@ -17,14 +29,13 @@ updateBook cell book =
         let
             prefix =
                 List.filter (\currentCell -> currentCell.index < cell.index) book.cells
-                |> List.map (\c -> { c | cellState = LiveBook.Types.CSView })
+                    |> List.map (\c -> { c | cellState = LiveBook.Types.CSView })
 
             suffix =
                 List.filter (\currentCell -> currentCell.index > cell.index) book.cells
-                |> List.map (\c -> { c | cellState = LiveBook.Types.CSView })
+                    |> List.map (\c -> { c | cellState = LiveBook.Types.CSView })
         in
         { book | cells = prefix ++ (cell :: suffix), dirty = True }
-
 
 
 addCellToBook : Cell -> Book -> Book
