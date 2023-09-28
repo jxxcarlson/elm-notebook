@@ -1,8 +1,22 @@
 module Notebook.Book exposing (initializeCellState, new, scratchPad)
 
-import LiveBook.Config
-import Notebook.Types exposing (Book, Cell, CellState(..), CellValue(..))
+import Notebook.Cell exposing (Cell, CellState(..), CellType(..), CellValue(..))
 import Time
+
+
+type alias Book =
+    { id : String
+    , dirty : Bool
+    , slug : String
+    , origin : Maybe String
+    , author : String
+    , createdAt : Time.Posix
+    , updatedAt : Time.Posix
+    , public : Bool
+    , title : String
+    , cells : List Notebook.Cell.Cell
+    , currentIndex : Int
+    }
 
 
 scratchPad : String -> Book
@@ -18,21 +32,31 @@ scratchPad username =
     , title = "Scatchpad"
     , cells =
         [ { index = 0
-          , text = [ "# EvalTest: ", "> 1 + 1 == 2" ]
-          , bindings = []
-          , expression = ""
+          , text = "This is a *test*"
+          , tipe = CTMarkdown
+          , value = CVMarkdown
+          , cellState = CSView
+          , locked = False
+          }
+        , { index = 1
+          , text = "1 + 1"
+          , tipe = CTCode
           , value = CVNone
           , cellState = CSView
           , locked = False
           }
         ]
     , currentIndex = 0
-    , initialStateString = initialStateString
-    , stateExpression = initialStateExpression
-    , stateBindings = initialStateBindings
-    , fastTickInterval = LiveBook.Config.fastTickInterval
-    , stopExpressionString = ""
-    , valuesToKeep = 1
+    }
+
+
+type alias Cell =
+    { index : Int
+    , text : String
+    , tipe : CellType
+    , value : CellValue
+    , cellState : CellState
+    , locked : Bool
     }
 
 
@@ -49,21 +73,21 @@ new author title =
     , title = title
     , cells =
         [ { index = 0
-          , text = [ "# EvalTest: ", "> 1 + 1 == 42" ]
-          , bindings = []
-          , expression = ""
-          , value = CVString "True"
+          , text = "This is a *test*"
+          , tipe = CTMarkdown
+          , value = CVMarkdown
+          , cellState = CSView
+          , locked = False
+          }
+        , { index = 1
+          , text = "1 + 1"
+          , tipe = CTCode
+          , value = CVNone
           , cellState = CSView
           , locked = False
           }
         ]
     , currentIndex = 0
-    , initialStateString = initialStateString
-    , stateExpression = initialStateExpression
-    , stateBindings = initialStateBindings
-    , fastTickInterval = LiveBook.Config.fastTickInterval
-    , stopExpressionString = ""
-    , valuesToKeep = 1
     }
 
 
@@ -78,14 +102,23 @@ newBook author title =
     , updatedAt = Time.millisToPosix 0
     , public = False
     , title = title
-    , cells = []
+    , cells =
+        [ { index = 0
+          , text = "This is a *test*"
+          , tipe = CTMarkdown
+          , value = CVMarkdown
+          , cellState = CSView
+          , locked = False
+          }
+        , { index = 1
+          , text = "1 + 1"
+          , tipe = CTCode
+          , value = CVNone
+          , cellState = CSView
+          , locked = False
+          }
+        ]
     , currentIndex = 0
-    , initialStateString = initialStateString
-    , stateExpression = initialStateExpression
-    , stateBindings = initialStateBindings
-    , fastTickInterval = LiveBook.Config.fastTickInterval
-    , stopExpressionString = ""
-    , valuesToKeep = 1
     }
 
 

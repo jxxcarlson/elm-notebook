@@ -1,18 +1,6 @@
 module Notebook.Types exposing (EvalState, ReplData)
 
 import Dict exposing (Dict)
-import Http
-import Keyboard
-import Notebook.ErrorReporter as ErrorReporter
-
-
-type alias Model =
-    { expressionText : String
-    , report : List ErrorReporter.MessageItem
-    , replData : Maybe ReplData
-    , evalState : EvalState
-    , pressedKeys : List Keyboard.Key
-    }
 
 
 type alias EvalState =

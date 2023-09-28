@@ -18,6 +18,8 @@ type CellType
 
 type CellValue
     = CV String
+    | CVMarkdown
+    | CVNone
 
 
 type CellState
