@@ -19,10 +19,6 @@ type alias Model =
 
 processCell : Int -> List Keyboard.Key -> Model -> ( Model, Cmd FrontendMsg )
 processCell cellIndex pressedKeys model =
-    let
-        _ =
-            Debug.log "processCell" cellIndex
-    in
     case List.Extra.getAt cellIndex model.currentBook.cells of
         Nothing ->
             ( model, Cmd.none )
@@ -58,7 +54,7 @@ processExpr model expr =
         processRemoveCmd model expr
 
     else
-        ( { model | replData = Nothing }, Eval.requestEvaluation model.evalState (expr |> Debug.log "Eval.RQ") )
+        ( { model | replData = Nothing }, Eval.requestEvaluation model.evalState expr )
 
 
 processClearCmd model =

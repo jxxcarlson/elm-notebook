@@ -164,10 +164,6 @@ update msg model =
             )
 
         ReceivedFromJS str ->
-            let
-                _ =
-                    Debug.log "ReceivedFromJS" str
-            in
             case Codec.decodeString Notebook.Eval.replDataCodec str of
                 Ok data ->
                     ( { model | replData = Just data }, Cmd.none )
@@ -178,15 +174,11 @@ update msg model =
         GotReply result ->
             case result of
                 Ok str ->
-                    let
-                        _ =
-                            Debug.log "GotReply!!" "OK"
-                    in
                     if Notebook.Eval.hasReplError str then
                         ( { model | report = Notebook.Eval.reportError str }, Cmd.none )
 
                     else
-                        ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Ok" ] }, Ports.sendDataToJS (str |> Debug.log "SEND_TO_JS") )
+                        ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Ok" ] }, Ports.sendDataToJS str )
 
                 Err _ ->
                     ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Error" ] }, Cmd.none )

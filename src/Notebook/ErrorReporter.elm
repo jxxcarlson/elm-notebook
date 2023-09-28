@@ -240,24 +240,15 @@ breakMessages messageItems =
 prepareReport : List MessageItem -> List (Element msg)
 prepareReport report =
     let
-        _ =
-            Debug.log "REPORT" (breakMessages report)
-
         groups : List (List MessageItem)
         groups =
             groupMessageItemsHelp (breakMessages report)
 
-        --_ =
-        --    List.indexedMap (\index -> Debug.log ("GROUP " ++ String.fromInt (index + 1))) groups
         bar : List (Element msg)
         bar =
             groups
                 |> List.map (List.map (\item -> renderMessageItem item))
                 |> List.map (\group_ -> paragraph [] group_)
-
-        --baz : Element msg
-        --baz =
-        --    column [] bar
     in
     bar
 

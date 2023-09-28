@@ -138,4 +138,4 @@ renderReplError replError =
 
 
 unknownReplError str =
-    [ ErrorReporter.Plain <| "Unknown REPL error: " ++ Debug.toString str ]
+    [ ErrorReporter.Plain <| "Unknown REPL error" ]
