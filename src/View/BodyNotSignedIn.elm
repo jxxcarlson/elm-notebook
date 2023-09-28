@@ -35,7 +35,7 @@ view model =
             ]
             [ E.paragraph [ E.spacing 8 ]
                 [ E.text "An Elm Notebook is made up of cells which contain both text and Elm code. "
-                , E.el [ Font.italic, Font.color (E.rgb 0.65 0.65 1.0) ] (E.text "Click on the \"Sign in as Guest,\" button get started and see examples. (See link above center in blue.)")
+                , E.el [ Font.italic, Font.color (E.rgb 0.65 0.65 1.0) ] (E.text "Click on the \"Sign in as Guest,\" button to get started and see examples. (See blue link above, center.)")
                 ]
             , E.row [ E.height (E.px 8) ] []
             , E.paragraph [ E.spacing 8, Font.italic ]
@@ -43,8 +43,8 @@ view model =
                 ]
             , E.row [ E.height (E.px 8) ] []
             , E.paragraph [ E.spacing 8 ]
-                [ E.text "The engine that runs the app is @minibill's elm-interpreter."
-                , E.text " At this stage, the app is a proof-of-concept.  Some things won't work yet, and others will give wrong answers.  Stay tuned. We are working on it!"
+                [ E.text "Elm-notebook runs code by talking to the Elm compiler. "
+                , E.text "Thanks to Evan Czaplicki, Mario Rogic, and Leonardo Tagliatele"
                 ]
             ]
         ]
