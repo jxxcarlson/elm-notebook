@@ -1,9 +1,9 @@
-module EvalCell exposing (..)
+module Notebook.EvalCell exposing (..)
 
 import Dict
-import Eval
 import Keyboard
-import Types exposing (EvalState, Model, Msg(..))
+import Notebook.Eval as Eval
+import Notebook.Types exposing (EvalState, Model, Msg(..))
 
 
 processCell : Model -> List Keyboard.Key -> ( Model, Cmd Msg )

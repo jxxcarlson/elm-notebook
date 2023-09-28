@@ -72,6 +72,11 @@ init : Url.Url -> Nav.Key -> ( Model, Cmd FrontendMsg )
 init url key =
     ( { key = key
       , url = url
+
+      -- NOTEBOOK (NEW)
+      , report = []
+      , replData = Nothing
+      , evalState = Notebook.Eval.initEmptyEvalState
       , message = "Welcome!"
       , messages = []
       , appState = Loading

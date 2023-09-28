@@ -37,10 +37,6 @@ type alias FrontendModel =
     , randomProbabilities : List Float
     , probabilityVectorLength : Int
 
-    -- NEW
-    , report : List Notebook.ErrorReporter.MessageItem -- OK (Value)
-    , replData : Maybe Notebook.Types.ReplData -- OK (Value)
-
     -- ADMIN
     , users : List User
 
@@ -63,6 +59,11 @@ type alias FrontendModel =
     , privateDataSetMetaDataList : List LiveBook.DataSet.DataSetMetaData
 
     -- NOTEBOOKS
+    , report : List Notebook.ErrorReporter.MessageItem
+    , replData : Maybe Notebook.Types.ReplData
+    , evalState : Notebook.Types.EvalState
+
+    -- NOTEBOOKS II
     , kvDict : Dict String String
     , books : List Book
     , currentBook : Book
