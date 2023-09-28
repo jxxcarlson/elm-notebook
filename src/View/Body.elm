@@ -5,8 +5,8 @@ import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Border
 import Element.Font as Font
-import LiveBook.View
 import Notebook.Book exposing (Book)
+import Notebook.View
 import Types exposing (FrontendModel, FrontendMsg)
 import UILibrary.Color as Color
 import User
@@ -156,7 +156,7 @@ viewNotebook model user =
             , E.clipX
             ]
             (List.map
-                (LiveBook.View.view viewData model.cellContent)
+                (Notebook.View.view viewData model.cellContent)
                 model.currentBook.cells
             )
         ]
