@@ -159,7 +159,8 @@ type FrontendMsg
     | AskToDeleteDataSet Notebook.DataSet.DataSetMetaData
       -- CELL
     | ToggleCellLock Cell
-    | NewCell Int
+    | NewCodeCell Int
+    | NewMarkdownCell Int
     | DeleteCell Int
     | EditCell Cell
     | ClearCell Int

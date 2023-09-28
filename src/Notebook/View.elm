@@ -1,17 +1,15 @@
 module Notebook.View exposing (view)
 
-import Dict exposing (Dict)
 import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Border
 import Element.Events
 import Element.Font as Font
 import Element.Input
-import Element.Lazy
 import List.Extra
 import Notebook.Book exposing (ViewData)
-import Notebook.Cell exposing (Cell, CellState(..), CellValue(..))
-import Notebook.Utility
+import Notebook.Cell exposing (Cell, CellState(..), CellType(..), CellValue(..))
+import Notebook.Utility as Utility
 import Types exposing (FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
@@ -24,7 +22,7 @@ view viewData cellContents cell =
     E.column
         [ E.paddingEach { top = 0, right = 0, bottom = 0, left = 0 }
         , E.width (E.px viewData.width)
-        , Background.color (E.rgb 0.1 0.1 0.1)
+        , Background.color (E.rgb255 99 106 122)
         ]
         [ E.row
             [ E.width (E.px viewData.width) ]
@@ -34,18 +32,47 @@ view viewData cellContents cell =
 
 
 viewSourceAndValue : ViewData -> String -> Cell -> Element FrontendMsg
-viewSourceAndValue viewData cellContents cell =
-    E.column []
-        [ E.el [ E.alignRight ] (controls viewData.width cell)
+viewSourceAndValue orignalviewData cellContents cell =
+    let
+        style =
+            case ( cell.cellState, cell.tipe ) of
+                ( CSEdit, _ ) ->
+                    [ Element.Border.color (E.rgb 0.75 0.75 0.75)
+                    , editBGColor
+                    , Element.Border.widthEach
+                        { bottom = 1
+                        , left = 0
+                        , right = 0
+                        , top = 1
+                        }
+                    ]
+
+                ( CSView, CTCode ) ->
+                    [ Element.Border.color (E.rgb 0.75 0.75 0.75)
+                    , Element.Border.widthEach
+                        { bottom = 0
+                        , left = 0
+                        , right = 0
+                        , top = 1
+                        }
+                    ]
+
+                ( CSView, CTMarkdown ) ->
+                    [ Element.Border.color (E.rgb 0.75 0.75 0.75)
+                    , Element.Border.widthEach
+                        { bottom = 0
+                        , left = 0
+                        , right = 0
+                        , top = 1
+                        }
+                    ]
+
+        viewData =
+            { orignalviewData | width = orignalviewData.width - 24 }
+    in
+    E.column ([ Background.color (Utility.cellColor cell.tipe), E.paddingXY 6 12, E.spacing 4 ] ++ style)
+        [ E.el [ E.alignRight, Background.color (Utility.cellColor cell.tipe) ] (controls viewData.width cell)
         , viewSource (viewData.width - controlWidth) cell cellContents
-        , viewValue viewData cell
-        ]
-
-
-viewSourceAndValue1 : ViewData -> String -> Cell -> Element FrontendMsg
-viewSourceAndValue1 viewData cellContents cell =
-    E.column [ E.inFront (E.el [ E.alignRight ] (controls viewData.width cell)) ]
-        [ viewSource (viewData.width - controlWidth) cell cellContents
         , viewValue viewData cell
         ]
 
@@ -58,36 +85,47 @@ controlBGEdit =
     Background.color (E.rgb 0.8 0.8 1.0)
 
 
+bgColor cell =
+    Background.color (Utility.cellColor cell.tipe)
+
+
 controls width_ cell =
     case cell.cellState of
         CSView ->
-            --E.el [ E.moveDown 24] (viewIndex cell)
-            E.el [ controlBGView, E.width (E.px width_), E.height (E.px 32) ]
-                (E.el [ E.alignRight ] (viewIndex cell))
+            E.none
 
         CSEdit ->
-            E.el [ controlBGEdit, E.width (E.px width_), E.paddingEach { left = 0, right = 12, bottom = 0, top = 0 } ]
-                (E.row
+            E.row
+                [ controlBGEdit
+                , E.width (E.px (width_ - 3))
+                , E.centerX
+                , E.paddingEach { left = 0, right = 12, bottom = 0, top = 0 }
+                , bgColor cell
+                ]
+                [ E.row
+                    [ E.spacing 2
+                    , E.alignLeft
+                    , E.height (E.px 32)
+                    , E.spacing 4
+                    , E.paddingEach { top = 2, bottom = 2, left = 8, right = 4 }
+                    ]
+                    [ newCodeCellAt cell.cellState cell.index
+                    , newMarkdownCellAt cell.cellState cell.index
+                    , runCell cell.tipe cell.index
+                    ]
+                , E.row
                     [ E.spacing 2
                     , E.alignRight
                     , E.height (E.px 32)
                     , E.spacing 4
                     , E.paddingEach { top = 2, bottom = 2, left = 8, right = 4 }
                     ]
-                    [ runCell cell.index
-
-                    --, if isSimulation cell then
-                    --    View.Button.start
-                    --
-                    --  else
-                    --    E.none
-                    , newCellAt cell.cellState cell.index
-                    , deleteCellAt cell.cellState cell.index
+                    [ deleteCellAt cell.cellState cell.index
                     , clearCellAt cell.cellState cell.index
                     , View.Button.lockCell cell
                     , viewIndex cell
                     ]
-                )
+                ]
 
 
 controlWidth =
@@ -104,12 +142,22 @@ isSimulation cell =
 
 viewSource : Int -> Cell -> String -> Element FrontendMsg
 viewSource width cell cellContent =
-    case cell.cellState of
-        CSView ->
-            viewSource_ width cell
+    case cell.tipe of
+        CTCode ->
+            case cell.cellState of
+                CSView ->
+                    viewSource_ "" width cell
 
-        CSEdit ->
-            editCell width cell cellContent
+                CSEdit ->
+                    editCell width cell cellContent
+
+        CTMarkdown ->
+            case cell.cellState of
+                CSView ->
+                    viewSource_ "" width cell
+
+                CSEdit ->
+                    editCell width cell cellContent
 
 
 viewValue : ViewData -> Cell -> Element FrontendMsg
@@ -123,20 +171,13 @@ viewValue viewData cell =
             E.none
 
         CVString str ->
-            let
-                cellHeight_ =
-                    List.length (String.lines str) |> (\x -> scale 14.5 x + 35)
-            in
             par realWidth
-                [ View.CellThemed.renderFull (scale 1.0 realWidth) cellHeight_ str ]
+                [ View.CellThemed.renderFull cell.tipe (scale 1.0 realWidth) str ]
 
         CVMarkdown str ->
-            let
-                cellHeight_ =
-                    40
-            in
             par realWidth
-                [ View.CellThemed.renderFull (scale 1.0 realWidth) cellHeight_ str ]
+                -- TODO: fix this outrageous hack
+                [ E.none ]
 
 
 
@@ -175,8 +216,6 @@ par width =
     E.paragraph
         [ E.spacing 8
         , Font.color Color.black
-
-        --, E.paddingEach { top = 8, right = 0, bottom = 12, left = 8 }
         , E.width (E.px width)
         , Background.color (E.rgb 0.85 0.85 0.95)
         ]
@@ -276,7 +315,7 @@ viewIndex cell =
         (E.text <| "Cell " ++ String.fromInt (cell.index + 1))
 
 
-viewSource_ width cell =
+viewSource_ prefix width cell =
     let
         cellHeight_ =
             40
@@ -294,9 +333,7 @@ viewSource_ width cell =
         , E.width (E.px width)
         , Font.size 14
         ]
-        [ View.CellThemed.renderFull (scale 1.0 width)
-            cellHeight_
-            source
+        [ View.CellThemed.renderFull cell.tipe (scale 1.0 width) (prefix ++ source)
         ]
 
 
@@ -310,19 +347,28 @@ scale factor x =
     round <| factor * toFloat x
 
 
+editBGColor =
+    Background.color (E.rgb 0.4 0.4 0.5)
+
+
 editCell : Int -> Cell -> String -> Element FrontendMsg
 editCell width cell cellContent =
-    E.el [ E.paddingXY 8 4, Background.color (E.rgb 0.85 0.85 1.0) ]
+    E.el
+        [ E.paddingXY 8 4
+        , bgColor cell
+        , Element.Border.color (E.rgb 1.0 0.6 0.6)
+        , editBGColor
+        ]
         (E.column
             [ E.spacing 8
             , E.paddingEach { top = 1, right = 1, bottom = 1, left = 1 }
             , E.width (E.px <| width - 16)
             ]
             [ Element.Input.multiline
-                [ Background.color (E.rgb 0.8 0.8 1.0)
-                , Element.Border.width 2
-                , Element.Border.color (E.rgb 0.6 0.6 1.0)
+                [ bgColor cell
                 , Font.color Color.black
+                , E.centerX
+                , E.width (E.px <| width)
                 ]
                 { onChange = InputElmCode cell.index
                 , text = cellContent
@@ -334,14 +380,24 @@ editCell width cell cellContent =
         )
 
 
-newCellAt : CellState -> Int -> Element FrontendMsg
-newCellAt cellState index =
+newCodeCellAt : CellState -> Int -> Element FrontendMsg
+newCodeCellAt cellState index =
     case cellState of
         CSView ->
-            Button.smallPrimary { msg = NewCell index, status = Button.Active, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
+            Button.smallPrimary { msg = NewCodeCell index, status = Button.Active, label = Button.Text "New Code", tooltipText = Just "Insert  new cell" }
 
         CSEdit ->
-            Button.smallPrimary { msg = NewCell index, status = Button.Active, label = Button.Text "New", tooltipText = Just "Insert  new cell" }
+            Button.smallPrimary { msg = NewCodeCell index, status = Button.Active, label = Button.Text "New Code", tooltipText = Just "Insert  new cell" }
+
+
+newMarkdownCellAt : CellState -> Int -> Element FrontendMsg
+newMarkdownCellAt cellState index =
+    case cellState of
+        CSView ->
+            Button.smallPrimary { msg = NewMarkdownCell index, status = Button.Active, label = Button.Text "New Text", tooltipText = Just "Insert  new cell" }
+
+        CSEdit ->
+            Button.smallPrimary { msg = NewMarkdownCell index, status = Button.Active, label = Button.Text "New Text", tooltipText = Just "Insert  new cell" }
 
 
 deleteCellAt : CellState -> Int -> Element FrontendMsg

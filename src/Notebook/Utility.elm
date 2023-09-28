@@ -1,9 +1,20 @@
 module Notebook.Utility exposing (..)
 
 import Dict exposing (Dict)
+import Element
 import List.Extra
 import Maybe.Extra
+import Notebook.Cell as Cell exposing (CellType(..))
 import Regex exposing (Regex)
+
+
+cellColor cellType =
+    case cellType of
+        CTCode ->
+            Element.rgb255 232 233 255
+
+        CTMarkdown ->
+            Element.rgb 255 190 190
 
 
 {-| Copilot almost wrote this

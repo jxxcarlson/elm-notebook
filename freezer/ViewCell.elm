@@ -9,12 +9,6 @@ import Element.Font as Font
 import Element.Input
 import Element.Lazy
 import List.Extra
-import LiveBook.Chart
-import LiveBook.Eval
-import LiveBook.PreProcess
-import LiveBook.SVG
-import LiveBook.Types exposing (Cell, CellState(..), CellValue(..), ViewData, VisualType(..))
-import LiveBook.Utility
 import Types exposing (FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
@@ -78,11 +72,6 @@ controls width_ cell =
                     , E.paddingEach { top = 2, bottom = 2, left = 8, right = 4 }
                     ]
                     [ runCell cell.index
-                    , if isSimulation cell then
-                        View.Button.start
-
-                      else
-                        E.none
                     , newCellAt cell.cellState cell.index
                     , deleteCellAt cell.cellState cell.index
                     , clearCellAt cell.cellState cell.index

@@ -31,6 +31,7 @@ bodyHeight model =
     appHeight model - headerHeight - footerHeight
 
 
+notebookWidth : { a | windowWidth : Int } -> Int
 notebookWidth model =
     appWidth model - notebookListWidth
 

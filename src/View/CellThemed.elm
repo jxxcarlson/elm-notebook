@@ -2,7 +2,7 @@ module View.CellThemed exposing (bulletPoint, heading1, lightTheme, renderFull)
 
 import Element exposing (..)
 import Element.Background
-import Element.Border
+import Element.Border as Border
 import Element.Font
 import Element.Region
 import Html
@@ -11,6 +11,8 @@ import Markdown.Block exposing (HeadingLevel, ListItem(..))
 import Markdown.Html
 import Markdown.Parser
 import Markdown.Renderer
+import Notebook.Cell exposing (CellType(..))
+import Notebook.Utility as Utility
 
 
 type alias Theme =
@@ -44,13 +46,13 @@ lightTheme =
     }
 
 
-renderFull : Int -> Int -> String -> Element msg
-renderFull width_ height_ markdownBody =
-    render (renderer lightTheme) width_ height_ markdownBody
+renderFull : CellType -> Int -> String -> Element msg
+renderFull cellType width_ markdownBody =
+    render (renderer lightTheme) cellType width_ markdownBody
 
 
-render : Markdown.Renderer.Renderer (Element msg) -> Int -> Int -> String -> Element msg
-render chosenRenderer width_ height_ markdownBody =
+render : Markdown.Renderer.Renderer (Element msg) -> CellType -> Int -> String -> Element msg
+render chosenRenderer cellType width_ markdownBody =
     Markdown.Parser.parse markdownBody
         -- @TODO show markdown parsing errors, i.e. malformed html?
         |> Result.withDefault []
@@ -69,15 +71,11 @@ render chosenRenderer width_ height_ markdownBody =
                        )
                     |> Element.column
                         [ Element.width (Element.px width_)
-                        , Element.Background.color lightTheme.background
-                        , Element.height (Element.px <| height_ - 2)
+                        , Element.Background.color (Utility.cellColor cellType)
+                        , Element.height Element.fill
                         , Element.paddingEach { left = 12, right = 12, top = 0, bottom = 0 }
                         ]
            )
-
-
-pinkColor =
-    Element.rgb 1.0 0.9 0.9
 
 
 bulletPoint : List (Element msg) -> Element msg
@@ -105,8 +103,9 @@ renderer theme =
             Element.column
                 [ Element.Font.size 20
                 , Element.Font.italic
-                , Element.Border.widthEach { bottom = 0, left = 4, right = 0, top = 0 }
-                , Element.Border.color theme.grey
+                , Border.width 1
+                , Element.paddingEach { bottom = 0, left = 4, right = 0, top = 0 }
+                , Border.color theme.grey
                 , Element.Font.color theme.mutedText
                 , Element.padding 10
                 ]
@@ -135,7 +134,7 @@ renderer theme =
                     in
                     case bg_ of
                         Just bg ->
-                            el [ Element.Border.rounded 10, padding 20 ] <| image attrs { src = src, description = "" }
+                            el [ Border.rounded 10, padding 20 ] <| image attrs { src = src, description = "" }
 
                         Nothing ->
                             image attrs { src = src, description = "" }
@@ -225,12 +224,12 @@ renderer theme =
                 )
     , codeBlock =
         \{ body } ->
-            Element.el [ Element.width Element.fill, Element.paddingEach { left = 0, right = 0, bottom = 18, top = 0 } ]
+            Element.el [ Element.width Element.fill, Element.paddingEach { left = 0, right = 0, bottom = 18, top = 8 } ]
                 (Element.column
                     [ Element.Font.family [ Element.Font.monospace ]
                     , Element.Background.color theme.codeBackground
                     , Element.Font.color theme.codeColor
-                    , Element.Border.rounded 5
+                    , Border.rounded 5
                     , Element.padding 10
                     , Element.height (Element.px <| textHeight 14 -5 body)
                     , Element.width Element.fill

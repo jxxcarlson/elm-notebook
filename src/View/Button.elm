@@ -44,7 +44,7 @@ import Element.Background as Background
 import Element.Font as Font
 import Element.Input as Input
 import Notebook.Book exposing (Book)
-import Notebook.Cell
+import Notebook.Cell exposing (CellType)
 import Notebook.DataSet
 import Types exposing (..)
 import UILibrary.Button as Button
@@ -97,9 +97,14 @@ dismissPopupSmall =
     Button.smallPrimary { msg = ChangePopup NoPopup, status = Button.ActiveTransparent, label = Button.Text "x", tooltipText = Nothing }
 
 
-runCell : Int -> Element FrontendMsg
-runCell index =
-    Button.smallPrimary { msg = EvalCell index, status = Button.Active, label = Button.Text "Run", tooltipText = Just "ctrl-Enter" }
+runCell : CellType -> Int -> Element FrontendMsg
+runCell cellType index =
+    case cellType of
+        Notebook.Cell.CTCode ->
+            Button.smallPrimary { msg = EvalCell index, status = Button.Active, label = Button.Text "Run", tooltipText = Just "ctrl-Enter" }
+
+        Notebook.Cell.CTMarkdown ->
+            Button.smallPrimary { msg = EvalCell index, status = Button.Active, label = Button.Text "Save", tooltipText = Just "ctrl-Enter" }
 
 
 dismissPopup : Element FrontendMsg

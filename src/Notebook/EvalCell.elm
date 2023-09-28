@@ -3,7 +3,8 @@ module Notebook.EvalCell exposing (processCell)
 import Dict
 import Keyboard
 import List.Extra
-import Notebook.Cell exposing (Cell)
+import Notebook.Cell as Cell exposing (Cell, CellType(..), CellValue(..))
+import Notebook.CellHelper
 import Notebook.Eval as Eval
 import Notebook.Types exposing (EvalState)
 import Types exposing (FrontendMsg)
@@ -17,25 +18,48 @@ type alias Model =
 -- evalCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
 
 
-processCell : Int -> List Keyboard.Key -> Model -> ( Model, Cmd FrontendMsg )
-processCell cellIndex pressedKeys model =
+processCell : Int -> Model -> ( Model, Cmd FrontendMsg )
+processCell cellIndex model =
     case List.Extra.getAt cellIndex model.currentBook.cells of
         Nothing ->
             ( model, Cmd.none )
 
         Just cell_ ->
-            case String.split "=" cell_.text of
-                [] ->
-                    ( model, Cmd.none )
+            case cell_.tipe of
+                Cell.CTCode ->
+                    processCode model cell_
 
-                expr :: [] ->
-                    processExpr model expr
+                Cell.CTMarkdown ->
+                    processMarkdown model cell_
 
-                name :: expr :: [] ->
-                    processNameAndExpr model name expr
 
-                _ ->
-                    ( { model | pressedKeys = pressedKeys }, Cmd.none )
+processMarkdown model cell =
+    let
+        _ =
+            Debug.log "processMarkdown" cell.text
+
+        newCell =
+            { cell | value = CVMarkdown cell.text }
+
+        newBook =
+            Notebook.CellHelper.updateBookWithCell newCell model.currentBook
+    in
+    ( { model | currentBook = newBook }, Cmd.none )
+
+
+processCode model cell_ =
+    case String.split "=" cell_.text of
+        [] ->
+            ( model, Cmd.none )
+
+        expr :: [] ->
+            processExpr model expr
+
+        name :: expr :: [] ->
+            processNameAndExpr model name expr
+
+        _ ->
+            ( { model | pressedKeys = [] }, Cmd.none )
 
 
 processExpr : Model -> String -> ( Model, Cmd FrontendMsg )

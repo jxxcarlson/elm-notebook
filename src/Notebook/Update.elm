@@ -109,14 +109,14 @@ clearCell model index =
             ( { model | cellContent = "", currentBook = newBook }, Cmd.none )
 
 
-makeNewCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
-makeNewCell model index =
+makeNewCell : FrontendModel -> CellType -> Int -> ( FrontendModel, Cmd FrontendMsg )
+makeNewCell model cellType index =
     let
         newCell =
             { index = index + 1
             , text = "# New cell (" ++ String.fromInt (index + 2) ++ ") "
             , value = CVNone
-            , tipe = CTMarkdown
+            , tipe = cellType
             , cellState = CSEdit
             , locked = False
             }
