@@ -1,7 +1,6 @@
-exports.init =  async function(app) {
+exports.init = async function(app) {
 
     console.log("Hello! Starting eval-js")
-
 
     app.ports.sendDataToJS.subscribe(function(data) {
       // Check if the Web Worker feature is available in the browser
@@ -28,6 +27,5 @@ exports.init =  async function(app) {
       } else {
           console.error('Web Worker is not supported in your browser.');
       }
-}
-
-
+    });
+};
