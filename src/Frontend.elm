@@ -185,7 +185,7 @@ update msg model =
 
                 ( newModel, cmd ) =
                     -- TODO: cmd?
-                    if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
+                    if List.member Keyboard.Shift pressedKeys && List.member Keyboard.Enter pressedKeys then
                         LiveBook.Cell.evalCell model.currentCellIndex { model | pressedKeys = pressedKeys }
 
                     else

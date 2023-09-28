@@ -1,8 +1,25 @@
-module Notebook.Types exposing (Msg(..), ReplData)
+module Notebook.Types exposing (EvalState, Model, Msg(..), ReplData)
 
+import Dict exposing (Dict)
 import Http
-import Json.Decode exposing (Value)
 import Keyboard
+import Notebook.ErrorReporter as ErrorReporter
+
+
+type alias Model =
+    { expressionText : String
+    , report : List ErrorReporter.MessageItem
+    , replData : Maybe ReplData
+    , evalState : EvalState
+    , pressedKeys : List Keyboard.Key
+    }
+
+
+type alias EvalState =
+    { decls : Dict String String
+    , types : Dict String String
+    , imports : Dict String String
+    }
 
 
 type alias ReplData =
@@ -17,5 +34,5 @@ type Msg
     | InputText String
     | RequestEval
     | GotReply (Result Http.Error String)
-      -- | ReceivedFromJS Value
+    | ReceivedFromJS String
     | KeyboardMsg Keyboard.Msg

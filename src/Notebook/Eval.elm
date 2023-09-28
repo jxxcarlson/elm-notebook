@@ -1,5 +1,5 @@
 module Notebook.Eval exposing
-    ( EvalState
+    ( bad
     , displayDictionary
     , encodeExpr
     , hasReplError
@@ -19,11 +19,7 @@ import Element.Font as Font
 import Http
 import Json.Encode as Encode
 import Notebook.ErrorReporter as ErrorReporter
-import Notebook.Types exposing (Msg(..), ReplData)
-
-
-foo =
-    123
+import Notebook.Types exposing (EvalState, Msg(..), ReplData)
 
 
 replDataCodec : Codec ReplData
@@ -57,13 +53,6 @@ removeDeclaration name evalState =
     { evalState
         | decls =
             Dict.remove name evalState.decls
-    }
-
-
-type alias EvalState =
-    { decls : Dict.Dict String String
-    , types : Dict.Dict String String
-    , imports : Dict.Dict String String
     }
 
 
@@ -128,6 +117,10 @@ reportError str =
 
         Err _ ->
             unknownReplError str
+
+
+bad =
+    "{\"type\":\"compile-errors\",\"errors\":[{\"path\":\"/repl\",\"name\":\"Elm_Repl\",\"problems\":[{\"title\":\"UNEXPECTED CAPITAL LETTER\",\"region\":{\"start\":{\"line\":2,\"column\":1},\"end\":{\"line\":2,\"column\":1}},\"message\":[\"Declarations always start with a lower-case letter, so I am getting stuck here:\\n\\n2| Int1repl_input_value_ =\\n \",{\"bold\":false,\"underline\":false,\"color\":\"RED\",\"string\":\"^\"},\"\\nTry a name like \",{\"bold\":false,\"underline\":false,\"color\":\"GREEN\",\"string\":\"int1repl_input_value_\"},\" instead?\\n\\n\",{\"bold\":false,\"underline\":true,\"color\":null,\"string\":\"Note\"},\": Here are a couple valid declarations for reference:\\n\\n greet : String -> String\\n greet name =\\n \",{\"bold\":false,\"underline\":false,\"color\":\"yellow\",\"string\":\"\\\"Hello \\\"\"},\" ++ name ++ \",{\"bold\":false,\"underline\":false,\"color\":\"yellow\",\"string\":\"\\\"!\\\"\"},\"\\n \\n \",{\"bold\":false,\"underline\":false,\"color\":\"CYAN\",\"string\":\"type\"},\" User = Anonymous | LoggedIn String\\n\\nNotice that they always start with a lower-case letter. Capitalization matters!\"]}]}]}"
 
 
 hasReplError : String -> Bool
