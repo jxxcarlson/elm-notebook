@@ -5,7 +5,7 @@ import Keyboard
 import List.Extra
 import LiveBook.Types exposing (Cell)
 import Notebook.Eval as Eval
-import Notebook.Types exposing (EvalState, Model)
+import Notebook.Types exposing (EvalState)
 import Types exposing (FrontendMsg)
 
 

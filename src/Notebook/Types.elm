@@ -1,4 +1,4 @@
-module Notebook.Types exposing (EvalState, Model, ReplData)
+module Notebook.Types exposing (EvalState, ReplData)
 
 import Dict exposing (Dict)
 import Http
