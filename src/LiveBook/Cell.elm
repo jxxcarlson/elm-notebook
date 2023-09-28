@@ -69,7 +69,6 @@ evalCell index model =
 --            else
 --                ( evaluateWithCumulativeBindings model cell_, Cmd.none )
 --
---
 --{-|
 --
 --    This is the "normal" evaluation strategy.  Elm code in the cell is evaluated,
@@ -227,15 +226,19 @@ evalCell index model =
 --            Cmd.none
 --
 --
---getCommandWords : Cell -> List String
---getCommandWords cell_ =
---    cell_.text
---        |> List.filter (\line -> not <| String.startsWith "#" line)
---        |> String.join "\n"
---        |> String.replace ">" ""
---        |> String.trim
---        |> String.words
---
+
+
+getCommandWords : Cell -> List String
+getCommandWords cell_ =
+    cell_.text
+        |> List.filter (\line -> not <| String.startsWith "#" line)
+        |> String.join "\n"
+        |> String.replace ">" ""
+        |> String.trim
+        |> String.words
+
+
+
 --
 --updateCell : FrontendModel -> List String -> Cell -> Cell
 --updateCell model commandWords cell_ =

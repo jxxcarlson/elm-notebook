@@ -1,12 +1,14 @@
 port module Ports exposing
     ( receiveFromJS
+    , sendData
     , sendDataToJS
     )
-
-import Json.Decode exposing (Value)
 
 
 port sendDataToJS : String -> Cmd msg
 
 
-port receiveFromJS : (Value -> msg) -> Sub msg
+port receiveFromJS : (String -> msg) -> Sub msg
+
+
+port sendData : String -> Cmd msg

@@ -19,7 +19,8 @@ import Element.Font as Font
 import Http
 import Json.Encode as Encode
 import Notebook.ErrorReporter as ErrorReporter
-import Notebook.Types exposing (EvalState, Msg(..), ReplData)
+import Notebook.Types exposing (EvalState, ReplData)
+import Types exposing (FrontendMsg)
 
 
 replDataCodec : Codec ReplData
@@ -31,12 +32,12 @@ replDataCodec =
         |> Codec.buildObject
 
 
-requestEvaluation : EvalState -> String -> Cmd Msg
+requestEvaluation : EvalState -> String -> Cmd FrontendMsg
 requestEvaluation evalState expr =
     Http.post
         { url = "http://localhost:8000/repl"
         , body = Http.jsonBody (encodeExpr evalState expr)
-        , expect = Http.expectString GotReply
+        , expect = Http.expectString Types.GotReply
         }
 
 
@@ -137,8 +138,4 @@ renderReplError replError =
 
 
 unknownReplError str =
-    let
-        _ =
-            Debug.log "STR" str
-    in
     [ ErrorReporter.Plain <| "Unknown REPL error: " ++ Debug.toString str ]

@@ -32,6 +32,7 @@ import Loading
 import Navigation
 import Notebook.ErrorReporter
 import Notebook.Eval
+import Notebook.EvalCell
 import Ports
 import Predicate
 import Random
@@ -65,6 +66,7 @@ subscriptions model =
         , Time.every 3000 FETick
         , Time.every model.fastTickInterval FastTick
         , Sub.map KeyboardMsg Keyboard.subscriptions
+        , Ports.receiveFromJS ReceivedFromJS
         ]
 
 
@@ -112,8 +114,6 @@ init url key =
       , privateDataSetMetaDataList = []
 
       -- NOTEBOOKS
-      , report = []
-      , replData = Nothing
       , kvDict = Dict.empty
       , books = []
       , currentBook = LiveBook.Book.scratchPad "anonymous"
@@ -144,7 +144,7 @@ init url key =
       , inputEmail = ""
       , inputTitle = ""
       }
-    , Cmd.batch [ setupWindow, sendToBackend GetRandomSeed, Navigation.urlAction url.path ]
+    , Cmd.batch [ Ports.sendData "Hello there!", setupWindow, sendToBackend GetRandomSeed, Navigation.urlAction url.path ]
     )
 
 
@@ -164,6 +164,10 @@ update msg model =
             )
 
         ReceivedFromJS str ->
+            let
+                _ =
+                    Debug.log "ReceivedFromJS" str
+            in
             case Codec.decodeString Notebook.Eval.replDataCodec str of
                 Ok data ->
                     ( { model | replData = Just data }, Cmd.none )
@@ -174,24 +178,28 @@ update msg model =
         GotReply result ->
             case result of
                 Ok str ->
+                    let
+                        _ =
+                            Debug.log "GotReply!!" "OK"
+                    in
                     if Notebook.Eval.hasReplError str then
                         ( { model | report = Notebook.Eval.reportError str }, Cmd.none )
 
                     else
-                        ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Ok" ] }, Ports.sendDataToJS str )
+                        ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Ok" ] }, Ports.sendDataToJS (str |> Debug.log "SEND_TO_JS") )
 
                 Err _ ->
                     ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Error" ] }, Cmd.none )
 
         KeyboardMsg keyMsg ->
             let
+                pressedKeys : List Keyboard.Key
                 pressedKeys =
                     Keyboard.update keyMsg model.pressedKeys
 
                 ( newModel, cmd ) =
-                    -- TODO: cmd?
-                    if List.member Keyboard.Shift pressedKeys && List.member Keyboard.Enter pressedKeys then
-                        LiveBook.Cell.evalCell model.currentCellIndex { model | pressedKeys = pressedKeys }
+                    if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
+                        Notebook.EvalCell.processCell model.currentCellIndex pressedKeys { model | pressedKeys = pressedKeys }
 
                     else
                         ( { model | pressedKeys = pressedKeys }, Cmd.none )
