@@ -4,3 +4,4 @@ elm-stuff
 node_modules/
 vendor/interpreter/src/ui.js
 .vscode/
+tmp/

@@ -6,11 +6,8 @@ import Browser exposing (UrlRequest(..))
 import Browser.Dom
 import Browser.Events
 import Browser.Navigation as Nav
-import Dict
-import LiveBook.Eval
-import Notebook.ErrorReporter
-import Notebook.Eval
 import Codec exposing (Codec, Value)
+import Dict
 import File
 import File.Download
 import File.Select
@@ -33,6 +30,8 @@ import LiveBook.Types exposing (Book)
 import LiveBook.Update
 import Loading
 import Navigation
+import Notebook.ErrorReporter
+import Notebook.Eval
 import Ports
 import Predicate
 import Random
@@ -108,6 +107,8 @@ init url key =
       , privateDataSetMetaDataList = []
 
       -- NOTEBOOKS
+      , report = []
+      , replData = Nothing
       , kvDict = Dict.empty
       , books = []
       , currentBook = LiveBook.Book.scratchPad "anonymous"
@@ -116,7 +117,6 @@ init url key =
       , cloneReference = ""
       , deleteNotebookState = WaitingToDeleteNotebook
       , showNotebooks = ShowUserNotebooks
-      , valueDict = Dict.empty
       , nextStateRecord = Nothing
       , state = LiveBook.State.initialState
       , svgList = []
@@ -158,24 +158,26 @@ update msg model =
             , Cmd.none
             )
 
-        ReceivedFromJS value ->
-                    case Codec.decodeValue Notebook.Eval.replDataCodec value of
-                        Ok data ->
-                            ( { model | replData = Just data }, Cmd.none )
+        ReceivedFromJS str ->
+            case Codec.decodeString Notebook.Eval.replDataCodec str of
+                Ok data ->
+                    ( { model | replData = Just data }, Cmd.none )
 
-                        Err _ ->
-                            ( { model | replData = Nothing }, Cmd.none
+                Err _ ->
+                    ( { model | replData = Nothing }, Cmd.none )
+
         GotReply result ->
-                    case result of
-                        Ok str ->
-                            if Notebook.Eval.hasReplError str then
-                                ( { model | report = Notebook.Eval.reportError str }, Cmd.none )
+            case result of
+                Ok str ->
+                    if Notebook.Eval.hasReplError str then
+                        ( { model | report = Notebook.Eval.reportError str }, Cmd.none )
 
-                            else
-                                ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Ok" ] }, Ports.sendDataToJS str )
+                    else
+                        ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Ok" ] }, Ports.sendDataToJS str )
 
-                        Err _ ->
-                            ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Error" ] }, Cmd.none )
+                Err _ ->
+                    ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Error" ] }, Cmd.none )
+
         KeyboardMsg keyMsg ->
             let
                 pressedKeys =
@@ -211,11 +213,12 @@ update msg model =
                                     ClockRunning
 
                                 Just stopExpression ->
-                                    if stopExpression == Value.Bool True then
-                                        ClockStopped
-
-                                    else
-                                        ClockRunning
+                                    --if stopExpression == Value.Bool True then
+                                    --    ClockStopped
+                                    --
+                                    --else
+                                    --    ClockRunning
+                                    ClockStopped
                     in
                     if clockState == ClockRunning then
                         glueUpdate f g (h model)
@@ -312,7 +315,8 @@ update msg model =
                     else
                         ( { model
                             | popupState = StateEditorPopup
-                            , inputInitialStateValue = model.state.initialValue |> Value.toString
+
+                            --, inputInitialStateValue = model.state.initialValue |> Value.toString
                             , inputStateExpression = model.state.expression
                             , inputStateBindings = model.state.bindings |> String.join "; "
                             , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
@@ -730,8 +734,8 @@ update msg model =
 
                 newModel =
                     { model
-                        | inputInitialStateValue = model.state.initialValue |> Value.toString
-                        , inputStateExpression = model.state.expression
+                        | --inputInitialStateValue = model.state.initialValue |> Value.toString
+                          inputStateExpression = model.state.expression
                         , inputStateBindings = model.state.bindings |> String.join "; "
                         , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
                         , inputValuesToKeep = model.state.valuesToKeep |> String.fromInt
@@ -754,8 +758,8 @@ update msg model =
 
                 newModel =
                     { model
-                        | inputInitialStateValue = model.state.initialValue |> Value.toString
-                        , inputStateExpression = model.state.expression
+                        | --inputInitialStateValue = model.state.initialValue |> Value.toString
+                          inputStateExpression = model.state.expression
                         , inputStateBindings = model.state.bindings |> String.join "; "
                         , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
                         , inputValuesToKeep = model.state.valuesToKeep |> String.fromInt
@@ -1005,15 +1009,14 @@ setupWindow =
 setInitialState : LiveBook.Types.Book -> LiveBook.State.MState -> LiveBook.State.MState
 setInitialState book state_ =
     let
-        stopValues : List Value.Value
-        stopValues =
-            case book.stopExpressionString |> LiveBook.Parser.parse of
-                Just (Value.List list) ->
-                    list
-
-                _ ->
-                    []
-
+        --stopValues : List Value.Value
+        --stopValues =
+        --    case book.stopExpressionString |> LiveBook.Parser.parse of
+        --        Just (Value.List list) ->
+        --            list
+        --
+        --        _ ->
+        --            []
         state1_ =
             case LiveBook.Parser.parse book.initialStateString of
                 Nothing ->
@@ -1036,10 +1039,11 @@ setInitialState book state_ =
 
 
 getStopExpression model =
-    model.inputStopExpression
-        |> LiveBook.Eval.evaluateExpressionStringWithState model.state
-        |> Eval.eval
-        |> Result.toMaybe
+    --model.inputStopExpression
+    --    |> LiveBook.Eval.evaluateExpressionStringWithState model.state
+    --    |> Eval.eval
+    --    |> Result.toMaybe
+    Nothing
 
 
 setState model =

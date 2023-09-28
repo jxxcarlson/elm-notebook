@@ -13,7 +13,7 @@ exports.init = async function init(app) {
 
           // Define an onmessage handler to receive messages from the worker
           myWorker.onmessage = (e) => {
-              app.ports.receiveFromJS.send(e.data);
+              app.ports.receiveFromJS.send(JSON.stringify(e.data));
           };
 
           // Define an onerror handler to catch errors from the worker

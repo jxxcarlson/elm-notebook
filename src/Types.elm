@@ -7,12 +7,14 @@ import Browser.Navigation exposing (Key)
 import Dict exposing (Dict)
 import File exposing (File)
 import Http
-import Json.Decode exposing (Value)
+import Json.Decode
 import Keyboard
 import Lamdera exposing (ClientId)
 import LiveBook.DataSet
 import LiveBook.State
 import LiveBook.Types exposing (Book, Cell, CellState(..), CellValue(..), VisualType(..))
+import Notebook.ErrorReporter
+import Notebook.Types
 import Random
 import Time
 import Url exposing (Url)
@@ -34,6 +36,10 @@ type alias FrontendModel =
     , randomSeed : Random.Seed
     , randomProbabilities : List Float
     , probabilityVectorLength : Int
+
+    -- NEW
+    , report : List Notebook.ErrorReporter.MessageItem -- OK (Value)
+    , replData : Maybe Notebook.Types.ReplData -- OK (Value)
 
     -- ADMIN
     , users : List User
@@ -65,7 +71,6 @@ type alias FrontendModel =
     , cloneReference : String
     , deleteNotebookState : DeleteNotebookState
     , showNotebooks : ShowNotebooks
-    , valueDict : Dict String Value
     , nextStateRecord : Maybe LiveBook.State.NextStateRecord
     , state : LiveBook.State.MState
     , svgList : List String
@@ -160,7 +165,7 @@ type FrontendMsg
     | InputValuesToKeep String
       -- Notebook
     | GotReply (Result Http.Error String)
-    | ReceivedFromJS Value
+    | ReceivedFromJS String
       -- DATA
     | AskToListDataSets DataSetDescription
     | AskToSaveDataSet LiveBook.DataSet.DataSetMetaData
