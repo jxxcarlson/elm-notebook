@@ -3,7 +3,7 @@ module Notebook.EvalCell exposing (processCell)
 import Dict
 import Keyboard
 import List.Extra
-import LiveBook.Types exposing (Cell)
+import Notebook.Cell exposing (Cell)
 import Notebook.Eval as Eval
 import Notebook.Types exposing (EvalState)
 import Types exposing (FrontendMsg)
@@ -24,14 +24,7 @@ processCell cellIndex pressedKeys model =
             ( model, Cmd.none )
 
         Just cell_ ->
-            let
-                filteredText =
-                    List.filter (\line -> List.member (String.left 1 line) [ ">", ":" ]) cell_.text
-                        |> String.join "\n"
-                        |> String.dropLeft 1
-                        |> String.trim
-            in
-            case String.split "=" filteredText of
+            case String.split "=" cell_.text of
                 [] ->
                     ( model, Cmd.none )
 

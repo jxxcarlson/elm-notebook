@@ -5,19 +5,14 @@ module View.Input exposing
     , data
     , description
     , email
-    , fastTickInterval
     , identifier
     , initialStateValue
     , name
     , password
     , passwordAgain
     , signupUsername
-    , stateBindings
-    , stateExpr
-    , stopExpression
     , title
     , username
-    , valuesToKeep
     )
 
 import Element as E exposing (Element, px)
@@ -74,14 +69,6 @@ initialStateValue model =
     inputFieldTemplate3 [] (E.px 500) "Initial Value" InputInitialStateValue model.inputInitialStateValue
 
 
-valuesToKeep model =
-    inputFieldTemplate3 [] (E.px 300) "Values to Keep" InputValuesToKeep model.inputValuesToKeep
-
-
-fastTickInterval model =
-    inputFieldTemplate3 [] (E.px 150) "Fast Tick Interval" InputFastTickInterval model.inputFastTickInterval
-
-
 name model =
     inputFieldTemplate (E.px 300) "Name" InputName model.inputName
 
@@ -92,18 +79,6 @@ identifier model =
 
 author model =
     inputFieldTemplate (E.px 300) "Author" InputAuthor model.inputAuthor
-
-
-stateExpr model =
-    multiLineTemplate2 500 80 "State Expression" InputStateExpression model.inputStateExpression
-
-
-stateBindings model =
-    multiLineTemplate2 500 80 "Definitions" InputStateBindings model.inputStateBindings
-
-
-stopExpression model =
-    inputFieldTemplate3 [] (E.px 500) "Stop Expression" InputStopExpression model.inputStopExpression
 
 
 description model =

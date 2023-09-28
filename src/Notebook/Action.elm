@@ -1,10 +1,10 @@
-module LiveBook.Action exposing (importData, readData)
+module Notebook.Action exposing (importData, readData)
 
 import Dict
 import Lamdera
-import LiveBook.DataSet
-import LiveBook.Types exposing (CellValue(..))
-import LiveBook.Update
+import Notebook.Cell exposing (CellValue(..))
+import Notebook.DataSet
+import Notebook.Update
 import Types
 
 
@@ -31,7 +31,7 @@ readData index fileName variable dataString model =
                 |> String.join "\n"
     in
     { model | kvDict = Dict.insert variable (quote dataString) model.kvDict, pressedKeys = [] }
-        |> (\model_ -> LiveBook.Update.setCellValue model_ index (CVString message))
+        |> (\model_ -> Notebook.Update.setCellValue model_ index (CVString message))
 
 
 {-|
@@ -39,7 +39,7 @@ readData index fileName variable dataString model =
     Uses kvDict to store the data in the frontend model
 
 -}
-importData : Int -> String -> LiveBook.DataSet.DataSet -> Types.FrontendModel -> Types.FrontendModel
+importData : Int -> String -> Notebook.DataSet.DataSet -> Types.FrontendModel -> Types.FrontendModel
 importData index variable dataset model =
     let
         message =
@@ -54,7 +54,7 @@ importData index variable dataset model =
                 |> String.join "\n"
     in
     { model | kvDict = Dict.insert variable (quote (String.trim dataset.data)) model.kvDict, pressedKeys = [] }
-        |> (\model_ -> LiveBook.Update.setCellValue model_ index (CVString message))
+        |> (\model_ -> Notebook.Update.setCellValue model_ index (CVString message))
 
 
 downloadDataSet : String -> Types.FrontendModel -> ( Types.FrontendModel, Cmd Types.ToBackend )

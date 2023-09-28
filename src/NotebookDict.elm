@@ -10,7 +10,7 @@ module NotebookDict exposing
 
 import Dict
 import List.Extra
-import LiveBook.Types exposing (Book)
+import Notebook.Book exposing (Book)
 import Types
 
 

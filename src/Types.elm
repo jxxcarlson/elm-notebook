@@ -10,9 +10,9 @@ import Http
 import Json.Decode
 import Keyboard
 import Lamdera exposing (ClientId)
-import LiveBook.DataSet
-import LiveBook.State
-import LiveBook.Types exposing (Book, Cell, CellState(..), CellValue(..), VisualType(..))
+import Notebook.Book exposing (Book)
+import Notebook.Cell exposing (Cell, CellState(..), CellValue(..))
+import Notebook.DataSet
 import Notebook.ErrorReporter
 import Notebook.Types
 import Random
@@ -31,7 +31,6 @@ type alias FrontendModel =
     , appMode : AppMode
     , currentTime : Time.Posix
     , tickCount : Int
-    , fastTickInterval : Float
     , clockState : ClockState
     , pressedKeys : List Keyboard.Key
     , randomSeed : Random.Seed
@@ -49,15 +48,10 @@ type alias FrontendModel =
     , inputComments : String
     , inputData : String
     , inputInitialStateValue : String
-    , inputFastTickInterval : String
-    , inputStateExpression : String
-    , inputStateBindings : String
-    , inputStopExpression : String
-    , inputValuesToKeep : String
 
     -- DATA
-    , publicDataSetMetaDataList : List LiveBook.DataSet.DataSetMetaData
-    , privateDataSetMetaDataList : List LiveBook.DataSet.DataSetMetaData
+    , publicDataSetMetaDataList : List Notebook.DataSet.DataSetMetaData
+    , privateDataSetMetaDataList : List Notebook.DataSet.DataSetMetaData
 
     -- NOTEBOOKS
     , report : List Notebook.ErrorReporter.MessageItem
@@ -73,10 +67,6 @@ type alias FrontendModel =
     , cloneReference : String
     , deleteNotebookState : DeleteNotebookState
     , showNotebooks : ShowNotebooks
-    , nextStateRecord : Maybe LiveBook.State.NextStateRecord
-    , state : LiveBook.State.MState
-    , svgList : List String
-    , valuesToKeep : Int
 
     -- USER
     , signupState : SignupState
@@ -114,7 +104,7 @@ type alias BackendModel =
     , randomAtmosphericInt : Maybe Int
 
     -- NOTEBOOK
-    , dataSetLibrary : Dict String LiveBook.DataSet.DataSet
+    , dataSetLibrary : Dict String Notebook.DataSet.DataSet
     , userToNoteBookDict : UserToNoteBookDict
     , slugDict : Dict.Dict String NotebookRecord -- keys are slugs, values are notebook ids
 
@@ -144,7 +134,6 @@ type FrontendMsg
     | UrlChanged Url
     | NoOpFrontendMsg
     | FETick Time.Posix
-    | FastTick Time.Posix
     | KeyboardMsg Keyboard.Msg
     | GetRandomProbabilities Int
     | GotRandomProbabilities (List Float)
@@ -160,19 +149,14 @@ type FrontendMsg
     | InputData String
     | InputAuthor String
     | InputInitialStateValue String
-    | InputFastTickInterval String
-    | InputStateExpression String
-    | InputStateBindings String
-    | InputStopExpression String
-    | InputValuesToKeep String
       -- Notebook
     | GotReply (Result Http.Error String)
     | ReceivedFromJS String
       -- DATA
     | AskToListDataSets DataSetDescription
-    | AskToSaveDataSet LiveBook.DataSet.DataSetMetaData
+    | AskToSaveDataSet Notebook.DataSet.DataSetMetaData
     | AskToCreateDataSet
-    | AskToDeleteDataSet LiveBook.DataSet.DataSetMetaData
+    | AskToDeleteDataSet Notebook.DataSet.DataSetMetaData
       -- CELL
     | ToggleCellLock Cell
     | NewCell Int
@@ -187,9 +171,7 @@ type FrontendMsg
     | CancelDeleteNotebook
     | ChangeAppMode AppMode
     | SetClock ClockState
-    | SetState
     | Reset
-    | Start
     | TogglePublic
     | ClearNotebookValues
     | SetCurrentNotebook Book
@@ -242,7 +224,7 @@ type PopupState
     | AdminPopup
     | ManualPopup
     | NewDataSetPopup
-    | EditDataSetPopup LiveBook.DataSet.DataSetMetaData
+    | EditDataSetPopup Notebook.DataSet.DataSetMetaData
     | SignUpPopup
     | NewNotebookPopup
     | StateEditorPopup
@@ -261,10 +243,10 @@ type ToBackend
     | RunTask
     | SendUsers
       -- DATA
-    | DeleteDataSet LiveBook.DataSet.DataSetMetaData
-    | SaveDataSet LiveBook.DataSet.DataSetMetaData
+    | DeleteDataSet Notebook.DataSet.DataSetMetaData
+    | SaveDataSet Notebook.DataSet.DataSetMetaData
     | GetListOfDataSets DataSetDescription
-    | CreateDataSet LiveBook.DataSet.DataSet
+    | CreateDataSet Notebook.DataSet.DataSet
     | GetData Int String String -- Int is the index of the requesting cell,
       -- String1 is the DataSet identifier, String2 is the variable in which to store it.
     | GetDataSetForDownload String -- Int is the index of the requesting cell,
@@ -299,10 +281,10 @@ type ToFrontend
       -- ADMIN
     | GotUsers (List User)
       -- DATA
-    | GotListOfPublicDataSets (List LiveBook.DataSet.DataSetMetaData)
-    | GotListOfPrivateDataSets (List LiveBook.DataSet.DataSetMetaData)
-    | GotData Int String LiveBook.DataSet.DataSet
-    | GotDataForDownload LiveBook.DataSet.DataSet
+    | GotListOfPublicDataSets (List Notebook.DataSet.DataSetMetaData)
+    | GotListOfPrivateDataSets (List Notebook.DataSet.DataSetMetaData)
+    | GotData Int String Notebook.DataSet.DataSet
+    | GotDataForDownload Notebook.DataSet.DataSet
       -- NOTEBOOK
     | GotNotebook Book
     | GotPublicNotebook Book

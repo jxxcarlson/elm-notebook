@@ -27,12 +27,13 @@ view model =
                 ]
                 [ E.el [ Font.size 24, E.paddingEach { bottom = 16, top = 0, left = 0, right = 0 } ] (E.text "State Editor")
                 , View.Input.initialStateValue model
-                , View.Input.valuesToKeep model
-                , View.Input.fastTickInterval model
-                , View.Input.stateExpr model
-                , View.Input.stateBindings model
-                , View.Input.stopExpression model
-                , E.el [ E.paddingEach { top = 24, bottom = 0, left = 0, right = 0 } ] View.Button.setState
+
+                --, View.Input.valuesToKeep model
+                --, View.Input.fastTickInterval model
+                --, View.Input.stateExpr model
+                --, View.Input.stateBindings model
+                --, View.Input.stopExpression model
+                --, E.el [ E.paddingEach { top = 24, bottom = 0, left = 0, right = 0 } ] View.Button.setState
                 ]
 
         _ ->

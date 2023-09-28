@@ -17,23 +17,19 @@ import Html exposing (Html)
 import Keyboard
 import Lamdera exposing (sendToBackend)
 import List.Extra
-import LiveBook.Action
-import LiveBook.Book
-import LiveBook.Cell
-import LiveBook.CellHelper
-import LiveBook.Codec
-import LiveBook.Config
-import LiveBook.DataSet
-import LiveBook.Eval
-import LiveBook.Parser
-import LiveBook.State
-import LiveBook.Types exposing (Book)
-import LiveBook.Update
 import Loading
 import Navigation
+import Notebook.Action
+import Notebook.Book exposing (Book)
+import Notebook.Cell
+import Notebook.CellHelper
+import Notebook.Codec
+import Notebook.Config
+import Notebook.DataSet
 import Notebook.ErrorReporter
 import Notebook.Eval
 import Notebook.EvalCell
+import Notebook.Update
 import Ports
 import Predicate
 import Random
@@ -65,7 +61,6 @@ subscriptions model =
     Sub.batch
         [ Browser.Events.onResize GotNewWindowDimensions
         , Time.every 3000 FETick
-        , Time.every model.fastTickInterval FastTick
         , Sub.map KeyboardMsg Keyboard.subscriptions
         , Ports.receiveFromJS ReceivedFromJS
         ]
@@ -87,7 +82,6 @@ init url key =
       , currentTime = Time.millisToPosix 0
       , tickCount = 0
       , clockState = ClockStopped
-      , fastTickInterval = LiveBook.Config.fastTickInterval
       , pressedKeys = []
       , randomSeed = Random.initialSeed 1234
       , randomProbabilities = []
@@ -104,11 +98,6 @@ init url key =
       , inputComments = ""
       , inputData = ""
       , inputInitialStateValue = ""
-      , inputFastTickInterval = ""
-      , inputStateBindings = ""
-      , inputStateExpression = ""
-      , inputStopExpression = ""
-      , inputValuesToKeep = ""
 
       -- DATASETS
       , publicDataSetMetaDataList = []
@@ -117,16 +106,12 @@ init url key =
       -- NOTEBOOKS
       , kvDict = Dict.empty
       , books = []
-      , currentBook = LiveBook.Book.scratchPad "anonymous"
+      , currentBook = Notebook.Book.scratchPad "anonymous"
       , cellContent = ""
       , currentCellIndex = 0
       , cloneReference = ""
       , deleteNotebookState = WaitingToDeleteNotebook
       , showNotebooks = ShowUserNotebooks
-      , nextStateRecord = Nothing
-      , state = LiveBook.State.initialState
-      , svgList = []
-      , valuesToKeep = 1
 
       -- UI
       , windowWidth = 600
@@ -160,7 +145,6 @@ update msg model =
 
         GotRandomProbabilities listOfProbabilities ->
             ( { model | randomProbabilities = listOfProbabilities }
-                |> LiveBook.State.updateWorldInModel model.tickCount listOfProbabilities
             , Cmd.none
             )
 
@@ -169,7 +153,7 @@ update msg model =
                 Ok data ->
                     let
                         book =
-                            LiveBook.CellHelper.updateBookWithCellIndexAndReplData model.currentCellIndex data model.currentBook
+                            Notebook.CellHelper.updateBookWithCellIndexAndReplData model.currentCellIndex data model.currentBook
                     in
                     ( { model | replData = Just data, currentBook = book }, Cmd.none )
 
@@ -202,42 +186,6 @@ update msg model =
                         ( { model | pressedKeys = pressedKeys }, Cmd.none )
             in
             ( newModel, cmd )
-
-        FastTick _ ->
-            case model.clockState of
-                ClockRunning ->
-                    --( { model | tickCount = model.tickCount + 1 }, Cmd.none )
-                    let
-                        f m =
-                            LiveBook.Cell.evalCell m.currentCellIndex { m | tickCount = m.tickCount + 1 }
-
-                        g m =
-                            getRandomProbabilities m model.probabilityVectorLength
-
-                        h m =
-                            LiveBook.State.updateInModel m
-
-                        clockState =
-                            case getStopExpression model of
-                                Nothing ->
-                                    ClockRunning
-
-                                Just stopExpression ->
-                                    --if stopExpression == Value.Bool True then
-                                    --    ClockStopped
-                                    --
-                                    --else
-                                    --    ClockRunning
-                                    ClockStopped
-                    in
-                    if clockState == ClockRunning then
-                        glueUpdate f g (h model)
-
-                    else
-                        ( { model | clockState = ClockStopped }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
 
         FETick time ->
             if Predicate.canSave model && model.currentBook.dirty then
@@ -325,13 +273,6 @@ update msg model =
                     else
                         ( { model
                             | popupState = StateEditorPopup
-
-                            --, inputInitialStateValue = model.state.initialValue |> Value.toString
-                            , inputStateExpression = model.state.expression
-                            , inputStateBindings = model.state.bindings |> String.join "; "
-                            , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
-                            , inputValuesToKeep = model.state.valuesToKeep |> String.fromInt
-                            , inputStopExpression = model.state.stopExpressionString
                           }
                         , Cmd.none
                         )
@@ -470,21 +411,6 @@ update msg model =
         InputInitialStateValue str ->
             ( { model | inputInitialStateValue = str }, Cmd.none )
 
-        InputFastTickInterval str ->
-            ( { model | inputFastTickInterval = str }, Cmd.none )
-
-        InputStateExpression str ->
-            ( { model | inputStateExpression = str }, Cmd.none )
-
-        InputStateBindings str ->
-            ( { model | inputStateBindings = str }, Cmd.none )
-
-        InputStopExpression str ->
-            ( { model | inputStopExpression = str }, Cmd.none )
-
-        InputValuesToKeep str ->
-            ( { model | inputValuesToKeep = str }, Cmd.none )
-
         -- DATA
         AskToDeleteDataSet dataSetMetaData ->
             let
@@ -504,7 +430,7 @@ update msg model =
 
         AskToSaveDataSet dataSetMetaData ->
             let
-                metaData : LiveBook.DataSet.DataSetMetaData
+                metaData : Notebook.DataSet.DataSetMetaData
                 metaData =
                     { dataSetMetaData | name = model.inputName, description = model.inputDescription, comments = model.inputComments }
             in
@@ -535,10 +461,10 @@ update msg model =
                 Just user ->
                     let
                         newDataset =
-                            LiveBook.DataSet.makeDataSet model user
+                            Notebook.DataSet.makeDataSet model user
 
                         myDataSetMeta =
-                            LiveBook.DataSet.extractMetaData newDataset
+                            Notebook.DataSet.extractMetaData newDataset
 
                         privateDataSetMetaDataList =
                             myDataSetMeta :: model.privateDataSetMetaDataList
@@ -552,7 +478,7 @@ update msg model =
 
         -- CELLS, NOTEBOOKS
         ToggleCellLock cell ->
-            ( LiveBook.Update.toggleCellLock cell model, Cmd.none )
+            ( Notebook.Update.toggleCellLock cell model, Cmd.none )
 
         StringDataRequested index variable ->
             ( model
@@ -565,7 +491,7 @@ update msg model =
             )
 
         StringDataLoaded fileName index variable dataString ->
-            ( LiveBook.Action.readData index fileName variable dataString model, Cmd.none )
+            ( Notebook.Action.readData index fileName variable dataString model, Cmd.none )
 
         SetShowNotebooksState state ->
             let
@@ -617,7 +543,7 @@ update msg model =
 
         -- File.Download.string (String.replace "." "-" dataSet.identifier ++ ".csv") "text/csv" dataSet.data
         ExportNotebook ->
-            ( model, File.Download.string (BackendHelper.compress model.currentBook.title ++ ".json") "text/json" (LiveBook.Codec.exportBook model.currentBook) )
+            ( model, File.Download.string (BackendHelper.compress model.currentBook.title ++ ".json") "text/json" (Notebook.Codec.exportBook model.currentBook) )
 
         ImportRequested ->
             ( model, File.Select.file [ "text/json" ] ImportSelected )
@@ -628,7 +554,7 @@ update msg model =
         ImportLoaded dataString ->
             let
                 cmd =
-                    case LiveBook.Codec.importBook dataString of
+                    case Notebook.Codec.importBook dataString of
                         Err _ ->
                             Cmd.none
 
@@ -653,7 +579,7 @@ update msg model =
                             model.currentBook
 
                         currentBook =
-                            LiveBook.Book.initializeCellState book |> (\b -> { b | dirty = False })
+                            Notebook.Book.initializeCellState book |> (\b -> { b | dirty = False })
 
                         books =
                             model.books
@@ -666,8 +592,6 @@ update msg model =
                     ( { model
                         | currentUser = Just user
                         , currentBook = currentBook
-                        , state = setInitialState currentBook model.state
-                        , valuesToKeep = (setInitialState currentBook model.state).valuesToKeep
                         , books = books
                       }
                     , Cmd.batch [ sendToBackend (UpdateUserWith user), sendToBackend (SaveNotebook previousBook) ]
@@ -690,7 +614,7 @@ update msg model =
                 )
 
         ClearNotebookValues ->
-            LiveBook.Update.clearNotebookValues model.currentBook model
+            Notebook.Update.clearNotebookValues model.currentBook model
 
         CancelDeleteNotebook ->
             ( { model | deleteNotebookState = WaitingToDeleteNotebook }, Cmd.none )
@@ -736,57 +660,16 @@ update msg model =
 
         Reset ->
             let
-                oldState =
-                    model.state
-
-                newState =
-                    { oldState | ticks = 0, values = [ oldState.initialValue ], currentValue = oldState.initialValue }
-
                 newModel =
                     { model
-                        | --inputInitialStateValue = model.state.initialValue |> Value.toString
-                          inputStateExpression = model.state.expression
-                        , inputStateBindings = model.state.bindings |> String.join "; "
-                        , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
-                        , inputValuesToKeep = model.state.valuesToKeep |> String.fromInt
-                        , inputStopExpression = model.state.stopExpressionString
-                        , clockState = ClockStopped
+                        | clockState = ClockStopped
                         , tickCount = 0
-                        , state = newState
-                        , svgList = []
-                    }
-            in
-            ( newModel, Cmd.none )
-
-        Start ->
-            let
-                oldState =
-                    model.state
-
-                newState =
-                    { oldState | ticks = 0, values = [ oldState.initialValue ], currentValue = oldState.initialValue }
-
-                newModel =
-                    { model
-                        | --inputInitialStateValue = model.state.initialValue |> Value.toString
-                          inputStateExpression = model.state.expression
-                        , inputStateBindings = model.state.bindings |> String.join "; "
-                        , inputFastTickInterval = model.state.fastTickInterval |> String.fromFloat
-                        , inputValuesToKeep = model.state.valuesToKeep |> String.fromInt
-                        , inputStopExpression = model.state.stopExpressionString
-                        , clockState = ClockRunning
-                        , tickCount = 0
-                        , state = newState
-                        , svgList = []
                     }
             in
             ( newModel, Cmd.none )
 
         SetClock state ->
             ( { model | clockState = state }, Cmd.none )
-
-        SetState ->
-            setState model
 
         UpdateNotebookTitle ->
             if not (Predicate.canSave model) then
@@ -819,26 +702,27 @@ update msg model =
                 )
 
         InputElmCode index str ->
-            ( LiveBook.Update.updateCellText model index str, Cmd.none )
+            ( Notebook.Update.updateCellText model index str, Cmd.none )
 
         NewCell index ->
-            LiveBook.Update.makeNewCell model index
+            Notebook.Update.makeNewCell model index
 
         DeleteCell index ->
             if List.length model.currentBook.cells <= 1 then
                 ( model, Cmd.none )
 
             else
-                ( LiveBook.Update.deleteCell index model, Cmd.none )
+                ( Notebook.Update.deleteCell index model, Cmd.none )
 
         EditCell cell ->
-            LiveBook.Update.editCell model cell
+            Notebook.Update.editCell model cell
 
         ClearCell index ->
-            LiveBook.Update.clearCell model index
+            Notebook.Update.clearCell model index
 
         EvalCell index ->
-            LiveBook.Cell.evalCell index { model | pressedKeys = [] }
+            -- TODO: make this less hacky
+            Notebook.EvalCell.processCell model.currentCellIndex [ Keyboard.Control, Keyboard.Enter ] model
 
         -- NOTEBOOKS
         -- ADMIN
@@ -887,7 +771,7 @@ updateFromBackend msg model =
             ( { model | privateDataSetMetaDataList = dataSetMetaDataList }, Cmd.none )
 
         GotData index variable dataSet ->
-            ( LiveBook.Action.importData index variable dataSet model
+            ( Notebook.Action.importData index variable dataSet model
             , Cmd.none
             )
 
@@ -898,7 +782,7 @@ updateFromBackend msg model =
         GotNotebook book_ ->
             let
                 book =
-                    LiveBook.Book.initializeCellState book_
+                    Notebook.Book.initializeCellState book_
 
                 addOrReplaceBook xbook books =
                     if List.any (\b -> b.id == xbook.id) books then
@@ -907,7 +791,7 @@ updateFromBackend msg model =
                     else
                         xbook :: books
             in
-            ( { model | state = setInitialState book model.state, currentBook = book, books = addOrReplaceBook book model.books }, Cmd.none )
+            ( { model | currentBook = book, books = addOrReplaceBook book model.books }, Cmd.none )
 
         GotPublicNotebook book_ ->
             let
@@ -920,7 +804,7 @@ updateFromBackend msg model =
                             User.guest
 
                 book =
-                    LiveBook.Book.initializeCellState book_
+                    Notebook.Book.initializeCellState book_
 
                 addOrReplaceBook xbook books =
                     if List.any (\b -> b.id == xbook.id) books then
@@ -932,7 +816,6 @@ updateFromBackend msg model =
             ( { model
                 | currentUser = Just currentUser
                 , showNotebooks = ShowPublicNotebooks
-                , state = setInitialState book model.state
                 , currentBook = book
                 , books = addOrReplaceBook book model.books
               }
@@ -948,11 +831,8 @@ updateFromBackend msg model =
 
                         Just book ->
                             book
-
-                state =
-                    setInitialState currentBook model.state
             in
-            ( { model | books = books, currentBook = currentBook, state = state }, Cmd.none )
+            ( { model | books = books, currentBook = currentBook }, Cmd.none )
 
 
 view : Model -> { title : String, body : List (Html.Html FrontendMsg) }
@@ -989,7 +869,6 @@ getRandomProbabilities model k =
         | randomProbabilities = randomProbabilities
         , randomSeed = randomSeed
       }
-        |> LiveBook.State.updateWorldInModel model.tickCount randomProbabilities
     , Cmd.none
     )
 
@@ -1016,110 +895,9 @@ setupWindow =
     Task.perform GotViewport Browser.Dom.getViewport
 
 
-setInitialState : LiveBook.Types.Book -> LiveBook.State.MState -> LiveBook.State.MState
-setInitialState book state_ =
-    let
-        --stopValues : List Value.Value
-        --stopValues =
-        --    case book.stopExpressionString |> LiveBook.Parser.parse of
-        --        Just (Value.List list) ->
-        --            list
-        --
-        --        _ ->
-        --            []
-        state1_ =
-            case LiveBook.Parser.parse book.initialStateString of
-                Nothing ->
-                    state_
-
-                Just value ->
-                    { state_
-                        | values = [ value ]
-                        , currentValue = value
-                        , valuesToKeep = book.valuesToKeep
-                        , initialValue = value
-                    }
-    in
-    { state1_
-        | expression = book.stateExpression
-        , bindings = book.stateBindings
-        , stopExpressionString = book.stopExpressionString
-        , fastTickInterval = book.fastTickInterval
-    }
-
-
 getStopExpression model =
     --model.inputStopExpression
-    --    |> LiveBook.Eval.evaluateExpressionStringWithState model.state
+    --    |> Notebook.Eval.evaluateExpressionStringWithState model.state
     --    |> Eval.eval
     --    |> Result.toMaybe
     Nothing
-
-
-setState model =
-    let
-        valuesToKeep =
-            model.inputValuesToKeep |> String.toInt |> Maybe.withDefault 1 |> (\x -> max 1 x)
-
-        setValue state_ =
-            case LiveBook.Parser.parse model.inputInitialStateValue of
-                Nothing ->
-                    state_
-
-                Just value ->
-                    { state_ | values = [ value ], currentValue = value, initialValue = value }
-
-        setExpression state_ =
-            { state_ | expression = model.inputStateExpression }
-
-        setBindings state_ =
-            { state_ | bindings = model.inputStateBindings |> String.split ";" |> List.map String.trim }
-
-        newFastTickInterval =
-            model.inputFastTickInterval |> String.toFloat |> Maybe.withDefault 60.0 |> (\x -> max 60 x)
-
-        setValuesToKeep : { a | valuesToKeep : Int } -> { a | valuesToKeep : Int }
-        setValuesToKeep state_ =
-            { state_ | valuesToKeep = valuesToKeep }
-
-        setFastTickInterval state_ =
-            { state_ | fastTickInterval = newFastTickInterval }
-
-        setStopValue state_ =
-            { state_ | stopExpressionString = model.inputStopExpression }
-
-        oldState =
-            model.state
-
-        newState =
-            oldState
-                |> setValue
-                |> setExpression
-                |> setBindings
-                |> setFastTickInterval
-                |> setStopValue
-                |> setValuesToKeep
-
-        oldNotebook =
-            model.currentBook
-
-        newNotebook =
-            { oldNotebook
-                | dirty = True
-                , initialStateString = model.inputInitialStateValue
-                , stateExpression = model.inputStateExpression
-                , stateBindings = model.inputStateBindings |> String.split ";" |> List.map String.trim
-                , stopExpressionString = model.inputStopExpression
-                , fastTickInterval = newFastTickInterval
-                , valuesToKeep = valuesToKeep
-            }
-    in
-    ( { model
-        | state = newState
-        , fastTickInterval = newFastTickInterval
-        , currentBook = newNotebook
-        , popupState = NoPopup
-        , valuesToKeep = valuesToKeep
-      }
-    , sendToBackend (SaveNotebook newNotebook)
-    )

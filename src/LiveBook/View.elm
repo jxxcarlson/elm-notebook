@@ -9,12 +9,9 @@ import Element.Font as Font
 import Element.Input
 import Element.Lazy
 import List.Extra
-import LiveBook.Chart
-import LiveBook.Eval
-import LiveBook.PreProcess
-import LiveBook.SVG
-import LiveBook.Types exposing (Cell, CellState(..), CellValue(..), ViewData, VisualType(..))
-import LiveBook.Utility
+import Notebook.Book exposing (ViewData)
+import Notebook.Cell exposing (Cell, CellState(..), CellValue(..))
+import Notebook.Utility
 import Types exposing (FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
 import UILibrary.Color as Color
@@ -78,11 +75,12 @@ controls width_ cell =
                     , E.paddingEach { top = 2, bottom = 2, left = 8, right = 4 }
                     ]
                     [ runCell cell.index
-                    , if isSimulation cell then
-                        View.Button.start
 
-                      else
-                        E.none
+                    --, if isSimulation cell then
+                    --    View.Button.start
+                    --
+                    --  else
+                    --    E.none
                     , newCellAt cell.cellState cell.index
                     , deleteCellAt cell.cellState cell.index
                     , clearCellAt cell.cellState cell.index
@@ -132,35 +130,45 @@ viewValue viewData cell =
             par realWidth
                 [ View.CellThemed.renderFull (scale 1.0 realWidth) cellHeight_ str ]
 
-        CVPlot2D args data ->
-            case List.Extra.unconsLast args of
-                Nothing ->
-                    E.image
-                        [ E.width (E.px realWidth) ]
-                        { src = getArg 0 args, description = "image" }
+        CVMarkdown str ->
+            let
+                cellHeight_ =
+                    40
+            in
+            par realWidth
+                [ View.CellThemed.renderFull (scale 1.0 realWidth) cellHeight_ str ]
 
-                Just ( dataVariable, args_ ) ->
-                    let
-                        options =
-                            LiveBook.Utility.keyValueDict (("width:" ++ String.fromInt realWidth) :: args_)
 
-                        innerArgs =
-                            List.filter (\s -> not (String.contains s ":")) args_
 
-                        kind =
-                            List.head innerArgs |> Maybe.withDefault "line"
-                    in
-                    --case LiveBook.Eval.evaluateWithCumulativeBindingsToResult Dict.empty viewData.book.cells dataVariable of
-                    --    Err _ ->
-                    --        E.text "Error (22)"
-                    --
-                    --    Ok listPairs ->
-                    --@@dataVariable: "data"
-                    --(index):260 @@args_: ["plot2D","line"]
-                    LiveBook.Chart.plot2D "line" options data
-
-        CVVisual vt args ->
-            Element.Lazy.lazy3 renderVT viewData vt args
+--CVPlot2D args data ->
+--    case List.Extra.unconsLast args of
+--        Nothing ->
+--            E.image
+--                [ E.width (E.px realWidth) ]
+--                { src = getArg 0 args, description = "image" }
+--
+--        Just ( dataVariable, args_ ) ->
+--            let
+--                options =
+--                    Notebook.Utility.keyValueDict (("width:" ++ String.fromInt realWidth) :: args_)
+--
+--                innerArgs =
+--                    List.filter (\s -> not (String.contains s ":")) args_
+--
+--                kind =
+--                    List.head innerArgs |> Maybe.withDefault "line"
+--            in
+--            --case Notebook.Eval.evaluateWithCumulativeBindingsToResult Dict.empty viewData.book.cells dataVariable of
+--            --    Err _ ->
+--            --        E.text "Error (22)"
+--            --
+--            --    Ok listPairs ->
+--            --@@dataVariable: "data"
+--            --(index):260 @@args_: ["plot2D","line"]
+--            Notebook.Chart.plot2D "line" options data
+--
+--CVVisual vt args ->
+--    Element.Lazy.lazy3 renderVT viewData vt args
 
 
 par width =
@@ -174,65 +182,67 @@ par width =
         ]
 
 
-renderVT : ViewData -> VisualType -> List String -> Element FrontendMsg
-renderVT viewData vt args =
-    let
-        realWidth =
-            viewData.width - controlWidth
-    in
-    case vt of
-        VTImage ->
-            case List.Extra.unconsLast args of
-                Nothing ->
-                    E.image
-                        [ E.width (E.px realWidth) ]
-                        { src = getArg 0 args, description = "image" }
 
-                Just ( url, args_ ) ->
-                    let
-                        options =
-                            LiveBook.Utility.keyValueDict args_
-
-                        width_ =
-                            case Dict.get "width" options of
-                                Just w ->
-                                    w |> String.toInt |> Maybe.withDefault realWidth
-
-                                Nothing ->
-                                    realWidth
-                    in
-                    E.image
-                        [ E.width (E.px width_) ]
-                        { src = url, description = "image" }
-
-        VTSvg ->
-            let
-                cleanArgs =
-                    args
-                        |> List.filter (\s -> not (String.contains s "#"))
-                        |> List.map (String.replace "> svg " "")
-            in
-            Element.Lazy.lazy LiveBook.SVG.render cleanArgs
-
-        VTChart ->
-            case List.Extra.unconsLast args of
-                Nothing ->
-                    E.image
-                        [ E.width (E.px realWidth) ]
-                        { src = getArg 0 args, description = "image" }
-
-                Just ( dataVariable, args_ ) ->
-                    let
-                        options =
-                            LiveBook.Utility.keyValueDict (("width:" ++ String.fromInt realWidth) :: args_)
-
-                        innerArgs =
-                            List.filter (\s -> not (String.contains s ":")) args_
-
-                        kind =
-                            List.head innerArgs |> Maybe.withDefault "line"
-                    in
-                    LiveBook.Chart.chart kind options (dataVariable |> LiveBook.Eval.transformWordsWithKVDict viewData.kvDict)
+--
+--renderVT : ViewData -> VisualType -> List String -> Element FrontendMsg
+--renderVT viewData vt args =
+--    let
+--        realWidth =
+--            viewData.width - controlWidth
+--    in
+--    case vt of
+--        VTImage ->
+--            case List.Extra.unconsLast args of
+--                Nothing ->
+--                    E.image
+--                        [ E.width (E.px realWidth) ]
+--                        { src = getArg 0 args, description = "image" }
+--
+--                Just ( url, args_ ) ->
+--                    let
+--                        options =
+--                            Notebook.Utility.keyValueDict args_
+--
+--                        width_ =
+--                            case Dict.get "width" options of
+--                                Just w ->
+--                                    w |> String.toInt |> Maybe.withDefault realWidth
+--
+--                                Nothing ->
+--                                    realWidth
+--                    in
+--                    E.image
+--                        [ E.width (E.px width_) ]
+--                        { src = url, description = "image" }
+--
+--        VTSvg ->
+--            let
+--                cleanArgs =
+--                    args
+--                        |> List.filter (\s -> not (String.contains s "#"))
+--                        |> List.map (String.replace "> svg " "")
+--            in
+--            Element.Lazy.lazy Notebook.SVG.render cleanArgs
+--
+--        VTChart ->
+--            case List.Extra.unconsLast args of
+--                Nothing ->
+--                    E.image
+--                        [ E.width (E.px realWidth) ]
+--                        { src = getArg 0 args, description = "image" }
+--
+--                Just ( dataVariable, args_ ) ->
+--                    let
+--                        options =
+--                            Notebook.Utility.keyValueDict (("width:" ++ String.fromInt realWidth) :: args_)
+--
+--                        innerArgs =
+--                            List.filter (\s -> not (String.contains s ":")) args_
+--
+--                        kind =
+--                            List.head innerArgs |> Maybe.withDefault "line"
+--                    in
+--                    Notebook.Chart.chart kind options (dataVariable |> Notebook.Eval.transformWordsWithKVDict viewData.kvDict)
 
 
 getArg : Int -> List String -> String
@@ -268,32 +278,11 @@ viewIndex cell =
 
 viewSource_ width cell =
     let
-        processedLines : List String
-        processedLines =
-            LiveBook.PreProcess.cellContents cell
-
-        delta nLines =
-            -- TODO: Bad code!
-            if nLines == 1 then
-                30
-
-            else if nLines < 3 then
-                10
-
-            else if nLines < 8 then
-                20
-
-            else if nLines < 11 then
-                40
-
-            else
-                50
-
         cellHeight_ =
-            List.length processedLines |> (\x -> scale 14.0 x + delta 0)
+            40
 
         source =
-            processedLines |> String.join "\n"
+            cell.text
     in
     E.column
         [ E.spacing 0

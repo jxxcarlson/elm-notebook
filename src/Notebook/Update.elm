@@ -1,4 +1,4 @@
-module LiveBook.Update exposing
+module Notebook.Update exposing
     ( clearCell
     , clearNotebookValues
     , deleteCell
@@ -25,17 +25,20 @@ executed only if it also appears in the list 'commands'.
 
 -}
 
+--import Notebook.Types
+--    exposing
+--        ( Book
+--        , Cell
+--        , CellState(..)
+--        , CellValue(..)
+--        , VisualType(..)
+--        )
+
 import Lamdera
 import List.Extra
-import LiveBook.CellHelper
-import LiveBook.Types
-    exposing
-        ( Book
-        , Cell
-        , CellState(..)
-        , CellValue(..)
-        , VisualType(..)
-        )
+import Notebook.Book exposing (Book)
+import Notebook.Cell exposing (Cell, CellState(..), CellType(..), CellValue(..))
+import Notebook.CellHelper
 import Types exposing (FrontendModel, FrontendMsg(..))
 
 
@@ -43,9 +46,9 @@ clearNotebookValues : Book -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg 
 clearNotebookValues book model =
     let
         newBook =
-            { book | cells = List.map (\cell -> { cell | value = CVNone, expression = "", bindings = [] }) book.cells }
+            { book | cells = List.map (\cell -> { cell | value = CVNone, text = "" }) book.cells }
     in
-    ( { model | currentBook = newBook, svgList = [] }, Lamdera.sendToBackend (Types.SaveNotebook newBook) )
+    ( { model | currentBook = newBook }, Lamdera.sendToBackend (Types.SaveNotebook newBook) )
 
 
 
@@ -84,9 +87,9 @@ editCell model cell =
             { cell | cellState = CSEdit }
 
         newBook =
-            LiveBook.CellHelper.updateBookWithCell updatedCell model.currentBook
+            Notebook.CellHelper.updateBookWithCell updatedCell model.currentBook
     in
-    ( { model | currentCellIndex = cell.index, cellContent = cell.text |> String.join "\n", currentBook = newBook }, Cmd.none )
+    ( { model | currentCellIndex = cell.index, cellContent = cell.text, currentBook = newBook }, Cmd.none )
 
 
 clearCell : FrontendModel -> Int -> ( FrontendModel, Cmd FrontendMsg )
@@ -98,10 +101,10 @@ clearCell model index =
         Just cell_ ->
             let
                 updatedCell =
-                    { cell_ | text = [ "" ], cellState = CSView, value = CVNone }
+                    { cell_ | text = "", cellState = CSView, value = CVNone }
 
                 newBook =
-                    LiveBook.CellHelper.updateBookWithCell updatedCell model.currentBook
+                    Notebook.CellHelper.updateBookWithCell updatedCell model.currentBook
             in
             ( { model | cellContent = "", currentBook = newBook }, Cmd.none )
 
@@ -111,16 +114,15 @@ makeNewCell model index =
     let
         newCell =
             { index = index + 1
-            , text = [ "# New cell (" ++ String.fromInt (index + 2) ++ ") ", "()" ]
-            , bindings = []
-            , expression = ""
+            , text = "# New cell (" ++ String.fromInt (index + 2) ++ ") "
             , value = CVNone
+            , tipe = CTMarkdown
             , cellState = CSEdit
             , locked = False
             }
 
         newBook =
-            LiveBook.CellHelper.addCellToBook newCell model.currentBook
+            Notebook.CellHelper.addCellToBook newCell model.currentBook
 
         _ =
             List.length newBook.cells
@@ -141,7 +143,7 @@ setCellValue model index cellValue =
             model
 
         Just cell_ ->
-            { model | currentBook = LiveBook.CellHelper.updateBookWithCell { cell_ | value = cellValue } model.currentBook }
+            { model | currentBook = Notebook.CellHelper.updateBookWithCell { cell_ | value = cellValue } model.currentBook }
 
 
 updateCellText : FrontendModel -> Int -> String -> FrontendModel
@@ -153,9 +155,9 @@ updateCellText model index str =
         Just cell_ ->
             let
                 updatedCell =
-                    { cell_ | text = str |> String.split "\n" }
+                    { cell_ | text = str }
             in
-            { model | cellContent = str, currentBook = LiveBook.CellHelper.updateBookWithCell updatedCell model.currentBook }
+            { model | cellContent = str, currentBook = Notebook.CellHelper.updateBookWithCell updatedCell model.currentBook }
 
 
 toggleCellLock : Cell -> FrontendModel -> FrontendModel
@@ -165,7 +167,7 @@ toggleCellLock cell model =
             { cell | locked = not cell.locked }
 
         updatedBook =
-            LiveBook.CellHelper.updateBookWithCell updatedCell model.currentBook
+            Notebook.CellHelper.updateBookWithCell updatedCell model.currentBook
     in
     { model | currentBook = updatedBook }
 

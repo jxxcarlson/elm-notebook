@@ -1,4 +1,4 @@
-module LiveBook.Utility exposing (..)
+module Notebook.Utility exposing (..)
 
 import Dict exposing (Dict)
 import List.Extra

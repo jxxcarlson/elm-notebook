@@ -1,5 +1,6 @@
-module Notebook.Book exposing (initializeCellState, new, scratchPad)
+module Notebook.Book exposing (Book, ViewData, initializeCellState, new, scratchPad)
 
+import Dict exposing (Dict)
 import Notebook.Cell exposing (Cell, CellState(..), CellType(..), CellValue(..))
 import Time
 
@@ -34,7 +35,7 @@ scratchPad username =
         [ { index = 0
           , text = "This is a *test*"
           , tipe = CTMarkdown
-          , value = CVMarkdown
+          , value = CVMarkdown "This is a *test*"
           , cellState = CSView
           , locked = False
           }
@@ -75,7 +76,7 @@ new author title =
         [ { index = 0
           , text = "This is a *test*"
           , tipe = CTMarkdown
-          , value = CVMarkdown
+          , value = CVMarkdown "This is a *test*"
           , cellState = CSView
           , locked = False
           }
@@ -106,7 +107,7 @@ newBook author title =
         [ { index = 0
           , text = "This is a *test*"
           , tipe = CTMarkdown
-          , value = CVMarkdown
+          , value = CVMarkdown "This is a *test*"
           , cellState = CSView
           , locked = False
           }
@@ -137,3 +138,11 @@ initialStateBindings =
 initializeCellState : Book -> Book
 initializeCellState book =
     { book | cells = List.map (\cell -> { cell | cellState = CSView }) book.cells }
+
+
+type alias ViewData =
+    { book : Book
+    , kvDict : Dict String String
+    , width : Int
+    , ticks : Int
+    }

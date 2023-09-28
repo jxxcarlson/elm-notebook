@@ -17,8 +17,8 @@ type CellType
 
 
 type CellValue
-    = CV String
-    | CVMarkdown
+    = CVString String
+    | CVMarkdown String
     | CVNone
 
 

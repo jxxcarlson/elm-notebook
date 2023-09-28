@@ -1,4 +1,4 @@
-module LiveBook.Config exposing (fastTickInterval)
+module Notebook.Config exposing (fastTickInterval)
 
 
 fastTickInterval : Float

@@ -2,8 +2,7 @@ module BackendHelper exposing (..)
 
 -- HELPERS
 
-import LiveBook.Book
-import LiveBook.Types exposing (Book)
+import Notebook.Book exposing (Book)
 import NotebookDict
 import Random
 import Types exposing (..)
@@ -35,7 +34,7 @@ addScratchPadToUser username model =
             getUUID model
 
         rawScratchpad =
-            LiveBook.Book.scratchPad username
+            Notebook.Book.scratchPad username
 
         scratchPad : Book
         scratchPad =

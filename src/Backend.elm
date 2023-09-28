@@ -7,9 +7,9 @@ import Dict exposing (Dict)
 import Env exposing (Mode(..))
 import Hex
 import Lamdera exposing (ClientId, SessionId, sendToFrontend)
-import LiveBook.Book
-import LiveBook.DataSet
-import LiveBook.Utility
+import Notebook.Book
+import Notebook.DataSet
+import Notebook.Utility
 import NotebookDict
 import Random
 import Time
@@ -190,10 +190,10 @@ updateFromFrontend sessionId clientId msg model =
             case description of
                 PublicDatasets ->
                     let
-                        publicDataSets : List LiveBook.DataSet.DataSetMetaData
+                        publicDataSets : List Notebook.DataSet.DataSetMetaData
                         publicDataSets =
                             List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
-                                |> List.map LiveBook.DataSet.extractMetaData
+                                |> List.map Notebook.DataSet.extractMetaData
                     in
                     ( model, sendToFrontend clientId (GotListOfPublicDataSets publicDataSets) )
 
@@ -201,7 +201,7 @@ updateFromFrontend sessionId clientId msg model =
                     let
                         userDatasets =
                             List.filter (\dataSet -> dataSet.author == username) (Dict.values model.dataSetLibrary)
-                                |> List.map LiveBook.DataSet.extractMetaData
+                                |> List.map Notebook.DataSet.extractMetaData
                     in
                     ( model, sendToFrontend clientId (GotListOfPrivateDataSets userDatasets) )
 
@@ -343,7 +343,7 @@ updateFromFrontend sessionId clientId msg model =
                     BackendHelper.getUUID model
 
                 newBook_ =
-                    LiveBook.Book.new author title
+                    Notebook.Book.new author title
 
                 newBook =
                     { newBook_
@@ -451,10 +451,10 @@ getListOfDataSets clientId model description =
     case description of
         PublicDatasets ->
             let
-                publicDataSets : List LiveBook.DataSet.DataSetMetaData
+                publicDataSets : List Notebook.DataSet.DataSetMetaData
                 publicDataSets =
                     List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
-                        |> List.map LiveBook.DataSet.extractMetaData
+                        |> List.map Notebook.DataSet.extractMetaData
             in
             sendToFrontend clientId (GotListOfPublicDataSets publicDataSets)
 
@@ -462,7 +462,7 @@ getListOfDataSets clientId model description =
             let
                 userDatasets =
                     List.filter (\dataSet -> dataSet.author == username) (Dict.values model.dataSetLibrary)
-                        |> List.map LiveBook.DataSet.extractMetaData
+                        |> List.map Notebook.DataSet.extractMetaData
             in
             sendToFrontend clientId (GotListOfPrivateDataSets userDatasets)
 
@@ -471,11 +471,11 @@ getListOfDataSets clientId model description =
 --case description of
 --    PublicDatasets ->
 --        let
---            publicDataSets : List LiveBook.DataSet.DataSetMetaData
+--            publicDataSets : List Notebook.DataSet.DataSetMetaData
 --            publicDataSets =
 --                --List.filter (\dataSet -> dataSet.public) (Dict.values model.dataSetLibrary)
 --                Dict.values model.dataSetLibrary
---                    |> List.map LiveBook.DataSet.extractMetaData
+--                    |> List.map Notebook.DataSet.extractMetaData
 --        in
 --        sendToFrontend clientId (GotListOfPublicDataSets publicDataSets)
 --
@@ -483,6 +483,6 @@ getListOfDataSets clientId model description =
 --        let
 --            userDatasets =
 --                List.filter (\dataSet -> dataSet.author == username) (Dict.values model.dataSetLibrary)
---                    |> List.map LiveBook.DataSet.extractMetaData
+--                    |> List.map Notebook.DataSet.extractMetaData
 --        in
 --        sendToFrontend clientId (GotListOfPublicDataSets userDatasets)

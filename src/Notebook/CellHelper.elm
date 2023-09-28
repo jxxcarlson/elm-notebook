@@ -1,7 +1,8 @@
-module LiveBook.CellHelper exposing (addCellToBook, updateBookWithCell, updateBookWithCellIndexAndReplData)
+module Notebook.CellHelper exposing (addCellToBook, updateBookWithCell, updateBookWithCellIndexAndReplData)
 
 import List.Extra
-import LiveBook.Types exposing (Book, Cell)
+import Notebook.Book exposing (Book)
+import Notebook.Cell exposing (Cell, CellState(..), CellValue(..))
 import Notebook.Types
 
 
@@ -16,7 +17,7 @@ updateBookWithCellIndexAndReplData cellIndex replData book =
             book
 
         Just targetCell ->
-            updateBookWithCell { targetCell | value = LiveBook.Types.CVString replData.value } book
+            updateBookWithCell { targetCell | value = CVString replData.value } book
 
 
 updateBookWithCell : Cell -> Book -> Book
@@ -29,11 +30,11 @@ updateBookWithCell cell book =
         let
             prefix =
                 List.filter (\currentCell -> currentCell.index < cell.index) book.cells
-                    |> List.map (\c -> { c | cellState = LiveBook.Types.CSView })
+                    |> List.map (\c -> { c | cellState = CSView })
 
             suffix =
                 List.filter (\currentCell -> currentCell.index > cell.index) book.cells
-                    |> List.map (\c -> { c | cellState = LiveBook.Types.CSView })
+                    |> List.map (\c -> { c | cellState = CSView })
         in
         { book | cells = prefix ++ (cell :: suffix), dirty = True }
 

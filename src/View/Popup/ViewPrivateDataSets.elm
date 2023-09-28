@@ -3,7 +3,7 @@ module View.Popup.ViewPrivateDataSets exposing (..)
 import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Font as Font
-import LiveBook.DataSet
+import Notebook.DataSet
 import String.Extra
 import Types
 import UILibrary.Color
@@ -30,7 +30,7 @@ view model =
             )
 
 
-viewDataSetMeta : LiveBook.DataSet.DataSetMetaData -> Element Types.FrontendMsg
+viewDataSetMeta : Notebook.DataSet.DataSetMetaData -> Element Types.FrontendMsg
 viewDataSetMeta data =
     E.column []
         [ E.row [ Font.color UILibrary.Color.lightGray, E.spacing 12 ]

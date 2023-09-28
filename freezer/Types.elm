@@ -52,11 +52,3 @@ type VisualType
 type CellState
     = CSEdit
     | CSView
-
-
-type alias ViewData =
-    { book : Book
-    , kvDict : Dict String String
-    , width : Int
-    , ticks : Int
-    }

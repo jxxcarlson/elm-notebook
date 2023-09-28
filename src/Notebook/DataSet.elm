@@ -1,11 +1,11 @@
-module LiveBook.DataSet exposing
+module Notebook.DataSet exposing
     ( DataSet
     , DataSetMetaData
     , extractMetaData
     , makeDataSet
     )
 
-import LiveBook.Utility
+import Notebook.Utility
 import Time
 import User exposing (User)
 
@@ -62,7 +62,7 @@ makeDataSet :
 makeDataSet model user =
     { author = user.username
     , name = model.inputName
-    , identifier = LiveBook.Utility.slugify user.username ++ "." ++ LiveBook.Utility.slugify model.inputIdentifier
+    , identifier = Notebook.Utility.slugify user.username ++ "." ++ Notebook.Utility.slugify model.inputIdentifier
     , public = False
     , createdAt = Time.millisToPosix 0
     , modifiedAt = Time.millisToPosix 0

@@ -1,7 +1,8 @@
-module LiveBook.Codec exposing (exportBook, importBook)
+module Notebook.Codec exposing (exportBook, importBook)
 
 import Codec exposing (Codec, Error, Value)
-import LiveBook.Types exposing (Book, Cell, CellState(..), CellValue(..), VisualType(..))
+import Notebook.Book exposing (Book)
+import Notebook.Cell exposing (Cell, CellState(..), CellType(..), CellValue(..))
 import Time
 
 
@@ -29,12 +30,6 @@ bookCodec =
         |> Codec.field "title" .title Codec.string
         |> Codec.field "cells" .cells (Codec.list cellCodec)
         |> Codec.field "currentIndex" .currentIndex Codec.int
-        |> Codec.field "initialStateString" .initialStateString Codec.string
-        |> Codec.field "stateExpression" .stateExpression Codec.string
-        |> Codec.field "stateBindings" .stateBindings (Codec.list Codec.string)
-        |> Codec.field "fastTickInterval" .fastTickInterval Codec.float
-        |> Codec.field "stopExpressionString" .stopExpressionString Codec.string
-        |> Codec.field "valuesToKeep" .valuesToKeep Codec.int
         |> Codec.buildObject
 
 
@@ -47,23 +42,34 @@ cellCodec : Codec Cell
 cellCodec =
     Codec.object Cell
         |> Codec.field "index" .index Codec.int
-        |> Codec.field "text" .text (Codec.list Codec.string)
-        |> Codec.field "bindings" .bindings (Codec.list Codec.string)
-        |> Codec.field "expression" .expression Codec.string
+        |> Codec.field "text" .text Codec.string
+        |> Codec.field "tipe" .tipe cellTypeCodec
         |> Codec.field "value" .value cellValueCodec
         |> Codec.field "cellState" .cellState cellStateCodec
         |> Codec.field "locked" .locked Codec.bool
         |> Codec.buildObject
 
 
+cellTypeCodec : Codec CellType
+cellTypeCodec =
+    Codec.custom
+        (\ctcode ctmarkdown value ->
+            case value of
+                CTCode ->
+                    ctcode
 
---,  cellState : CellState } value : CellValue
+                CTMarkdown ->
+                    ctmarkdown
+        )
+        |> Codec.variant0 "CTCode" CTCode
+        |> Codec.variant0 "CTMarkdown" CTMarkdown
+        |> Codec.buildCustom
 
 
 cellValueCodec : Codec CellValue
 cellValueCodec =
     Codec.custom
-        (\fcvnone cvstring cvvisual cvplot2d value ->
+        (\fcvnone cvstring cmarkdown value ->
             case value of
                 CVNone ->
                     fcvnone
@@ -71,41 +77,17 @@ cellValueCodec =
                 CVString s ->
                     cvstring s
 
-                CVVisual s ls ->
-                    cvvisual s ls
-
-                CVPlot2D s lfp ->
-                    cvplot2d s lfp
+                CVMarkdown s ->
+                    cmarkdown s
         )
         |> Codec.variant0 "CVNone" CVNone
-        |> Codec.variant1 "CVString" CVString Codec.string
-        |> Codec.variant2 "CVVisual" CVVisual visualTypeCodec (Codec.list Codec.string)
-        |> Codec.variant2 "CVPlot2D" CVPlot2D (Codec.list Codec.string) (Codec.list (Codec.tuple Codec.float Codec.float))
+        |> Codec.variant1 "CV" CVString Codec.string
+        |> Codec.variant1 "CVMarkdown" CVMarkdown Codec.string
         |> Codec.buildCustom
 
 
 
--- | CVPlot2D (List String) (List ( Float, Float ))
-
-
-visualTypeCodec : Codec VisualType
-visualTypeCodec =
-    Codec.custom
-        (\fvtchart fvtimage fvtsvg value ->
-            case value of
-                VTChart ->
-                    fvtchart
-
-                VTImage ->
-                    fvtimage
-
-                VTSvg ->
-                    fvtsvg
-        )
-        |> Codec.variant0 "VTChart" VTChart
-        |> Codec.variant0 "VTImage" VTImage
-        |> Codec.variant0 "VTSvg" VTSvg
-        |> Codec.buildCustom
+--
 
 
 cellStateCodec : Codec CellState

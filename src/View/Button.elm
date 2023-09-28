@@ -28,12 +28,10 @@ module View.Button exposing
     , saveDataSetAsPrivate
     , saveDataSetAsPublic
     , setClock
-    , setState
     , setUpUser
     , signIn
     , signOut
     , signUp
-    , start
     , stateEditor
     , toggleViewPrivateDataSets
     , toggleViewPublicDataSets
@@ -45,8 +43,9 @@ import Element as E exposing (Element)
 import Element.Background as Background
 import Element.Font as Font
 import Element.Input as Input
-import LiveBook.DataSet
-import LiveBook.Types exposing (Book)
+import Notebook.Book exposing (Book)
+import Notebook.Cell
+import Notebook.DataSet
 import Types exposing (..)
 import UILibrary.Button as Button
 import UILibrary.Color as Color
@@ -138,16 +137,6 @@ setClock model =
 resetClock : Element FrontendMsg
 resetClock =
     Button.smallPrimary { msg = Reset, status = Button.Active, label = Button.Text "Reset", tooltipText = Nothing }
-
-
-start : Element FrontendMsg
-start =
-    Button.smallPrimary { msg = Start, status = Button.Active, label = Button.Text "Start", tooltipText = Nothing }
-
-
-setState : Element FrontendMsg
-setState =
-    Button.largePrimary { msg = SetState, status = Button.Active, label = Button.Text "Set state", tooltipText = Nothing }
 
 
 clearValues : Element FrontendMsg
@@ -260,12 +249,12 @@ newDataSet =
     Button.largePrimary { msg = ChangePopup NewDataSetPopup, status = Button.Active, label = Button.Text "New Data Set", tooltipText = Nothing }
 
 
-editDataSet : LiveBook.DataSet.DataSetMetaData -> Element FrontendMsg
+editDataSet : Notebook.DataSet.DataSetMetaData -> Element FrontendMsg
 editDataSet dataSetDescripion =
     Button.smallPrimary { msg = ChangePopup (EditDataSetPopup dataSetDescripion), status = Button.Active, label = Button.Text "Edit", tooltipText = Nothing }
 
 
-lockCell : LiveBook.Types.Cell -> Element FrontendMsg
+lockCell : Notebook.Cell.Cell -> Element FrontendMsg
 lockCell cell =
     case cell.locked of
         True ->
@@ -275,17 +264,17 @@ lockCell cell =
             Button.smallPrimary { msg = ToggleCellLock cell, status = Button.Active, label = Button.Text "Unlocked", tooltipText = Just "Lock to prevent editing" }
 
 
-saveDataSetAsPublic : LiveBook.DataSet.DataSetMetaData -> Element FrontendMsg
+saveDataSetAsPublic : Notebook.DataSet.DataSetMetaData -> Element FrontendMsg
 saveDataSetAsPublic dataSetMeta =
     Button.largePrimary { msg = AskToSaveDataSet { dataSetMeta | public = True }, status = Button.Active, label = Button.Text "Save as public", tooltipText = Nothing }
 
 
-saveDataSetAsPrivate : LiveBook.DataSet.DataSetMetaData -> Element FrontendMsg
+saveDataSetAsPrivate : Notebook.DataSet.DataSetMetaData -> Element FrontendMsg
 saveDataSetAsPrivate dataSetMeta =
     Button.largePrimary { msg = AskToSaveDataSet { dataSetMeta | public = False }, status = Button.Active, label = Button.Text "Save as private", tooltipText = Nothing }
 
 
-deleteDataSet : LiveBook.DataSet.DataSetMetaData -> Element FrontendMsg
+deleteDataSet : Notebook.DataSet.DataSetMetaData -> Element FrontendMsg
 deleteDataSet dataSetMeta =
     Button.largePrimary { msg = AskToDeleteDataSet dataSetMeta, status = Button.Active, label = Button.Text "Delete", tooltipText = Nothing }
 

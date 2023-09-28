@@ -1,4 +1,4 @@
-module LiveBook.Parser exposing
+module Notebook.Parser exposing
     ( parse
     , parseRGBA
     , roundToFloatValue
@@ -10,7 +10,6 @@ module LiveBook.Parser exposing
 import Color
 import LiveBook.Function
 import Parser exposing ((|.), (|=), Parser)
-import Value exposing (Value(..))
 
 
 {-|
