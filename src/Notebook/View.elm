@@ -9,6 +9,7 @@ import Element.Input
 import List.Extra
 import Notebook.Book exposing (ViewData)
 import Notebook.Cell exposing (Cell, CellState(..), CellType(..), CellValue(..))
+import Notebook.ErrorReporter
 import Notebook.Utility as Utility
 import Types exposing (FrontendModel, FrontendMsg(..))
 import UILibrary.Button as Button
@@ -17,8 +18,8 @@ import View.Button exposing (runCell)
 import View.CellThemed
 
 
-view : ViewData -> String -> Cell -> Element FrontendMsg
-view viewData cellContents cell =
+view : ViewData -> Int -> Maybe (List Notebook.ErrorReporter.MessageItem) -> String -> Cell -> Element FrontendMsg
+view viewData currentCellIndex mReport cellContents cell =
     E.column
         [ E.paddingEach { top = 0, right = 0, bottom = 0, left = 0 }
         , E.width (E.px viewData.width)
@@ -26,13 +27,13 @@ view viewData cellContents cell =
         ]
         [ E.row
             [ E.width (E.px viewData.width) ]
-            [ viewSourceAndValue viewData cellContents cell
+            [ viewSourceAndValue viewData currentCellIndex mReport cellContents cell
             ]
         ]
 
 
-viewSourceAndValue : ViewData -> String -> Cell -> Element FrontendMsg
-viewSourceAndValue orignalviewData cellContents cell =
+viewSourceAndValue : ViewData -> Int -> Maybe (List Notebook.ErrorReporter.MessageItem) -> String -> Cell -> Element FrontendMsg
+viewSourceAndValue orignalviewData currentCellIndex mReport cellContents cell =
     let
         style =
             case ( cell.cellState, cell.tipe ) of
@@ -73,12 +74,8 @@ viewSourceAndValue orignalviewData cellContents cell =
     E.column ([ Background.color (Utility.cellColor cell.tipe), E.paddingXY 6 12, E.spacing 4 ] ++ style)
         [ E.el [ E.alignRight, Background.color (Utility.cellColor cell.tipe) ] (controls viewData.width cell)
         , viewSource (viewData.width - controlWidth) cell cellContents
-        , viewValue viewData cell
+        , viewValue viewData currentCellIndex mReport cell
         ]
-
-
-controlBGView =
-    Background.color (E.rgb255 220 220 255)
 
 
 controlBGEdit =
@@ -160,8 +157,46 @@ viewSource width cell cellContent =
                     editCell width cell cellContent
 
 
-viewValue : ViewData -> Cell -> Element FrontendMsg
-viewValue viewData cell =
+viewValue : ViewData -> Int -> Maybe (List Notebook.ErrorReporter.MessageItem) -> Cell -> Element FrontendMsg
+viewValue viewData currentCellIndex mReport cell =
+    let
+        _ =
+            Debug.log "Cell index" cell.index
+    in
+    case mReport of
+        Just report ->
+            if currentCellIndex == cell.index then
+                viewFailure viewData report
+
+            else
+                viewSuccess viewData cell
+
+        Nothing ->
+            viewSuccess viewData cell
+
+
+viewFailure : ViewData -> List Notebook.ErrorReporter.MessageItem -> Element FrontendMsg
+viewFailure viewData report =
+    render report
+
+
+render : List Notebook.ErrorReporter.MessageItem -> Element FrontendMsg
+render report =
+    E.column
+        [ E.paddingXY 8 8
+        , Font.color (E.rgb 0.9 0.9 0.9)
+        , Font.size 14
+        , E.width (E.px 600)
+        , E.height (E.px 400)
+        , E.scrollbarY
+        , E.spacing 8
+        , Background.color (E.rgb 0 0 0)
+        ]
+        (Notebook.ErrorReporter.prepareReport report)
+
+
+viewSuccess : ViewData -> Cell -> Element FrontendMsg
+viewSuccess viewData cell =
     let
         realWidth =
             viewData.width - controlWidth
@@ -348,7 +383,7 @@ scale factor x =
 
 
 editBGColor =
-    Background.color (E.rgb 0.4 0.4 0.5)
+    Background.color (E.rgb 0.2 0.2 0.35)
 
 
 editCell : Int -> Cell -> String -> Element FrontendMsg

@@ -1,6 +1,7 @@
 module Notebook.ErrorReporter exposing
     ( MessageItem(..)
     , decodeErrorReporter
+    , prepareReport
     , render
     , stringToMessageItem
     )

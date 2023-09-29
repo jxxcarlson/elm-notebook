@@ -14,10 +14,6 @@ type alias Model =
     Types.FrontendModel
 
 
-
--- evalCell : Int -> FrontendModel -> ( FrontendModel, Cmd FrontendMsg )
-
-
 processCell : Int -> Model -> ( Model, Cmd FrontendMsg )
 processCell cellIndex model =
     case List.Extra.getAt cellIndex model.currentBook.cells of

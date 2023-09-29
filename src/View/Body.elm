@@ -156,7 +156,7 @@ viewNotebook model user =
             , E.clipX
             ]
             (List.map
-                (Notebook.View.view viewData model.cellContent)
+                (Notebook.View.view viewData model.currentCellIndex model.report model.cellContent)
                 model.currentBook.cells
             )
         ]

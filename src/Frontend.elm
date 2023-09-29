@@ -72,7 +72,7 @@ init url key =
       , url = url
 
       -- NOTEBOOK (NEW)
-      , report = []
+      , report = Nothing
       , replData = Nothing
       , evalState = Notebook.Eval.initEmptyEvalState
       , message = "Welcome!"
@@ -164,13 +164,13 @@ update msg model =
             case result of
                 Ok str ->
                     if Notebook.Eval.hasReplError str then
-                        ( { model | report = Notebook.Eval.reportError (str |> Debug.log "ERROR REPORT") }, Cmd.none )
+                        ( { model | report = Just <| Notebook.Eval.reportError (str |> Debug.log "ERROR REPORT") }, Cmd.none )
 
                     else
-                        ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Ok" ] }, Ports.sendDataToJS str )
+                        ( { model | report = Nothing }, Ports.sendDataToJS str )
 
                 Err _ ->
-                    ( { model | report = [ Notebook.ErrorReporter.stringToMessageItem "Error" ] }, Cmd.none )
+                    ( { model | report = Just <| [ Notebook.ErrorReporter.stringToMessageItem "Error" ] }, Cmd.none )
 
         KeyboardMsg keyMsg ->
             let
