@@ -159,12 +159,12 @@ type FrontendMsg
     | AskToDeleteDataSet Notebook.DataSet.DataSetMetaData
       -- CELL
     | ToggleCellLock Cell
-    | NewCodeCell Int
-    | NewMarkdownCell Int
+    | NewCodeCell CellState Int
+    | NewMarkdownCell CellState Int
     | DeleteCell Int
     | EditCell Cell
     | ClearCell Int
-    | EvalCell Int
+    | EvalCell CellState Int
     | InputElmCode Int String
     | UpdateNotebookTitle
     | NewNotebook

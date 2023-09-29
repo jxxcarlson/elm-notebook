@@ -103,18 +103,22 @@ controls width_ cell =
                     [ E.spacing 2
                     , E.alignLeft
                     , E.height (E.px 32)
-                    , E.spacing 4
+                    , E.spacing 24
                     , E.paddingEach { top = 2, bottom = 2, left = 8, right = 4 }
                     ]
-                    [ newCodeCellAt cell.cellState cell.index
-                    , newMarkdownCellAt cell.cellState cell.index
-                    , runCell cell.tipe cell.index
+                    [ E.row [ E.spacing 6 ]
+                        [ newCodeCellAt cell.cellState cell.index
+                        , newMarkdownCellAt cell.cellState cell.index
+                        ]
+                    , E.row [ E.spacing 6 ]
+                        [ runCell CSEdit cell.tipe cell.index
+                        , runCell CSView cell.tipe cell.index
+                        ]
                     ]
                 , E.row
-                    [ E.spacing 2
+                    [ E.spacing 6
                     , E.alignRight
                     , E.height (E.px 32)
-                    , E.spacing 4
                     , E.paddingEach { top = 2, bottom = 2, left = 8, right = 4 }
                     ]
                     [ deleteCellAt cell.cellState cell.index
@@ -333,7 +337,7 @@ viewIndex cell =
                     Element.Events.onMouseDown (EditCell cell)
 
                 CSEdit ->
-                    Element.Events.onMouseDown (EvalCell cell.index)
+                    Element.Events.onMouseDown (EvalCell cell.cellState cell.index)
 
         padding =
             case cell.cellState of
@@ -346,6 +350,8 @@ viewIndex cell =
     E.el
         [ action
         , padding
+        , Font.color (E.rgb 0.1 0.1 0.7)
+        , E.paddingEach { left = 8, right = 4, top = 0, bottom = 0 }
         ]
         (E.text <| "Cell " ++ String.fromInt (cell.index + 1))
 
@@ -419,20 +425,40 @@ newCodeCellAt : CellState -> Int -> Element FrontendMsg
 newCodeCellAt cellState index =
     case cellState of
         CSView ->
-            Button.smallPrimary { msg = NewCodeCell index, status = Button.Active, label = Button.Text "New Code", tooltipText = Just "Insert  new cell" }
+            Button.smallPrimary { msg = NewCodeCell CSEdit index, status = Button.Active, label = Button.Text "New Code", tooltipText = Just "Insert  new cell" }
 
         CSEdit ->
-            Button.smallPrimary { msg = NewCodeCell index, status = Button.Active, label = Button.Text "New Code", tooltipText = Just "Insert  new cell" }
+            Button.smallPrimary { msg = NewCodeCell CSEdit index, status = Button.Active, label = Button.Text "New Code", tooltipText = Just "Insert  new cell" }
 
 
 newMarkdownCellAt : CellState -> Int -> Element FrontendMsg
 newMarkdownCellAt cellState index =
     case cellState of
         CSView ->
-            Button.smallPrimary { msg = NewMarkdownCell index, status = Button.Active, label = Button.Text "New Text", tooltipText = Just "Insert  new cell" }
+            Button.smallPrimary { msg = NewMarkdownCell CSEdit index, status = Button.Active, label = Button.Text "New Text", tooltipText = Just "Insert  new cell" }
 
         CSEdit ->
-            Button.smallPrimary { msg = NewMarkdownCell index, status = Button.Active, label = Button.Text "New Text", tooltipText = Just "Insert  new cell" }
+            Button.smallPrimary { msg = NewMarkdownCell CSEdit index, status = Button.Active, label = Button.Text "New Text", tooltipText = Just "Insert  new cell" }
+
+
+newCodeCellBangAt : CellState -> Int -> Element FrontendMsg
+newCodeCellBangAt cellState index =
+    case cellState of
+        CSView ->
+            Button.smallPrimary { msg = NewCodeCell CSView index, status = Button.Active, label = Button.Text "New Code", tooltipText = Just "Insert  new cell" }
+
+        CSEdit ->
+            Button.smallPrimary { msg = NewCodeCell CSView index, status = Button.Active, label = Button.Text "New Code", tooltipText = Just "Insert  new cell" }
+
+
+newMarkdownCellBangAt : CellState -> Int -> Element FrontendMsg
+newMarkdownCellBangAt cellState index =
+    case cellState of
+        CSView ->
+            Button.smallPrimary { msg = NewMarkdownCell CSView index, status = Button.Active, label = Button.Text "New Text", tooltipText = Just "Insert  new cell" }
+
+        CSEdit ->
+            Button.smallPrimary { msg = NewMarkdownCell CSView index, status = Button.Active, label = Button.Text "New Text", tooltipText = Just "Insert  new cell" }
 
 
 deleteCellAt : CellState -> Int -> Element FrontendMsg

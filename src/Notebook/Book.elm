@@ -1,4 +1,11 @@
-module Notebook.Book exposing (Book, ViewData, initializeCellState, new, scratchPad)
+module Notebook.Book exposing
+    ( Book
+    , ViewData
+    , initializeCellState
+    , new
+    , scratchPad
+    , setAllCellStates
+    )
 
 import Dict exposing (Dict)
 import Notebook.Cell exposing (Cell, CellState(..), CellType(..), CellValue(..))
@@ -146,3 +153,8 @@ type alias ViewData =
     , width : Int
     , ticks : Int
     }
+
+
+setAllCellStates : CellState -> Book -> Book
+setAllCellStates cellState book =
+    { book | cells = List.map (\cell -> { cell | cellState = cellState }) book.cells }

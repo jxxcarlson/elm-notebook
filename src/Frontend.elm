@@ -21,7 +21,7 @@ import Loading
 import Navigation
 import Notebook.Action
 import Notebook.Book exposing (Book)
-import Notebook.Cell exposing (CellType(..))
+import Notebook.Cell exposing (CellState(..), CellType(..))
 import Notebook.CellHelper
 import Notebook.Codec
 import Notebook.Config
@@ -180,7 +180,7 @@ update msg model =
 
                 ( newModel, cmd ) =
                     if List.member Keyboard.Control pressedKeys && List.member Keyboard.Enter pressedKeys then
-                        Notebook.EvalCell.processCell model.currentCellIndex { model | pressedKeys = pressedKeys }
+                        Notebook.EvalCell.processCell CSEdit model.currentCellIndex { model | pressedKeys = pressedKeys }
 
                     else
                         ( { model | pressedKeys = pressedKeys }, Cmd.none )
@@ -704,11 +704,11 @@ update msg model =
         InputElmCode index str ->
             ( Notebook.Update.updateCellText model index str, Cmd.none )
 
-        NewCodeCell index ->
-            Notebook.Update.makeNewCell model CTCode index
+        NewCodeCell cellState index ->
+            Notebook.Update.makeNewCell model cellState CTCode index
 
-        NewMarkdownCell index ->
-            Notebook.Update.makeNewCell model CTMarkdown index
+        NewMarkdownCell cellState index ->
+            Notebook.Update.makeNewCell model cellState CTMarkdown index
 
         DeleteCell index ->
             if List.length model.currentBook.cells <= 1 then
@@ -723,8 +723,8 @@ update msg model =
         ClearCell index ->
             Notebook.Update.clearCell model index
 
-        EvalCell index ->
-            Notebook.EvalCell.processCell model.currentCellIndex model
+        EvalCell cellState index ->
+            Notebook.EvalCell.processCell cellState model.currentCellIndex model
 
         -- NOTEBOOKS
         -- ADMIN

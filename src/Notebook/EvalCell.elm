@@ -3,7 +3,8 @@ module Notebook.EvalCell exposing (processCell)
 import Dict
 import Keyboard
 import List.Extra
-import Notebook.Cell as Cell exposing (Cell, CellType(..), CellValue(..))
+import Notebook.Book
+import Notebook.Cell as Cell exposing (Cell, CellState(..), CellType(..), CellValue(..))
 import Notebook.CellHelper
 import Notebook.Eval as Eval
 import Notebook.Types exposing (EvalState)
@@ -14,8 +15,17 @@ type alias Model =
     Types.FrontendModel
 
 
-processCell : Int -> Model -> ( Model, Cmd FrontendMsg )
-processCell cellIndex model =
+processCell : CellState -> Int -> Model -> ( Model, Cmd FrontendMsg )
+processCell cellState cellIndex model_ =
+    let
+        model =
+            case cellState of
+                CSEdit ->
+                    model_
+
+                CSView ->
+                    { model_ | currentBook = Notebook.Book.setAllCellStates CSView model_.currentBook }
+    in
     case List.Extra.getAt cellIndex model.currentBook.cells of
         Nothing ->
             ( model, Cmd.none )
@@ -23,13 +33,13 @@ processCell cellIndex model =
         Just cell_ ->
             case cell_.tipe of
                 Cell.CTCode ->
-                    processCode model cell_
+                    processCode model cellState cell_
 
                 Cell.CTMarkdown ->
-                    processMarkdown model cell_
+                    processMarkdown model cellState cell_
 
 
-processMarkdown model cell =
+processMarkdown model cellState cell =
     let
         _ =
             Debug.log "processMarkdown" cell.text
@@ -43,23 +53,23 @@ processMarkdown model cell =
     ( { model | currentBook = newBook }, Cmd.none )
 
 
-processCode model cell_ =
+processCode model cellState cell_ =
     case String.split "=" cell_.text of
         [] ->
             ( model, Cmd.none )
 
         expr :: [] ->
-            processExpr model expr
+            processExpr model cellState expr
 
         name :: expr :: [] ->
-            processNameAndExpr model name expr
+            processNameAndExpr model cellState name expr
 
         _ ->
             ( { model | pressedKeys = [] }, Cmd.none )
 
 
-processExpr : Model -> String -> ( Model, Cmd FrontendMsg )
-processExpr model expr =
+processExpr : Model -> CellState -> String -> ( Model, Cmd FrontendMsg )
+processExpr model cellState expr =
     if String.left 6 expr == ":clear" then
         processClearCmd model
 
@@ -102,8 +112,8 @@ processRemoveCmd model expr =
             ( { model | replData = Just { name = Nothing, value = key ++ ": not found", tipe = "" } }, Cmd.none )
 
 
-processNameAndExpr : Model -> String -> String -> ( Model, Cmd FrontendMsg )
-processNameAndExpr model name expr =
+processNameAndExpr : Model -> CellState -> String -> String -> ( Model, Cmd FrontendMsg )
+processNameAndExpr model cellState name expr =
     let
         newEvalState =
             Eval.insertDeclaration name (name ++ " = " ++ expr ++ "\n") model.evalState
